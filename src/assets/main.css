@@ -1,0 +1,13 @@
+@font-face {
+  font-family: 'Pretendard-Regular';
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff')
+    format('woff');
+  font-weight: 400; /*800,400 사용*/
+  font-style: normal;
+}
+
+/* 사용 예시 -> background-color: var(--Primary-Color); */
+:root {
+  --primary-color: #ffcc3c;
+  --secondary-color: #2a428c;
+}

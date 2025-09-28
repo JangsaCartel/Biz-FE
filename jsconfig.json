@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "vueCompilerOptions": {
+    "extensions": [".vue"]
+  },
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request: # PR 올릴 때마다 실행
+    branches: [dev, main]
+  push: # 직접 push 할 때도 실행
+    branches: [dev, main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Vite는 Node 16+ 권장, 보통 18 or 20
+
+      - name: Install dependencies
+        run: npm ci # package-lock.json 기반 빠른 설치
+
+      - name: Run Lint
+        run: npm run lint # eslint, prettier 검사
+
+      - name: Run Tests
+        run: npm run test --if-present # vitest/jest 등 있으면 실행
+
+      - name: Build project
+        run: npm run build

@@ -24,7 +24,7 @@ export default defineConfig({
       scss: {
         additionalData: `
           @use "sass:math";
-          @use "@/styles/utils/pxToRem" as *;
+          @use "@/assets/styles/utils/pxToRem" as *;
         `,
       },
     },

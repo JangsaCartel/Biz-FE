@@ -1,0 +1,17 @@
+@use "sass:math";
+
+// px 값을 rem 값으로 변환해주는 함수
+// $base-font-size는 기본 폰트 크기 (단위 없는 숫자 16)
+
+@function rem($pixels, $base-font-size: 16) {
+  // px 단위가 아니면 에러
+  @if unit($pixels) != 'px' {
+    @error "rem() 함수는 px 단위만 변환할 수 있습니다.";
+  }
+
+  // px 단위를 제거
+  $numeric-value: math.div($pixels, 1px);
+
+  // (픽셀 값 / 기본 폰트 크기) * 1rem
+  @return math.div($numeric-value, $base-font-size) * 1rem;
+}

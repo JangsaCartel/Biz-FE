@@ -19,4 +19,14 @@ export default defineConfig({
       },
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `
+          @use "sass:math";
+          @use "@/styles/utils/pxToRem" as *;
+        `,
+      },
+    },
+  },
 })

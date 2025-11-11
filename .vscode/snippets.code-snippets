@@ -10,7 +10,7 @@
       "  <div class=\"${TM_FILENAME_BASE}\">${1:}</div>",
       "</template>",
       "",
-      "<style scoped>",
+      "<style scoped lang=\"scss\">",
       "  .${TM_FILENAME_BASE} {",
       "    ",
       "  }",

@@ -3,8 +3,8 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 // 헤더, 네비바 가져오기
-import Header from '@/components/layouts/Header.vue'
-import Navbar from '@/components/layouts/Navbar.vue'
+import Header from '@/components/layouts/AppHeader.vue'
+import Navbar from '@/components/layouts/AppNavbar.vue'
 
 const route = useRoute()
 

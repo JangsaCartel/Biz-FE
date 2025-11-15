@@ -10,7 +10,7 @@ const onProfileClick = () => {
 <template>
   <div class="header-wrap">
     <div class="header-layout">
-      <router-link to="/home" class="header-logo">
+      <router-link to="/" class="header-logo">
         <img src="@/assets/icons/logo/logo.png" alt="Biz 로고" class="logo-image" />
       </router-link>
 

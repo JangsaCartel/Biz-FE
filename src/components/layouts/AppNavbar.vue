@@ -25,7 +25,7 @@ const navMenus = [
     text: '지도',
   },
   {
-    path: '/home',
+    path: '/',
     icon: HomeIcon,
     alt: '홈',
     text: '홈',

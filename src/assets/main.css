@@ -38,7 +38,7 @@
 
   /* Nav 색상 (투명도 포함) */
   /* 10% -> 16진수 '1A' / 25% -> 16진수 '40' */
-  --nav-bg: rgba(255, 188, 0, 0.1); /* #FFBC001A */
+  --nav-bg: #faf6ed; /* #FAF6ED */
   --nav-button: rgba(255, 231, 151, 0.25); /* #FFE79740 */
   --nav-button-active: #ffe797; /* 100% */
 

@@ -11,7 +11,7 @@ const onProfileClick = () => {
   <div class="header-wrap">
     <div class="header-layout">
       <router-link to="/home" class="header-logo">
-        <img src="@/assets/icons/logo/logo.png" alt="LIVIN 로고" class="logo-image" />
+        <img src="@/assets/icons/logo/logo.png" alt="Biz 로고" class="logo-image" />
       </router-link>
 
       <div class="header-icons">
@@ -63,7 +63,7 @@ const onProfileClick = () => {
     width: 100%;
     height: 100%;
     background-color: var(--signature-color);
-    opacity: 0.75;
+    opacity: 1; // 헤더 배경 투명도 기존 0.85에서 1로 변경
     z-index: -1;
   }
 }

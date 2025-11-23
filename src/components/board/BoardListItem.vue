@@ -46,22 +46,35 @@ const router = useRouter()
 // 게시판 정보 (색상 및 이름 매핑)
 const boardInfo = computed(() => {
   const categoryMap = {
-    1: { name: 'HOT', color: '#FF6B6C' },
-    2: { name: '자유', color: '#FFC145' },
-    3: { name: '정보공유', color: '#2A428C' },
-    4: { name: '우리 동네', color: '#2E6955' },
+    hot: { name: 'HOT', color: '#FF6B6C' },
+    free: { name: '자유', color: '#FFC145' },
+    info: { name: '정보공유', color: '#2A428C' },
+    local: { name: '우리 동네', color: '#2E6955' },
   }
   return (
-    categoryMap[Number(props.boardCategory)] || {
+    categoryMap[props.boardCategory] || {
       name: '게시판',
       color: '#333333',
     }
   )
 })
 
+// 게시판 라우트 정보
+const boardRouteInfo = computed(() => {
+  const routeMap = {
+    hot: { path: '/hot', id: 1 },
+    free: { path: '/free', id: 2 },
+    info: { path: '/info', id: 3 },
+    local: { path: '/local', id: 4 },
+  }
+  return routeMap[props.boardCategory]
+})
+
 // 더보기 버튼 클릭 시 해당 게시판 목록으로 이동
 const goToBoardPage = () => {
-  router.push(`/board/category/${props.boardCategory}`)
+  if (boardRouteInfo.value) {
+    router.push(boardRouteInfo.value.path)
+  }
 }
 
 // 개별 게시글 클릭 시 상세 페이지 이동

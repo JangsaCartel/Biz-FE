@@ -101,7 +101,7 @@ const isActive = computed(() => (menu) => {
   height: 100%;
   display: flex;
   justify-content: space-between;
-  align: items-center;
+  align-items: center;
 }
 
 .icon-box {

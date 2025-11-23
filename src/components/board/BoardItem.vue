@@ -44,32 +44,32 @@ const goToDetailPage = () => {
 /* 박스 전체 컨테이너 */
 .hot-board-container {
   width: 100%;
-  max-width: 400px; /* 필요에 따라 조절 */
+  max-width: 400px;
   margin: 20px auto;
-  font-family: 'Pretendard', sans-serif; /* 폰트가 있다면 적용 권장 */
+  font-family: 'Pretendard', sans-serif;
 }
 
 /* 제목 + 더보기 버튼 헤더 */
 .hot-board-header {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* 수직 중앙 정렬 */
-  margin-bottom: 12px; /* 리스트와의 간격 */
-  padding: 0 4px; /* 헤더 좌우 살짝 여백 */
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 4px;
 }
 
 /* HOT 게시글 제목 (색상 변수 유지) */
 .hot-board-title {
-  color: var(--board-hot); /* 기존 변수 유지 */
-  font-size: 1.25rem; /* 크기 조절 */
-  font-weight: 800; /* 굵게 */
+  color: var(--board-hot);
+  font-size: 1.25rem;
+  font-weight: 800;
   margin: 0;
 }
 
 /* 더보기 버튼 */
 .more-button {
   font-size: 0.85rem;
-  color: #888; /* 연한 회색 */
+  color: #888;
   background: none;
   border: none;
   cursor: pointer;
@@ -84,9 +84,9 @@ const goToDetailPage = () => {
 
 /* 게시글 목록 (카드 형태) */
 .hot-posts-list {
-  background-color: #f9f9f9; /* 사진처럼 아주 연한 회색/흰색 */
-  border-radius: 16px; /* 둥근 모서리 강조 */
-  padding: 0 20px; /* 리스트 내부 좌우 여백 */
+  background-color: #f9f9f9;
+  border-radius: 16px;
+  padding: 0 20px;
   margin: 0;
   list-style: none;
 }
@@ -96,8 +96,8 @@ const goToDetailPage = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 0; /* 상하 여백만 줌 (좌우는 리스트가 담당) */
-  border-bottom: 1px solid #e0e0e0; /* 연한 구분선 */
+  padding: 14px 0;
+  border-bottom: 1px solid #e0e0e0;
   color: #333;
 }
 
@@ -109,18 +109,18 @@ const goToDetailPage = () => {
 /* 게시글 제목 */
 .post-title {
   flex-grow: 1;
-  font-weight: 700; /* 제목 굵게 */
+  font-weight: 700;
   font-size: 0.95rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-right: 10px; /* 아이콘들과의 간격 */
+  margin-right: 10px;
 }
 
 /* 댓글, 좋아요 수 영역 */
 .post-stats {
   display: flex;
-  gap: 10px; /* 아이콘 그룹 간 간격 좁힘 */
+  gap: 10px;
   font-size: 0.85rem;
   color: #333;
   font-weight: 500;
@@ -132,18 +132,18 @@ const goToDetailPage = () => {
   align-items: center;
 }
 
-/* 아이콘 스타일 (기존 유지하되 위치 조정) */
+/* 아이콘 스타일 */
 .like-icon::before {
   content: '';
   display: inline-block;
-  width: 16px; /* 아이콘 크기 살짝 키움 */
+  width: 16px;
   height: 16px;
   background-image: url('/src/assets/icons/board/like.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
   margin-right: 4px;
-  transform: translateY(-1px); /* 시각적 높이 보정 */
+  transform: translateY(-1px);
 }
 
 .comment-icon::before {
@@ -156,6 +156,6 @@ const goToDetailPage = () => {
   background-repeat: no-repeat;
   background-position: center;
   margin-right: 4px;
-  transform: translateY(-1px); /* 시각적 높이 보정 */
+  transform: translateY(-1px);
 }
 </style>

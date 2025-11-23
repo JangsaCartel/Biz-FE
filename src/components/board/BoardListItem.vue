@@ -6,11 +6,16 @@
     </div>
 
     <ul class="post-list">
-      <li v-for="post in posts" :key="post.id" class="post-item" @click="goToDetailPage(post.id)">
+      <li
+        v-for="post in posts"
+        :key="post.post_id"
+        class="post-item"
+        @click="goToDetailPage(post.post_id)"
+      >
         <span class="post-title">{{ post.title }}</span>
         <div class="post-stats">
-          <span class="stat-item like-icon">{{ post.likes }}</span>
-          <span class="stat-item comment-icon">{{ post.comments }}</span>
+          <span class="stat-item like-icon">{{ post.like_count }}</span>
+          <span class="stat-item comment-icon">{{ post.comment_count }}</span>
         </div>
       </li>
       <li v-if="posts.length === 0" class="post-item no-data">게시글이 없습니다.</li>
@@ -23,7 +28,7 @@ import { defineProps, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
-  // 게시판 카테고리 (1: HOT, 2: 자유, 3: 정보공유 등)
+  // 게시판 카테고리
   boardCategory: {
     type: [String, Number],
     required: true,
@@ -32,17 +37,17 @@ const props = defineProps({
   posts: {
     type: Array,
     default: () => [],
-    // 예시 데이터 형태: [{ id: 1, title: '제목', likes: 10, comments: 2 }]
+    // 예시 데이터 형태: [{ post_id: 1, title: '제목', like_count: 10, comment_count: 2 }]
   },
 })
 
 const router = useRouter()
 
-// 게시판 정보 (색상 및 이름 매핑) - 작성하신 로직 유지
+// 게시판 정보 (색상 및 이름 매핑)
 const boardInfo = computed(() => {
   const categoryMap = {
-    1: { name: 'HOT', color: '#FF6B6C' }, // 사진의 붉은색
-    2: { name: '자유', color: '#FFC145' }, // 사진의 노란색
+    1: { name: 'HOT', color: '#FF6B6C' },
+    2: { name: '자유', color: '#FFC145' },
     3: { name: '정보공유', color: '#2A428C' },
     4: { name: '우리 동네', color: '#2E6955' },
   }
@@ -72,7 +77,7 @@ const goToDetailPage = (id) => {
 .board-widget-container {
   width: 100%;
   max-width: 400px;
-  margin: 20px auto;
+  margin: 10px auto;
   font-family: 'Pretendard', sans-serif;
 }
 

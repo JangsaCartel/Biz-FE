@@ -8,6 +8,7 @@ import hotRoutes from './hot'
 import mapRoutes from './map'
 import aiRoutes from './ai'
 import policyRoutes from './policy'
+import boardRoutes from './board'
 import testRoutes from './test'
 import NotFoundPage from '@/pages/error/NotFoundPage.vue'
 
@@ -23,12 +24,10 @@ const router = createRouter({
         ...mapRoutes,
         ...aiRoutes,
         ...policyRoutes,
+        ...boardRoutes,
         ...testRoutes,
       ],
     },
-    // Catch-all 라우트
-    // 위에서 정의된 어떤 경로와도 일치하지 않을 경우, 이 라우트 사용
-    // ** index.js 라우터 주소 수정시, 반드시 routes 배열의 맨 마지막에 위치하도록 수정 **
     {
       path: '/:pathMatch(.*)*',
       name: 'notFound',

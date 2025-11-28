@@ -4,133 +4,83 @@ import axios from 'axios'
 export const useBoardStore = defineStore('board', {
   state: () => ({
     postsByCagetory: {},
+    hotPosts: [],
     freePosts: [],
+    infoPosts: [],
+    localPosts: [],
+    hotPostsTotal: 0,
+    freePostsTotal: 0,
+    infoPostsTotal: 0,
+    localPostsTotal: 0,
   }),
   getters: {
     getCategorizedPosts: (state) => state.postsByCagetory,
+    getHotBoardPosts: (state) => state.hotPosts,
     getFreeBoardPosts: (state) => state.freePosts,
+    getInfoBoardPosts: (state) => state.infoPosts,
+    getLocalBoardPosts: (state) => state.localPosts,
+    getHotBoardTotal: (state) => state.hotPostsTotal,
+    getFreeBoardTotal: (state) => state.freePostsTotal,
+    getInfoBoardTotal: (state) => state.infoPostsTotal,
+    getLocalBoardTotal: (state) => state.localPostsTotal,
   },
   actions: {
     async fetchPosts() {
       try {
-        // API URL을 백엔드 엔드포인트에 맞게 수정
-        const response = await axios.get('/api/') // 수정된 URL
+        const response = await axios.get('/api/')
         this.postsByCagetory = response.data
       } catch (error) {
         console.error('Error fetching posts:', error)
-        // 데모용 테스트 데이터 (API 구조와 일치하도록 수정)
         this.postsByCagetory = {
-          hot: [
-            {
-              post_id: 101,
-              title: 'HOT 게시글 1 (테스트 데이터)',
-              like_count: 99,
-              comment_count: 23,
-            },
-            {
-              post_id: 102,
-              title: 'HOT 게시글 2 (테스트 데이터)',
-              like_count: 88,
-              comment_count: 12,
-            },
-            {
-              post_id: 103,
-              title: 'HOT 게시글 3 (테스트 데이터)',
-              like_count: 77,
-              comment_count: 31,
-            },
-          ],
-          free: [
-            {
-              post_id: 201,
-              title: '자유 게시글 1 (테스트 데이터)',
-              like_count: 10,
-              comment_count: 5,
-            },
-            {
-              post_id: 202,
-              title: '자유 게시글 2 (테스트 데이터)',
-              like_count: 8,
-              comment_count: 3,
-            },
-            {
-              post_id: 203,
-              title: '자유 게시글 3 (테스트 데이터)',
-              like_count: 12,
-              comment_count: 8,
-            },
-          ],
-          info: [
-            {
-              post_id: 301,
-              title: '정보 게시글 1 (테스트 데이터)',
-              like_count: 15,
-              comment_count: 51,
-            },
-            {
-              post_id: 302,
-              title: '정보 게시글 2 (테스트 데이터)',
-              like_count: 45,
-              comment_count: 3,
-            },
-            {
-              post_id: 303,
-              title: '정보 게시글 3 (테스트 데이터)',
-              like_count: 2,
-              comment_count: 8,
-            },
-          ],
-          local: [
-            {
-              post_id: 401,
-              title: '우리동네 게시글 1 (테스트 데이터)',
-              like_count: 16,
-              comment_count: 15,
-            },
-            {
-              post_id: 402,
-              title: '우리동네 게시글 2 (테스트 데이터)',
-              like_count: 18,
-              comment_count: 31,
-            },
-            {
-              post_id: 403,
-              title: '우리동네 게시글 3 (테스트 데이터)',
-              like_count: 2,
-              comment_count: 18,
-            },
-          ],
+          hot: [],
+          free: [],
+          info: [],
+          local: [],
         }
+      }
+    },
+    async fetchHotBoardPosts(page = 1) {
+      try {
+        const response = await axios.get(`/api/hot?page=${page}`)
+        this.hotPosts = response.data.posts
+        this.hotPostsTotal = response.data.totalCount
+      } catch (error) {
+        console.error('Error fetching hot board posts:', error)
+        this.hotPosts = []
+        this.hotPostsTotal = 0
       }
     },
     async fetchFreeBoardPosts(page = 1) {
       try {
         const response = await axios.get(`/api/free?page=${page}`)
-        this.freePosts = response.data
+        this.freePosts = response.data.posts
+        this.freePostsTotal = response.data.totalCount
       } catch (error) {
         console.error('Error fetching free board posts:', error)
-        this.freePosts = [
-          {
-            post_id: 201,
-            title: '자유 게시글 1 (테스트 데이터)',
-            like_count: 10,
-            comment_count: 5,
-          },
-          { post_id: 202, title: '자유 게시글 2 (테스트 데이터)', like_count: 8, comment_count: 3 },
-          {
-            post_id: 203,
-            title: '자유 게시글 3 (테스트 데이터)',
-            like_count: 12,
-            comment_count: 8,
-          },
-          {
-            post_id: 204,
-            title: '자유 게시글 4 (테스트 데이터)',
-            like_count: 15,
-            comment_count: 7,
-          },
-          { post_id: 205, title: '자유 게시글 5 (테스트 데이터)', like_count: 2, comment_count: 1 },
-        ]
+        this.freePosts = []
+        this.freePostsTotal = 0
+      }
+    },
+    async fetchInfoBoardPosts(page = 1) {
+      try {
+        const response = await axios.get(`/api/info?page=${page}`)
+        this.infoPosts = response.data.posts
+        this.infoPostsTotal = response.data.totalCount
+      } catch (error) {
+        console.error('Error fetching info board posts:', error)
+        this.infoPosts = []
+        this.infoPostsTotal = 0
+      }
+    },
+    async fetchLocalBoardPosts(page = 1) {
+      try {
+        const response = await axios.get(`/api/local?page=${page}`)
+        this.localPosts = response.data.posts
+        this.localPostsTotal = response.data.totalCount
+      } catch (error) {
+        console.error('Error fetching local board posts:', error)
+        this.localPosts = []
+        this.localPostsTotal = 0
       }
     },
   },

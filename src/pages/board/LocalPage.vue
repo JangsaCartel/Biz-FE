@@ -52,7 +52,7 @@ const handlePageChange = (page) => {
 }
 
 const goToWritePage = () => {
-  router.push('/board/write')
+  router.push({ name: 'writePost', params: { category: 'local' } })
 }
 </script>
 

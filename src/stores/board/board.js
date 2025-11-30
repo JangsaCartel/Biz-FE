@@ -83,5 +83,13 @@ export const useBoardStore = defineStore('board', {
         this.localPostsTotal = 0
       }
     },
+    async createPost(postData) {
+      try {
+        const response = await axios.post('/api/posts', postData)
+        console.log('Post created successfully:', response.data)
+      } catch (error) {
+        console.error('Error creating post:', error)
+      }
+    },
   },
 })

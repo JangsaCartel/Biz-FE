@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { loginWithKakaoCode } from '@/services/authApi'
 import {
@@ -12,7 +12,12 @@ import {
 const router = useRouter()
 const route = useRoute()
 
+const isProcessing = ref(false) // 플래그 추가
+
 const handleLogin = async () => {
+  if (isProcessing.value) return // 이미 처리 중이면 중단
+  isProcessing.value = true // 처리 시작
+
   const code = route.query.code
 
   if (!code) {
@@ -51,7 +56,8 @@ const handleLogin = async () => {
     router.replace({ name: 'login' })
   } catch (e) {
     console.error('Kakao login failed', e)
-    router.replace({ name: 'login' })
+    alert('에러 발생! 콘솔을 확인하세요: ' + e.message) // 튕기지 말고 경고창 띄움
+    // router.replace({ name: 'login' }) // 잠시 주석 처리
   }
 }
 
@@ -81,5 +87,3 @@ onMounted(() => {
   color: var(--text-subtitle);
 }
 </style>
-
-

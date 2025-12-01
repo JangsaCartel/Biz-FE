@@ -14,8 +14,9 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': {
+      '/biz-be': {
         target: 'http://localhost:8080',
+        changeOrigin: true,
       },
     },
   },

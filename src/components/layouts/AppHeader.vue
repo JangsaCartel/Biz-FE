@@ -1,9 +1,22 @@
 <script setup>
+import { useRouter } from 'vue-router'
+import { clearTokens, clearRegisterToken, clearPostLoginRedirect } from '@/services/tokenStorage'
+
+const router = useRouter()
+
 const onAlarmClick = () => {
   alert('알림 클릭!')
 }
+
 const onProfileClick = () => {
   alert('프로필 클릭!')
+}
+
+const onLogoutClick = () => {
+  clearTokens()
+  clearRegisterToken()
+  clearPostLoginRedirect()
+  router.replace({ name: 'login' })
 }
 </script>
 
@@ -15,6 +28,9 @@ const onProfileClick = () => {
       </router-link>
 
       <div class="header-icons">
+        <!-- 임시 로그아웃 버튼 (프로필 페이지 완성 후 제거 예정) -->
+        <button class="logout-button" @click="onLogoutClick">로그아웃</button>
+        <!-- TODO: 추후 로그인 상태에 따라 다른 UI(로그인/마이페이지 등)로 변경 -->
         <button class="icon-button" @click="onAlarmClick">
           <img src="@/assets/icons/alarm/alarm.png" alt="알림" class="icon-image" />
         </button>
@@ -83,6 +99,16 @@ const onProfileClick = () => {
   display: flex;
   align-items: center;
   gap: rem(12px);
+}
+
+.logout-button {
+  padding: rem(4px) rem(8px);
+  border-radius: rem(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: transparent;
+  color: #fff;
+  font-size: rem(12px);
+  cursor: pointer;
 }
 
 .icon-button {

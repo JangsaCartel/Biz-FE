@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue' // ref 추가 필수
 import { useRouter, useRoute } from 'vue-router'
 import { loginWithKakaoCode } from '@/services/authApi'
 import {
@@ -12,11 +12,13 @@ import {
 const router = useRouter()
 const route = useRoute()
 
-const isProcessing = ref(false) // 플래그 추가
+// 중복 요청 방지 플래그
+const isProcessing = ref(false)
 
 const handleLogin = async () => {
-  if (isProcessing.value) return // 이미 처리 중이면 중단
-  isProcessing.value = true // 처리 시작
+  // 1. 이미 처리 중이라면 함수 종료 (중복 실행 방지)
+  if (isProcessing.value) return
+  isProcessing.value = true
 
   const code = route.query.code
 
@@ -28,11 +30,11 @@ const handleLogin = async () => {
   try {
     const res = await loginWithKakaoCode(code)
 
+    // [CASE 1] 신규 회원 -> 회원가입 페이지로 이동
     if (res.status === 'NEED_SIGNUP') {
       if (res.registerToken) {
         saveRegisterToken(res.registerToken)
       }
-
       router.replace({
         name: 'signup',
         query: {
@@ -42,6 +44,7 @@ const handleLogin = async () => {
       return
     }
 
+    // [CASE 2] 기존 회원 -> 로그인 성공 -> 홈으로 이동
     if (res.status === 'LOGIN_SUCCESS') {
       if (res.accessToken && res.refreshToken) {
         saveTokens(res.accessToken, res.refreshToken)
@@ -53,11 +56,16 @@ const handleLogin = async () => {
       return
     }
 
+    // 예외 상황
     router.replace({ name: 'login' })
   } catch (e) {
     console.error('Kakao login failed', e)
-    alert('에러 발생! 콘솔을 확인하세요: ' + e.message) // 튕기지 말고 경고창 띄움
-    // router.replace({ name: 'login' }) // 잠시 주석 처리
+    alert('로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.')
+    router.replace({ name: 'login' })
+  } finally {
+    // 처리가 끝나면 락 해제 (필요한 경우)
+    // isProcessing.value = false
+    // 여기서는 페이지가 이동되므로 굳이 false로 돌릴 필요 없음
   }
 }
 

@@ -37,29 +37,37 @@ const showNav = computed(() => visableNav.includes(route.name))
 @use '@/assets/styles/utils/_pxToRem.scss' as *;
 
 .layout-wrapper {
+  /* ✅ 뷰포트에 고정된 ‘앱 프레임’ */
+  position: fixed;
+  inset: 0; /* top:0; right:0; bottom:0; left:0 */
   margin: 0 auto;
-  /* ★ 아이폰 15 Pro Max 너비 적용 */
   max-width: rem(430px);
   width: 100%;
-  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
 
   /* main.css의 기본 배경색 적용 */
   background-color: var(--bg-default);
-
-  /* 고정 헤더(56px)와 네비바(70px)에
-    내용이 가려지지 않도록 패딩 추가
-  */
-  padding-top: rem(56px);
-  padding-bottom: rem(70px);
 }
 
+/* 가운데 영역만 스크롤 */
 .slot-container {
-  /* 페이지 내용이 흰색 배경을 갖도록 */
-  background-color: var(--bg-partition); /* */
+  flex: 1;
   width: 100%;
-  /* 레이아웃 래퍼의 min-height(100vh)에서
-    패딩값을 뺀 실제 화면 높이를 채우도록 설정
-  */
-  min-height: calc(100vh - rem(56px) - rem(70px));
+  box-sizing: border-box;
+
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  background-color: var(--bg-partition);
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  /* 파이어폭스 */
+  scrollbar-width: none;
+
+  /* IE, 옛 엣지 */
+  -ms-overflow-style: none;
 }
 </style>

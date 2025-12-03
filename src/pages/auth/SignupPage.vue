@@ -73,6 +73,13 @@ watch([selectedYear, selectedMonth, selectedDay], () => {
   }
 })
 
+const BUSINESS_REG_NO_LENGTH = 10
+
+const handleBusinessRegNoInput = (event) => {
+  const onlyDigits = event.target.value.replace(/\D/g, '')
+  businessRegNo.value = onlyDigits.slice(0, BUSINESS_REG_NO_LENGTH)
+}
+
 const businessTypeOptions = [
   { label: '한식', value: 1 },
   { label: '중식', value: 2 },
@@ -94,7 +101,13 @@ onMounted(() => {
 })
 
 const validateStepOne = () => {
-  stepOneErrors.value.businessRegNo = businessRegNo.value ? '' : '사업자 등록번호를 입력해주세요.'
+  if (!businessRegNo.value) {
+    stepOneErrors.value.businessRegNo = '사업자 등록번호를 입력해주세요.'
+  } else if (businessRegNo.value.length !== BUSINESS_REG_NO_LENGTH) {
+    stepOneErrors.value.businessRegNo = `사업자 등록번호는 ${BUSINESS_REG_NO_LENGTH}자리 숫자여야 합니다.`
+  } else {
+    stepOneErrors.value.businessRegNo = ''
+  }
   stepOneErrors.value.businessStartDate = businessStartDate.value
     ? ''
     : '확인되는 정보가 없습니다. 날짜를 다시 선택해주세요.'
@@ -195,6 +208,7 @@ const onSubmit = async () => {
             class="form-input"
             placeholder="숫자만 입력"
             inputmode="numeric"
+            @input="handleBusinessRegNoInput"
           />
           <p v-if="stepOneErrors.businessRegNo" class="error-text">
             {{ stepOneErrors.businessRegNo }}

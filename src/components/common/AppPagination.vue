@@ -53,43 +53,46 @@ const props = defineProps({
 
 const emit = defineEmits(['page-change'])
 
-// 전체 페이지 수 계산
 const totalPages = computed(() => {
   if (props.totalItems === 0) return 1
   return Math.ceil(props.totalItems / props.pageSize)
 })
 
-// *** 핵심: 이미지 같은 '...' 페이지네이션 로직 ***
 const displayedPages = computed(() => {
   const total = totalPages.value
   const current = props.currentPage
-  const delta = 2
-  const range = []
-  const rangeWithDots = []
-  let l
+  const pageRange = []
 
-  range.push(1)
-
-  for (let i = current - delta; i <= current + delta; i++) {
-    if (i < total && i > 1) {
-      range.push(i)
-    }
-  }
-  range.push(total)
-
-  for (let i of range) {
-    if (l) {
-      if (i - l === 2) {
-        rangeWithDots.push(l + 1)
-      } else if (i - l !== 1) {
-        rangeWithDots.push('...')
-      }
-    }
-    rangeWithDots.push(i)
-    l = i
+  if (total === 1) {
+    return [1]
   }
 
-  return rangeWithDots
+  if (total <= 5) {
+    for (let i = 1; i <= total; i++) {
+      pageRange.push(i)
+    }
+    return pageRange
+  }
+
+  if (current <= 5) {
+    for (let i = 1; i <= 5; i++) {
+      pageRange.push(i)
+    }
+    pageRange.push('...')
+    pageRange.push(total)
+    return pageRange
+  } else {
+    pageRange.push(1)
+    pageRange.push('...')
+    pageRange.push(current)
+
+    if (current < total) {
+      pageRange.push('...')
+      pageRange.push(total)
+    }
+
+    return pageRange
+  }
 })
 
 const changePage = (page) => {
@@ -127,20 +130,17 @@ const changePage = (page) => {
   transition: all 0.2s;
 }
 
-/* 마우스 올렸을 때 */
 .page-btn:hover:not(.active):not(:disabled) {
   background-color: #f0f0f0;
   color: #333;
 }
 
-/* 활성화 된 페이지 */
 .page-btn.active {
   background-color: #ffe082;
   color: #000;
   font-weight: 700;
 }
 
-/* 이전/다음 화살표 버튼 */
 .prev-next {
   font-family: monospace;
   font-size: 1.1rem;
@@ -152,7 +152,6 @@ const changePage = (page) => {
   cursor: not-allowed;
 }
 
-/* 점 (...) 스타일 */
 .dots {
   padding: 0 5px;
   color: #999;

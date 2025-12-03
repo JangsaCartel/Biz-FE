@@ -3,8 +3,8 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { signupWithExtraInfo } from '@/services/authApi'
 import {
-  getRegisterToken,
-  clearRegisterToken,
+  getProviderId,
+  clearProviderId,
   saveTokens,
   getPostLoginRedirect,
   clearPostLoginRedirect,
@@ -87,8 +87,8 @@ onMounted(() => {
     nickname.value = tempNickname
   }
 
-  const registerToken = getRegisterToken()
-  if (!registerToken) {
+  const providerId = getProviderId()
+  if (!providerId) {
     router.replace({ name: 'login' })
   }
 })
@@ -127,15 +127,15 @@ const handlePrevStep = () => {
 }
 
 const handleBackToLogin = () => {
-  clearRegisterToken()
+  clearProviderId()
   router.replace({ name: 'login' })
 }
 
 const onSubmit = async () => {
   globalError.value = ''
 
-  const registerToken = getRegisterToken()
-  if (!registerToken) {
+  const providerId = getProviderId()
+  if (!providerId) {
     router.replace({ name: 'login' })
     return
   }
@@ -155,10 +155,11 @@ const onSubmit = async () => {
       businessStartDate: businessStartDate.value,
     }
 
-    const res = await signupWithExtraInfo(payload, registerToken)
-    if (res.accessToken && res.refreshToken) {
+    const res = await signupWithExtraInfo(payload, providerId)
+    if (res.status === 'LOGIN_SUCCESS' && res.accessToken) {
+      // 회원가입 완료 후 로그인 성공 응답
       saveTokens(res.accessToken, res.refreshToken)
-      clearRegisterToken()
+      clearProviderId()
       const storedRedirect = getPostLoginRedirect()
       const redirectTarget = storedRedirect && storedRedirect.startsWith('/') ? storedRedirect : '/'
       clearPostLoginRedirect()

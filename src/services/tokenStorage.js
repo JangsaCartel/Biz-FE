@@ -1,6 +1,7 @@
 const ACCESS_TOKEN_KEY = 'accessToken'
 const REFRESH_TOKEN_KEY = 'refreshToken'
 const REGISTER_TOKEN_KEY = 'registerToken'
+const PROVIDER_ID_KEY = 'providerId'
 const POST_LOGIN_REDIRECT_KEY = 'postLoginRedirect'
 
 export function saveTokens(accessToken, refreshToken) {
@@ -35,6 +36,21 @@ export function clearRegisterToken() {
   window.sessionStorage.removeItem(REGISTER_TOKEN_KEY)
 }
 
+// 신규 회원가입 플로우에서 사용할 providerId 저장
+export function saveProviderId(providerId) {
+  if (typeof providerId === 'string' && providerId.length > 0) {
+    window.sessionStorage.setItem(PROVIDER_ID_KEY, providerId)
+  }
+}
+
+export function getProviderId() {
+  return window.sessionStorage.getItem(PROVIDER_ID_KEY)
+}
+
+export function clearProviderId() {
+  window.sessionStorage.removeItem(PROVIDER_ID_KEY)
+}
+
 export function savePostLoginRedirect(path) {
   if (typeof path === 'string') {
     window.sessionStorage.setItem(POST_LOGIN_REDIRECT_KEY, path)
@@ -48,5 +64,3 @@ export function getPostLoginRedirect() {
 export function clearPostLoginRedirect() {
   window.sessionStorage.removeItem(POST_LOGIN_REDIRECT_KEY)
 }
-
-

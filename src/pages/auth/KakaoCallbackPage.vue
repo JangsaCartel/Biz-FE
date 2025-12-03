@@ -1,10 +1,14 @@
+<script>
+let isGlobalProcessing = false
+</script>
+
 <script setup>
-import { onMounted, ref } from 'vue' // ref 추가 필수
+import { onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { loginWithKakaoCode } from '@/services/authApi'
 import {
   saveTokens,
-  saveRegisterToken,
+  saveProviderId,
   getPostLoginRedirect,
   clearPostLoginRedirect,
 } from '@/services/tokenStorage'
@@ -12,41 +16,45 @@ import {
 const router = useRouter()
 const route = useRoute()
 
-// 중복 요청 방지 플래그
-const isProcessing = ref(false)
-
 const handleLogin = async () => {
-  // 1. 이미 처리 중이라면 함수 종료 (중복 실행 방지)
-  if (isProcessing.value) return
-  isProcessing.value = true
-
   const code = route.query.code
 
+  // 코드 없으면 복귀
   if (!code) {
     router.replace({ name: 'login' })
     return
   }
 
+  // 이미 처리 중이면 절대 실행하지 않음 (이중 방어)
+  if (isGlobalProcessing) {
+    console.log('중복 요청 방지: 이미 로그인 처리 중입니다.')
+    return
+  }
+
+  // 락 걸기
+  isGlobalProcessing = true
+
   try {
+    console.log('카카오 로그인 요청 시작... code:', code.substring(0, 10) + '...')
     const res = await loginWithKakaoCode(code)
 
-    // [CASE 1] 신규 회원 -> 회원가입 페이지로 이동
+    // [CASE 1] 신규 회원 -> 회원가입 페이지
     if (res.status === 'NEED_SIGNUP') {
-      if (res.registerToken) {
-        saveRegisterToken(res.registerToken)
+      if (res.providerId) {
+        saveProviderId(res.providerId)
       }
       router.replace({
         name: 'signup',
-        query: {
-          tempNickname: res.tempNickname || '',
-        },
+        // 향후 백엔드에서 tempNickname 등을 내려줄 경우를 대비해 남겨둠
+        query: { tempNickname: res.tempNickname || '' },
       })
       return
     }
 
-    // [CASE 2] 기존 회원 -> 로그인 성공 -> 홈으로 이동
+    // [CASE 2] 기존 회원 -> 로그인 성공
     if (res.status === 'LOGIN_SUCCESS') {
-      if (res.accessToken && res.refreshToken) {
+      if (res.accessToken) {
+        // refreshToken 은 선택값이므로 있어도 되고 없어도 됨
         saveTokens(res.accessToken, res.refreshToken)
       }
       const storedRedirect = getPostLoginRedirect()
@@ -56,16 +64,20 @@ const handleLogin = async () => {
       return
     }
 
-    // 예외 상황
+    // 그 외 상태
     router.replace({ name: 'login' })
   } catch (e) {
     console.error('Kakao login failed', e)
-    alert('로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.')
+    // 500 에러가 나더라도, 혹시 첫 번째 요청이 성공했을 수도 있으니
+    // 무조건 튕기기보다는 개발 중엔 alert로 확인하는 게 좋습니다.
+    // alert("로그인 처리 중 에러 발생: " + e.message)
     router.replace({ name: 'login' })
   } finally {
-    // 처리가 끝나면 락 해제 (필요한 경우)
-    // isProcessing.value = false
-    // 여기서는 페이지가 이동되므로 굳이 false로 돌릴 필요 없음
+    // 페이지가 이동되므로 굳이 false로 돌릴 필요는 없으나,
+    // 만약 이동 실패를 대비해 안전장치로 5초 뒤에만 풉니다.
+    setTimeout(() => {
+      isGlobalProcessing = false
+    }, 5000)
   }
 }
 

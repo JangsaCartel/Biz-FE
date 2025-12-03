@@ -17,14 +17,13 @@ export async function loginWithKakaoCode(code) {
   return await res.json()
 }
 
-export async function signupWithExtraInfo(body, registerToken) {
-  const url = `${API_BASE_URL}/api/auth/signup`
+export async function signupWithExtraInfo(body, providerId) {
+  const url = `${API_BASE_URL}/api/auth/signup?providerId=${encodeURIComponent(providerId)}`
 
   const res = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Register-Token': registerToken,
     },
     body: JSON.stringify(body),
     credentials: 'include',

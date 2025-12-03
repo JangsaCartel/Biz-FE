@@ -1,6 +1,11 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { clearTokens, clearRegisterToken, clearPostLoginRedirect } from '@/services/tokenStorage'
+import {
+  clearTokens,
+  clearRegisterToken,
+  clearProviderId,
+  clearPostLoginRedirect,
+} from '@/services/tokenStorage'
 
 const router = useRouter()
 
@@ -15,6 +20,7 @@ const onProfileClick = () => {
 const onLogoutClick = () => {
   clearTokens()
   clearRegisterToken()
+  clearProviderId()
   clearPostLoginRedirect()
   router.replace({ name: 'login' })
 }

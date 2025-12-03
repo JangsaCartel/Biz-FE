@@ -206,7 +206,7 @@ const onSubmit = async () => {
           <input
             v-model="businessRegNo"
             class="form-input"
-            placeholder="숫자만 입력"
+            placeholder="사업자 등록번호를 입력해주세요!"
             inputmode="numeric"
             @input="handleBusinessRegNoInput"
           />
@@ -247,7 +247,11 @@ const onSubmit = async () => {
       <div v-else class="form-section">
         <div class="form-group">
           <label class="form-label">닉네임 *</label>
-          <input v-model="nickname" class="form-input" placeholder="사장님 닉네임을 입력하세요" />
+          <input
+            v-model="nickname"
+            class="form-input"
+            placeholder="사장님을 어떻게 불러드릴까요?"
+          />
           <p v-if="stepTwoErrors.nickname" class="error-text">{{ stepTwoErrors.nickname }}</p>
         </div>
 
@@ -256,7 +260,7 @@ const onSubmit = async () => {
           <input
             v-model="userStoreName"
             class="form-input"
-            placeholder="가게 상호명을 입력하세요"
+            placeholder="사장님의 가게 상호명을 알고 싶어요!"
           />
           <p v-if="stepTwoErrors.userStoreName" class="error-text">
             {{ stepTwoErrors.userStoreName }}
@@ -267,7 +271,7 @@ const onSubmit = async () => {
           <label class="form-label">사업 종류 *</label>
           <div class="select-wrapper">
             <select v-model="businessType" class="form-select">
-              <option value="" disabled>드롭다운</option>
+              <option value="" disabled>사장님은 어떤 사업을 하시나요?</option>
               <option
                 v-for="option in businessTypeOptions"
                 :key="option.value"

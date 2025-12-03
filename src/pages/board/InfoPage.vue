@@ -10,14 +10,14 @@
       <BoardItem v-for="post in posts" :key="post.post_id" :post="post" />
     </div>
 
-    <AppPagination
-      :current-page="currentPage"
-      :total-items="totalPosts"
-      :page-size="pageSize"
-      @page-change="handlePageChange"
-    ></AppPagination>
-
-    <AppNavbar class="app-navbar" />
+    <div class="pagination-wrapper">
+      <AppPagination
+        :current-page="currentPage"
+        :total-items="totalPosts"
+        :page-size="pageSize"
+        @page-change="handlePageChange"
+      ></AppPagination>
+    </div>
   </div>
 </template>
 
@@ -33,18 +33,18 @@ const router = useRouter()
 const boardStore = useBoardStore()
 
 const currentPage = ref(1)
-const pageSize = 5
+const pageSize = 4
 
 const posts = computed(() => boardStore.getInfoBoardPosts)
 const totalPosts = computed(() => boardStore.getInfoBoardTotal)
 
 onMounted(() => {
-  boardStore.fetchInfoBoardPosts(currentPage.value)
+  boardStore.fetchInfoBoardPosts(currentPage.value, pageSize)
 })
 
 const handlePageChange = (page) => {
   currentPage.value = page
-  boardStore.fetchInfoBoardPosts(page)
+  boardStore.fetchInfoBoardPosts(page, pageSize)
   window.scrollTo(0, 0)
 }
 
@@ -116,5 +116,15 @@ const goToWritePage = () => {
   padding: 50px;
   text-align: center;
   color: #888;
+}
+
+.pagination-wrapper {
+  flex-shrink: 0;
+  background-color: #fff;
+  border-top: 1px solid #eee;
+
+  padding-bottom: 80px;
+  padding-top: 10px;
+  z-index: 10;
 }
 </style>

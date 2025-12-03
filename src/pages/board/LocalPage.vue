@@ -18,8 +18,6 @@
         @page-change="handlePageChange"
       />
     </div>
-
-    <AppNavbar class="app-navbar" />
   </div>
 </template>
 
@@ -35,18 +33,18 @@ const router = useRouter()
 const boardStore = useBoardStore()
 
 const currentPage = ref(1)
-const pageSize = 5 // 한 페이지당 게시글 수
+const pageSize = 4 // 한 페이지당 게시글 수
 
 const posts = computed(() => boardStore.getLocalBoardPosts)
 const totalPosts = computed(() => boardStore.getLocalBoardTotal)
 
 onMounted(() => {
-  boardStore.fetchLocalBoardPosts(currentPage.value)
+  boardStore.fetchLocalBoardPosts(currentPage.value, pageSize)
 })
 
 const handlePageChange = (page) => {
   currentPage.value = page
-  boardStore.fetchLocalBoardPosts(page)
+  boardStore.fetchLocalBoardPosts(page, pageSize)
   // 전체 화면 대신 리스트 영역 내부 스크롤을 맨 위로 이동
   document.querySelector('.post-list-wrapper').scrollTop = 0
 }

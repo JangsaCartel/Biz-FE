@@ -2,6 +2,7 @@ import FreePage from '@/pages/board/FreePage.vue'
 import InfoPage from '@/pages/board/InfoPage.vue'
 import LocalPage from '@/pages/board/LocalPage.vue'
 import WritePage from '@/pages/board/WritePage.vue'
+import PostDetailPage from '@/pages/board/PostDetailPage.vue'
 
 export default [
   {
@@ -23,5 +24,10 @@ export default [
     path: '/board/write/:category',
     name: 'writePost',
     component: WritePage,
+  },
+  {
+    path: '/board/:postId',
+    name: 'postDetail',
+    component: PostDetailPage,
   },
 ]

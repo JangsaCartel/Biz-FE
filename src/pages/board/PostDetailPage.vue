@@ -25,6 +25,7 @@ const loading = ref(true)
 const postId = ref(null)
 
 onMounted(async () => {
+  console.log('Current route:', route)
   postId.value = route.params.postId
   if (postId.value) {
     post.value = await boardStore.fetchPostById(postId.value)

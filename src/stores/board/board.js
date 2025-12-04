@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import api from '@/services/api.js'
 
 export const useBoardStore = defineStore('board', {
   state: () => ({
-    postsByCagetory: {},
+    postsByCategory: {},
     hotPosts: [],
     freePosts: [],
     infoPosts: [],
@@ -14,7 +14,7 @@ export const useBoardStore = defineStore('board', {
     localPostsTotal: 0,
   }),
   getters: {
-    getCategorizedPosts: (state) => state.postsByCagetory,
+    getCategorizedPosts: (state) => state.postsByCategory,
     getHotBoardPosts: (state) => state.hotPosts,
     getFreeBoardPosts: (state) => state.freePosts,
     getInfoBoardPosts: (state) => state.infoPosts,
@@ -27,11 +27,11 @@ export const useBoardStore = defineStore('board', {
   actions: {
     async fetchPosts() {
       try {
-        const response = await axios.get('/api/')
-        this.postsByCagetory = response.data
+        const response = await api.get('/')
+        this.postsByCategory = response.data
       } catch (error) {
         console.error('Error fetching posts:', error)
-        this.postsByCagetory = {
+        this.postsByCategory = {
           hot: [],
           free: [],
           info: [],
@@ -41,7 +41,7 @@ export const useBoardStore = defineStore('board', {
     },
     async fetchHotBoardPosts(page = 1) {
       try {
-        const response = await axios.get(`/api/hot?page=${page}`)
+        const response = await api.get(`/hot?page=${page}`)
         this.hotPosts = response.data.posts
         this.hotPostsTotal = response.data.totalCount
       } catch (error) {
@@ -52,7 +52,7 @@ export const useBoardStore = defineStore('board', {
     },
     async fetchFreeBoardPosts(page = 1, pageSize = 4) {
       try {
-        const response = await axios.get(`/api/free?page=${page}&pageSize=${pageSize}`)
+        const response = await api.get(`/free?page=${page}&pageSize=${pageSize}`)
         this.freePosts = response.data.posts
         this.freePostsTotal = response.data.totalCount
       } catch (error) {
@@ -63,7 +63,7 @@ export const useBoardStore = defineStore('board', {
     },
     async fetchInfoBoardPosts(page = 1, pageSize = 4) {
       try {
-        const response = await axios.get(`/api/info?page=${page}&pageSize=${pageSize}`)
+        const response = await api.get(`/info?page=${page}&pageSize=${pageSize}`)
         this.infoPosts = response.data.posts
         this.infoPostsTotal = response.data.totalCount
       } catch (error) {
@@ -74,7 +74,7 @@ export const useBoardStore = defineStore('board', {
     },
     async fetchLocalBoardPosts(page = 1, pageSize = 4) {
       try {
-        const response = await axios.get(`/api/local?page=${page}&pageSize=${pageSize}`)
+        const response = await api.get(`/local?page=${page}&pageSize=${pageSize}`)
         this.localPosts = response.data.posts
         this.localPostsTotal = response.data.totalCount
       } catch (error) {
@@ -85,7 +85,7 @@ export const useBoardStore = defineStore('board', {
     },
     async createPost(postData) {
       try {
-        const response = await axios.post('/api/posts', postData)
+        const response = await api.post('/posts', postData)
         console.log('Post created successfully:', response.data)
       } catch (error) {
         console.error('Error creating post:', error)
@@ -93,7 +93,7 @@ export const useBoardStore = defineStore('board', {
     },
     async fetchPostById(postId) {
       try {
-        const response = await axios.get(`/api/board/${postId}`)
+        const response = await api.get(`/board/${postId}`)
         return response.data
       } catch (error) {
         console.error(`Error fetching post with ID ${postId}:`, error)
@@ -102,7 +102,7 @@ export const useBoardStore = defineStore('board', {
     },
     async fetchCommentsByPostId(postId) {
       try {
-        const response = await axios.get(`/api/board/${postId}/comments`)
+        const response = await api.get(`/board/${postId}/comments`)
         return response.data
       } catch (error) {
         console.error(`Error fetching comments for post ID ${postId}:`, error)
@@ -111,7 +111,7 @@ export const useBoardStore = defineStore('board', {
     },
     async createComment(postId, commentData) {
       try {
-        const response = await axios.post(`/api/board/${postId}/comments`, commentData)
+        const response = await api.post(`/board/${postId}/comments`, commentData)
         return response.data
       } catch (error) {
         console.error(`Error creating comment for post ID ${postId}:`, error)
@@ -120,16 +120,21 @@ export const useBoardStore = defineStore('board', {
     },
     async likeComment(commentId) {
       try {
-        await axios.post(`/api/comments/${commentId}/like`)
+        await api.post(`/comments/${commentId}/like`)
       } catch (error) {
         console.error(`Error liking comment with ID ${commentId}:`, error)
       }
     },
     async likePost(postId) {
       try {
-        await axios.post(`/api/board/${postId}/like`)
+        await api.post(`/board/${postId}/like`)
       } catch (error) {
         console.error(`Error liking post with ID ${postId}:`, error)
+        // Re-throw the error so the component can catch it
+        if (error.response && error.response.data && error.response.data.message) {
+          throw new Error(error.response.data.message)
+        }
+        throw error
       }
     },
   },

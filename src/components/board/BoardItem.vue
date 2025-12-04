@@ -2,32 +2,36 @@
   <div class="post-item" @click="goToDetailPage">
     <span class="post-title">{{ post.title }}</span>
     <div class="post-stats">
-      <span class="stat-item like-icon">{{ post.like_count }}</span>
-      <span class="stat-item comment-icon">{{ post.comment_count }}</span>
+      <span class="stat-item like-icon">{{ post.likeCount }}</span>
+      <span class="stat-item comment-icon">{{ post.commentCount }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
-import router from '@/router'
+import { useRouter } from 'vue-router'
 import { defineProps } from 'vue'
+
+const router = useRouter()
 
 const props = defineProps({
   post: {
     type: Object,
     required: true,
     default: () => ({
-      post_id: 0,
+      postId: 0,
       title: '게시글 제목 예시',
-      like_count: 50,
-      comment_count: 15,
+      likeCount: 50,
+      commentCount: 15,
     }),
   },
 })
 
 const goToDetailPage = () => {
-  if (props.post && props.post.post_id) {
-    router.push(`/board/${props.post.post_id}`)
+  console.log('게시글 클릭됨:', props.post)
+  console.log('게시글 ID:', props.post ? props.post.postId : 'post 객체 없음')
+  if (props.post && props.post.postId) {
+    router.push(`/board/${props.post.postId}`)
   }
 }
 </script>

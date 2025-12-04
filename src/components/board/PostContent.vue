@@ -38,7 +38,7 @@
             d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
           ></path>
         </svg>
-        <span>댓글 {{ post.comment_count }}</span>
+        <span>댓글 {{ post.commentCount }}</span>
       </div>
     </div>
   </div>
@@ -56,11 +56,11 @@ const props = defineProps({
 })
 
 const boardStore = useBoardStore()
-const likeCount = ref(props.post.like_count || 0)
+const likeCount = ref(props.post.likeCount || 0)
 
 const formattedDate = computed(() => {
-  if (!props.post.created_at) return ''
-  const date = new Date(props.post.created_at)
+  if (!props.post.createdAt) return ''
+  const date = new Date(props.post.createdAt)
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
   const hours = String(date.getHours()).padStart(2, '0')
@@ -68,9 +68,14 @@ const formattedDate = computed(() => {
   return `${month}/${day} ${hours}:${minutes}`
 })
 
-const handleLikeClick = () => {
+const handleLikeClick = async () => {
   likeCount.value++
-  boardStore.likePost(props.post.post_id)
+  try {
+    await boardStore.likePost(props.post.postId)
+  } catch (error) {
+    likeCount.value-- // Revert optimistic update
+    alert(error.message || '좋아요 처리에 실패했습니다.')
+  }
 }
 </script>
 

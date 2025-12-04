@@ -50,9 +50,9 @@ export const useBoardStore = defineStore('board', {
         this.hotPostsTotal = 0
       }
     },
-    async fetchFreeBoardPosts(page = 1) {
+    async fetchFreeBoardPosts(page = 1, pageSize = 4) {
       try {
-        const response = await axios.get(`/api/free?page=${page}`)
+        const response = await axios.get(`/api/free?page=${page}&pageSize=${pageSize}`)
         this.freePosts = response.data.posts
         this.freePostsTotal = response.data.totalCount
       } catch (error) {
@@ -61,9 +61,9 @@ export const useBoardStore = defineStore('board', {
         this.freePostsTotal = 0
       }
     },
-    async fetchInfoBoardPosts(page = 1) {
+    async fetchInfoBoardPosts(page = 1, pageSize = 4) {
       try {
-        const response = await axios.get(`/api/info?page=${page}`)
+        const response = await axios.get(`/api/info?page=${page}&pageSize=${pageSize}`)
         this.infoPosts = response.data.posts
         this.infoPostsTotal = response.data.totalCount
       } catch (error) {
@@ -72,9 +72,9 @@ export const useBoardStore = defineStore('board', {
         this.infoPostsTotal = 0
       }
     },
-    async fetchLocalBoardPosts(page = 1) {
+    async fetchLocalBoardPosts(page = 1, pageSize = 4) {
       try {
-        const response = await axios.get(`/api/local?page=${page}`)
+        const response = await axios.get(`/api/local?page=${page}&pageSize=${pageSize}`)
         this.localPosts = response.data.posts
         this.localPostsTotal = response.data.totalCount
       } catch (error) {
@@ -89,6 +89,47 @@ export const useBoardStore = defineStore('board', {
         console.log('Post created successfully:', response.data)
       } catch (error) {
         console.error('Error creating post:', error)
+      }
+    },
+    async fetchPostById(postId) {
+      try {
+        const response = await axios.get(`/api/board/${postId}`)
+        return response.data
+      } catch (error) {
+        console.error(`Error fetching post with ID ${postId}:`, error)
+        return null
+      }
+    },
+    async fetchCommentsByPostId(postId) {
+      try {
+        const response = await axios.get(`/api/board/${postId}/comments`)
+        return response.data
+      } catch (error) {
+        console.error(`Error fetching comments for post ID ${postId}:`, error)
+        return []
+      }
+    },
+    async createComment(postId, commentData) {
+      try {
+        const response = await axios.post(`/api/board/${postId}/comments`, commentData)
+        return response.data
+      } catch (error) {
+        console.error(`Error creating comment for post ID ${postId}:`, error)
+        return null
+      }
+    },
+    async likeComment(commentId) {
+      try {
+        await axios.post(`/api/comments/${commentId}/like`)
+      } catch (error) {
+        console.error(`Error liking comment with ID ${commentId}:`, error)
+      }
+    },
+    async likePost(postId) {
+      try {
+        await axios.post(`/api/board/${postId}/like`)
+      } catch (error) {
+        console.error(`Error liking post with ID ${postId}:`, error)
       }
     },
   },

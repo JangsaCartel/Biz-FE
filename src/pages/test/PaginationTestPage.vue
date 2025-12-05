@@ -2,12 +2,15 @@
   <div class="pagination-test-page">
     <h1>페이지네이션 테스트 페이지</h1>
     <p>현재 페이지: {{ currentPage }}</p>
-    <AppPagination
-      :current-page="currentPage"
-      :total-items="totalItems"
-      :page-size="pageSize"
-      @page-change="updatePage"
-    />
+    <!-- 이런식으로 패딩 위 아래 간격 맞추기 가능 -->
+    <div style="padding: 40px 0">
+      <AppPagination
+        :current-page="currentPage"
+        :total-items="totalItems"
+        :page-size="pageSize"
+        @page-change="updatePage"
+      />
+    </div>
   </div>
 </template>
 

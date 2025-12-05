@@ -106,7 +106,6 @@ const changePage = (page) => {
 .pagination-container {
   display: flex;
   justify-content: center;
-  padding: 40px 0;
   background-color: transparent;
 }
 

@@ -9,7 +9,7 @@
 
     <div class="post-body" v-html="post.content"></div>
 
-    <div class="post-footer">
+    <div class="post-footer" :class="{ 'no-border': !showBorder }">
       <div class="action-item" @click="handleLikeClick">
         <svg
           width="20"
@@ -52,6 +52,10 @@ const props = defineProps({
   post: {
     type: Object,
     required: true,
+  },
+  showBorder: {
+    type: Boolean,
+    default: true,
   },
 })
 

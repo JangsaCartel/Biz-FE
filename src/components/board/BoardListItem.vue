@@ -10,7 +10,7 @@
         v-for="post in posts"
         :key="post.post_id"
         class="post-item"
-        @click="goToDetailPage(post.post_id)"
+        @click="goToDetailPage(post)"
       >
         <span class="post-title">{{ post.title }}</span>
         <div class="post-stats">
@@ -78,8 +78,11 @@ const goToBoardPage = () => {
 }
 
 // 개별 게시글 클릭 시 상세 페이지 이동
-const goToDetailPage = (id) => {
-  router.push(`/board/${id}`)
+const goToDetailPage = (post) => {
+  router.push({
+    name: 'postDetail',
+    params: { postId: post.postId },
+  })
 }
 </script>
 

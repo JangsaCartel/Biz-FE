@@ -6,7 +6,7 @@
 
     <main class="hot-page-container">
       <div v-if="hotPosts.length > 0" class="post-list">
-        <BoardItem v-for="post in hotPosts" :key="post.post_id" :post="post" />
+        <HotBoardItem v-for="post in hotPosts" :key="post.postId" :post="post" />
       </div>
       <div v-else class="no-posts">
         <p>현재 HOT 게시글이 없습니다.</p>
@@ -18,7 +18,7 @@
 <script setup>
 import { onMounted, computed } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
-import BoardItem from '@/components/board/BoardItem.vue'
+import HotBoardItem from '@/components/board/HotBoardItem.vue'
 
 const boardStore = useBoardStore()
 const hotPosts = computed(() => boardStore.getHotBoardPosts)

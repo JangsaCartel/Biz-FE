@@ -11,12 +11,14 @@
     </div>
 
     <div class="pagination-wrapper">
-      <AppPagination
-        :current-page="currentPage"
-        :total-items="totalPosts"
-        :page-size="pageSize"
-        @page-change="handlePageChange"
-      />
+      <div style="padding: 40px 0">
+        <AppPagination
+          :current-page="currentPage"
+          :total-items="totalPosts"
+          :page-size="pageSize"
+          @page-change="handlePageChange"
+        />
+      </div>
     </div>
   </div>
 </template>

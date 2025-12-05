@@ -28,7 +28,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error)
-  }
+  },
 )
 
 // 응답 인터셉터: 401 발생 시 토큰 갱신 시도
@@ -90,7 +90,7 @@ apiClient.interceptors.response.use(
             headers: {
               'Content-Type': 'application/json',
             },
-          }
+          },
         )
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data
@@ -122,7 +122,7 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error)
-  }
+  },
 )
 
 // 로그아웃 처리 함수
@@ -136,4 +136,3 @@ function handleLogout() {
 }
 
 export default apiClient
-

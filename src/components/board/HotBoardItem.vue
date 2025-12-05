@@ -46,10 +46,10 @@ onMounted(() => {
 const router = useRouter()
 
 const categoryMap = {
-  '1': { name: 'HOT', color: '#FF6B6C' },
-  '2': { name: '자유', color: '#FFC145' },
-  '3': { name: '정보공유', color: '#2A428C' },
-  '4': { name: '우리 동네', color: '#2E6955' },
+  1: { name: 'HOT', color: '#FF6B6C' },
+  2: { name: '자유', color: '#FFC145' },
+  3: { name: '정보공유', color: '#2A428C' },
+  4: { name: '우리 동네', color: '#2E6955' },
 }
 
 const boardName = computed(() => {
@@ -71,9 +71,7 @@ const boardColor = computed(() => {
 const truncatedContent = computed(() => {
   if (!props.post.content) return ''
   const strippedContent = props.post.content.replace(/<[^>]*>?/gm, '') // HTML 태그 제거
-  return strippedContent.length > 100
-    ? strippedContent.substring(0, 100) + '...'
-    : strippedContent
+  return strippedContent.length > 100 ? strippedContent.substring(0, 100) + '...' : strippedContent
 })
 
 const formattedDate = computed(() => {

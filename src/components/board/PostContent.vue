@@ -1,7 +1,7 @@
 <template>
   <div class="post-container">
     <div class="post-header">
-      <span class="username">{{ post.author_nickname }}</span>
+      <span class="username">{{ post.nickname }}</span>
       <span class="date">{{ formattedDate }}</span>
     </div>
 

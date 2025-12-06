@@ -5,13 +5,13 @@ let isGlobalProcessing = false
 <script setup>
 import { onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { loginWithKakaoCode } from '@/services/authApi'
+import { loginWithKakaoCode } from '@/api/authApi'
 import {
   saveTokens,
   saveProviderId,
   getPostLoginRedirect,
   clearPostLoginRedirect,
-} from '@/services/tokenStorage'
+} from '@/stores/tokenStorage'
 
 const router = useRouter()
 const route = useRoute()

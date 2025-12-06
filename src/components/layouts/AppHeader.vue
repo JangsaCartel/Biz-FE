@@ -5,7 +5,7 @@ import {
   clearRegisterToken,
   clearProviderId,
   clearPostLoginRedirect,
-} from '@/services/tokenStorage'
+} from '@/stores/tokenStorage'
 
 const router = useRouter()
 

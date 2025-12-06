@@ -4,22 +4,40 @@ const REGISTER_TOKEN_KEY = 'registerToken'
 const PROVIDER_ID_KEY = 'providerId'
 const POST_LOGIN_REDIRECT_KEY = 'postLoginRedirect'
 
+// localStorage에 저장된 기존 토큰 정리 (마이그레이션용)
+export function clearLegacyTokens() {
+  try {
+    window.localStorage.removeItem(ACCESS_TOKEN_KEY)
+    window.localStorage.removeItem(REFRESH_TOKEN_KEY)
+  } catch (error) {
+    console.warn('기존 localStorage 토큰 정리 중 오류:', error)
+  }
+}
+
+// 앱 초기화 시 호출하여 localStorage 토큰 정리
+if (typeof window !== 'undefined') {
+  clearLegacyTokens()
+}
+
 export function saveTokens(accessToken, refreshToken) {
   if (accessToken) {
-    window.localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
+    window.sessionStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
   }
   if (refreshToken) {
-    window.localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
+    window.sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
   }
 }
 
 export function getAccessToken() {
-  return window.localStorage.getItem(ACCESS_TOKEN_KEY)
+  return window.sessionStorage.getItem(ACCESS_TOKEN_KEY)
 }
 
 export function clearTokens() {
-  window.localStorage.removeItem(ACCESS_TOKEN_KEY)
-  window.localStorage.removeItem(REFRESH_TOKEN_KEY)
+  // sessionStorage에서 토큰 제거
+  window.sessionStorage.removeItem(ACCESS_TOKEN_KEY)
+  window.sessionStorage.removeItem(REFRESH_TOKEN_KEY)
+  // localStorage에 남아있을 수 있는 기존 토큰도 제거
+  clearLegacyTokens()
 }
 
 export function saveRegisterToken(token) {
@@ -64,3 +82,4 @@ export function getPostLoginRedirect() {
 export function clearPostLoginRedirect() {
   window.sessionStorage.removeItem(POST_LOGIN_REDIRECT_KEY)
 }
+

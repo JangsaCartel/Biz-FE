@@ -1,14 +1,14 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { signupWithExtraInfo } from '@/services/authApi'
+import { signupWithExtraInfo } from '@/api/authApi'
 import {
   getProviderId,
   clearProviderId,
   saveTokens,
   getPostLoginRedirect,
   clearPostLoginRedirect,
-} from '@/services/tokenStorage'
+} from '@/stores/tokenStorage'
 
 const router = useRouter()
 const route = useRoute()

@@ -1,5 +1,17 @@
 import { defineStore } from 'pinia'
-import api from '@/services/api.js'
+import {
+  fetchPosts,
+  fetchHotBoardPosts,
+  fetchFreeBoardPosts,
+  fetchInfoBoardPosts,
+  fetchLocalBoardPosts,
+  createPost,
+  fetchPostById,
+  fetchCommentsByPostId,
+  createComment,
+  likeComment,
+  likePost,
+} from '@/api/boardApi'
 
 export const useBoardStore = defineStore('board', {
   state: () => ({
@@ -27,7 +39,7 @@ export const useBoardStore = defineStore('board', {
   actions: {
     async fetchPosts() {
       try {
-        const response = await api.get('/')
+        const response = await fetchPosts()
         this.postsByCategory = response.data
       } catch (error) {
         console.error('Error fetching posts:', error)
@@ -41,7 +53,7 @@ export const useBoardStore = defineStore('board', {
     },
     async fetchHotBoardPosts(page = 1) {
       try {
-        const response = await api.get(`/hot?page=${page}`)
+        const response = await fetchHotBoardPosts(page)
         this.hotPosts = response.data.posts
         this.hotPostsTotal = response.data.totalCount
       } catch (error) {
@@ -52,7 +64,7 @@ export const useBoardStore = defineStore('board', {
     },
     async fetchFreeBoardPosts(page = 1, pageSize = 4) {
       try {
-        const response = await api.get(`/free?page=${page}&pageSize=${pageSize}`)
+        const response = await fetchFreeBoardPosts(page, pageSize)
         this.freePosts = response.data.posts
         this.freePostsTotal = response.data.totalCount
       } catch (error) {
@@ -63,7 +75,7 @@ export const useBoardStore = defineStore('board', {
     },
     async fetchInfoBoardPosts(page = 1, pageSize = 4) {
       try {
-        const response = await api.get(`/info?page=${page}&pageSize=${pageSize}`)
+        const response = await fetchInfoBoardPosts(page, pageSize)
         this.infoPosts = response.data.posts
         this.infoPostsTotal = response.data.totalCount
       } catch (error) {
@@ -74,7 +86,7 @@ export const useBoardStore = defineStore('board', {
     },
     async fetchLocalBoardPosts(page = 1, pageSize = 4) {
       try {
-        const response = await api.get(`/local?page=${page}&pageSize=${pageSize}`)
+        const response = await fetchLocalBoardPosts(page, pageSize)
         this.localPosts = response.data.posts
         this.localPostsTotal = response.data.totalCount
       } catch (error) {
@@ -85,7 +97,7 @@ export const useBoardStore = defineStore('board', {
     },
     async createPost(postData) {
       try {
-        const response = await api.post('/posts', postData)
+        const response = await createPost(postData)
         console.log('Post created successfully:', response.data)
       } catch (error) {
         console.error('Error creating post:', error)
@@ -93,7 +105,7 @@ export const useBoardStore = defineStore('board', {
     },
     async fetchPostById(postId) {
       try {
-        const response = await api.get(`/board/${postId}`)
+        const response = await fetchPostById(postId)
         return response.data
       } catch (error) {
         console.error(`Error fetching post with ID ${postId}:`, error)
@@ -102,7 +114,7 @@ export const useBoardStore = defineStore('board', {
     },
     async fetchCommentsByPostId(postId) {
       try {
-        const response = await api.get(`/board/${postId}/comments`)
+        const response = await fetchCommentsByPostId(postId)
         return response.data
       } catch (error) {
         console.error(`Error fetching comments for post ID ${postId}:`, error)
@@ -111,7 +123,7 @@ export const useBoardStore = defineStore('board', {
     },
     async createComment(postId, commentData) {
       try {
-        const response = await api.post(`/board/${postId}/comments`, commentData)
+        const response = await createComment(postId, commentData)
         return response.data
       } catch (error) {
         console.error(`Error creating comment for post ID ${postId}:`, error)
@@ -120,14 +132,14 @@ export const useBoardStore = defineStore('board', {
     },
     async likeComment(commentId) {
       try {
-        await api.post(`/comments/${commentId}/like`)
+        await likeComment(commentId)
       } catch (error) {
         console.error(`Error liking comment with ID ${commentId}:`, error)
       }
     },
     async likePost(postId) {
       try {
-        await api.post(`/board/${postId}/like`)
+        await likePost(postId)
       } catch (error) {
         console.error(`Error liking post with ID ${postId}:`, error)
         // Re-throw the error so the component can catch it

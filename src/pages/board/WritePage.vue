@@ -43,7 +43,6 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBoardStore } from '@/stores/board/board.js'
-import { getAccessToken } from '@/services/tokenStorage.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -68,39 +67,21 @@ const savePost = async () => {
     return
   }
 
-  const token = getAccessToken()
-  if (!token) {
-    alert('로그인이 필요합니다.')
-    router.push('/login')
-    return
-  }
-
-  let userId = null
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    userId = payload.userId
-  } catch (e) {
-    console.error('Failed to decode token or get user ID:', e)
-    alert('세션이 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.')
-    router.push('/login')
-    return
-  }
-
-  if (!userId) {
-    alert('유저 정보를 가져올 수 없습니다. 다시 로그인해주세요.')
-    return
-  }
-
   const postData = {
     title: title.value,
     content: content.value,
     categoryId: categoryId,
-    userId: userId,
   }
 
-  await boardStore.createPost(postData)
-
-  router.push({ name: categoryName })
+  try {
+    await boardStore.createPost(postData)
+    router.push({ name: categoryName })
+  } catch (error) {
+    // The interceptor in apiClient should handle 401 errors and redirect to login.
+    // However, if there are other errors, you might want to show a message to the user.
+    console.error('Error creating post:', error)
+    alert('게시글 작성에 실패했습니다. 다시 시도해주세요.')
+  }
 }
 
 const closePage = () => {

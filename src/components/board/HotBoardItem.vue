@@ -38,18 +38,13 @@ const props = defineProps({
   },
 })
 
-onMounted(() => {
-  console.log('--- Full HotBoardItem Post Object ---')
-  console.log(JSON.stringify(props.post, null, 2))
-})
-
 const router = useRouter()
 
 const categoryMap = {
-  1: { name: 'HOT', color: '#FF6B6C' },
-  2: { name: '자유', color: '#FFC145' },
-  3: { name: '정보공유', color: '#2A428C' },
-  4: { name: '우리 동네', color: '#2E6955' },
+  1: { name: 'HOT', color: 'var(--board-hot)' },
+  2: { name: '자유', color: 'var(--board-free)' },
+  3: { name: '정보공유', color: 'var(--board-info)' },
+  4: { name: '우리 동네', color: 'var(--board-local)' },
 }
 
 const boardName = computed(() => {
@@ -63,9 +58,9 @@ const boardName = computed(() => {
 const boardColor = computed(() => {
   if (props.post && props.post.categoryId) {
     const category = categoryMap[props.post.categoryId]
-    return category ? category.color : '#333333'
+    return category ? category.color : 'var(--color-text-strong)'
   }
-  return '#333333'
+  return 'var(--color-text-strong)'
 })
 
 const truncatedContent = computed(() => {
@@ -92,16 +87,18 @@ const goToDetailPage = () => {
 </script>
 
 <style scoped lang="scss">
-.hot-post-item {
-  background-color: #ffffff;
+@import '@/assets/styles/utils/_pxToRem.scss';
 
-  border-bottom: 1px solid #f0f0f0;
-  padding: 20px 15px;
+.hot-post-item {
+  background-color: var(--white);
+
+  border-bottom: rem(1px) solid var(--color-border-subtle);
+  padding: rem(20px) rem(15px);
   cursor: pointer;
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #fcfcfc;
+    background-color: var(--bg-default);
   }
 }
 
@@ -109,31 +106,31 @@ const goToDetailPage = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: rem(8px);
 }
 
 .board-name {
-  font-size: 0.85rem;
-  font-weight: 800;
+  font-size: rem(14px);
+  font-weight: var(--font-weight-extra-bold);
 }
 
 .post-date {
-  font-size: 0.8rem;
-  color: #a0a0a0;
+  font-size: rem(13px);
+  color: var(--color-text-subtle);
 }
 
 .post-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #222;
-  margin: 0 0 6px 0;
+  font-size: rem(18px);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-strong);
+  margin: 0 0 rem(6px) 0;
   line-height: 1.3;
 }
 
 .post-content {
-  font-size: 0.95rem;
-  color: #555;
-  margin: 0 0 14px 0;
+  font-size: rem(15px);
+  color: var(--text-title);
+  margin: 0 0 rem(14px) 0;
   line-height: 1.4;
 
   display: -webkit-box;
@@ -150,28 +147,28 @@ const goToDetailPage = () => {
 }
 
 .extra-info {
-  font-size: 0.8rem;
-  color: #d1d5db;
+  font-size: rem(13px);
+  color: var(--grey);
 }
 
 .post-stats {
   display: flex;
-  gap: 12px;
-  font-size: 0.9rem;
-  color: #666;
+  gap: rem(12px);
+  font-size: rem(14px);
+  color: var(--color-text-light);
 }
 
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: rem(4px);
 }
 
 .like-icon,
 .comment-icon {
   display: inline-block;
-  width: 16px;
-  height: 16px;
+  width: rem(16px);
+  height: rem(16px);
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;

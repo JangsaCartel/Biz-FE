@@ -11,7 +11,7 @@
     </div>
 
     <div class="pagination-wrapper">
-      <div style="padding: 40px 0">
+      <div class="pagination-inner">
         <AppPagination
           :current-page="currentPage"
           :total-items="totalPosts"
@@ -55,12 +55,14 @@ const goToWritePage = () => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@/assets/styles/utils/_pxToRem.scss';
+
 /* 전체 컨테이너 */
 .board-container {
-  max-width: 800px;
+  max-width: rem(800px);
   margin: 0 auto;
-  background-color: #fdfdfd;
+  background-color: var(--bg-default);
 
   display: flex;
   flex-direction: column;
@@ -75,40 +77,40 @@ const goToWritePage = () => {
   justify-content: center;
   align-items: center;
   position: relative;
-  padding: 20px 0;
-  background-color: #fcf8f0;
-  border-bottom: 1px solid #eee;
+  padding: rem(20px) 0;
+  background-color: var(--bg-header);
+  border-bottom: rem(1px) solid var(--grey-light);
   flex-shrink: 0;
 }
 
 .board-title {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #ffc145;
+  font-size: rem(19px);
+  font-weight: var(--font-weight-extra-bold);
+  color: var(--board-free);
   margin: 0;
 }
 
 .write-btn {
   position: absolute;
-  right: 15px;
+  right: rem(15px);
   display: flex;
   align-items: center;
-  gap: 5px;
-  background-color: #fff;
-  border: 1px solid #ffc145;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #333;
+  gap: rem(5px);
+  background-color: var(--white);
+  border: rem(1px) solid var(--board-free);
+  border-radius: rem(6px);
+  padding: rem(6px) rem(12px);
+  font-size: rem(14px);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-strong);
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 /* 포스트 리스트 스타일 */
 .post-list-wrapper {
-  background-color: #fff;
-  padding: 0 15px;
+  background-color: var(--white);
+  padding: 0 rem(15px);
 
   flex: 1;
 
@@ -118,18 +120,22 @@ const goToWritePage = () => {
 
 .empty-state {
   margin: auto;
-  padding: 50px;
+  padding: rem(50px);
   text-align: center;
-  color: #888;
+  color: var(--grey);
 }
 
 .pagination-wrapper {
   flex-shrink: 0;
-  background-color: #fff;
-  border-top: 1px solid #eee;
+  background-color: var(--white);
+  border-top: rem(1px) solid var(--grey-light);
 
-  padding-bottom: 80px;
-  padding-top: 10px;
+  padding-bottom: rem(80px);
+  padding-top: rem(10px);
   z-index: 10;
+}
+
+.pagination-inner {
+    padding: rem(40px) 0;
 }
 </style>

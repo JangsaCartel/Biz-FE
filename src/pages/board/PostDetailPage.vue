@@ -29,10 +29,10 @@ const loading = ref(true)
 const postId = ref(null)
 
 const categoryMap = {
-  '1': { name: 'HOT', color: '#FF6B6C' },
-  '2': { name: '자유', color: '#FFC145' },
-  '3': { name: '정보공유', color: '#2A428C' },
-  '4': { name: '우리 동네', color: '#2E6955' },
+  '1': { name: 'HOT', color: 'var(--board-hot)' },
+  '2': { name: '자유', color: 'var(--board-free)' },
+  '3': { name: '정보공유', color: 'var(--board-info)' },
+  '4': { name: '우리 동네', color: 'var(--board-local)' },
 }
 
 const boardName = computed(() => {
@@ -46,13 +46,12 @@ const boardName = computed(() => {
 const boardColor = computed(() => {
   if (post.value && post.value.categoryId) {
     const category = categoryMap[post.value.categoryId]
-    return category ? category.color : '#333333'
+    return category ? category.color : 'var(--color-text-strong)'
   }
-  return '#333333'
+  return 'var(--color-text-strong)'
 })
 
 onMounted(async () => {
-  console.log('Current route:', route)
   postId.value = route.params.postId
   if (postId.value) {
     post.value = await boardStore.fetchPostById(postId.value)
@@ -61,21 +60,23 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@/assets/styles/utils/_pxToRem.scss';
+
 .board-header {
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
-  padding: 20px 0;
-  background-color: #fcf8f0;
-  border-bottom: 1px solid #eee;
+  padding: rem(20px) 0;
+  background-color: var(--bg-header);
+  border-bottom: rem(1px) solid var(--grey-light);
   flex-shrink: 0;
 }
 
 .board-title {
-  font-size: 1.2rem;
-  font-weight: 800;
+  font-size: rem(19px);
+  font-weight: var(--font-weight-extra-bold);
   margin: 0;
 }
 </style>

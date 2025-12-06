@@ -46,15 +46,15 @@ const router = useRouter()
 // 게시판 정보 (색상 및 이름 매핑)
 const boardInfo = computed(() => {
   const categoryMap = {
-    hot: { name: 'HOT', color: '#FF6B6C' },
-    free: { name: '자유', color: '#FFC145' },
-    info: { name: '정보공유', color: '#2A428C' },
-    local: { name: '우리 동네', color: '#2E6955' },
+    hot: { name: 'HOT', color: 'var(--board-hot)' },
+    free: { name: '자유', color: 'var(--board-free)' },
+    info: { name: '정보공유', color: 'var(--board-info)' },
+    local: { name: '우리 동네', color: 'var(--board-local)' },
   }
   return (
     categoryMap[props.boardCategory] || {
       name: '게시판',
-      color: '#333333',
+      color: 'var(--color-text-strong)',
     }
   )
 })
@@ -86,15 +86,15 @@ const goToDetailPage = (post) => {
 }
 </script>
 
-<style scoped>
-@charset "UTF-8";
+<style scoped lang="scss">
+@import '@/assets/styles/utils/_pxToRem.scss';
 
 /* 위젯 전체 컨테이너 */
 .board-widget-container {
   width: 100%;
-  max-width: 400px;
-  margin: 10px auto;
-  font-family: 'Pretendard', sans-serif;
+  max-width: rem(400px);
+  margin: rem(10px) auto;
+  font-family: var(--font-family);
 }
 
 /* 헤더 영역 */
@@ -102,41 +102,41 @@ const goToDetailPage = (post) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  padding: 0 4px;
+  margin-bottom: rem(10px);
+  padding: 0 rem(4px);
 }
 
 /* 게시판 제목 */
 .board-title {
-  font-size: 1.25rem;
-  font-weight: 800;
+  font-size: rem(20px);
+  font-weight: var(--font-weight-extra-bold);
   margin: 0;
 }
 
 /* 더보기 버튼 */
 .more-button {
-  font-size: 0.85rem;
-  color: #888;
+  font-size: rem(14px);
+  color: var(--grey);
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .more-button:hover {
   text-decoration: underline;
-  color: #555;
+  color: var(--text-title);
 }
 
 /* 게시글 리스트 박스 (둥근 회색 박스) */
 .post-list {
-  background-color: #f9f9f9;
-  border-radius: 16px;
-  padding: 0 20px;
+  background-color: var(--bg-default);
+  border-radius: rem(16px);
+  padding: 0 rem(20px);
   margin: 0;
   list-style: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 rem(2px) rem(8px) rgba(0, 0, 0, 0.03);
 }
 
 /* 개별 게시글 항목 */
@@ -144,9 +144,9 @@ const goToDetailPage = (post) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 0;
-  border-bottom: 1px solid #e0e0e0;
-  color: #333;
+  padding: rem(14px) 0;
+  border-bottom: rem(1px) solid var(--grey-light);
+  color: var(--color-text-strong);
   cursor: pointer;
   transition: opacity 0.2s;
 }
@@ -163,29 +163,29 @@ const goToDetailPage = (post) => {
 /* 데이터 없음 처리 */
 .no-data {
   justify-content: center;
-  color: #999;
-  font-size: 0.9rem;
+  color: var(--text-subtitle);
+  font-size: rem(14px);
 }
 
 /* 게시글 제목 텍스트 */
 .post-title {
   flex-grow: 1;
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: var(--font-weight-bold);
+  font-size: rem(15px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-right: 10px;
-  color: #333;
+  margin-right: rem(10px);
+  color: var(--color-text-strong);
 }
 
 /* 좋아요/댓글 수 영역 */
 .post-stats {
   display: flex;
-  gap: 10px;
-  font-size: 0.85rem;
-  color: #333;
-  font-weight: 500;
+  gap: rem(10px);
+  font-size: rem(14px);
+  color: var(--color-text-strong);
+  font-weight: var(--font-weight-medium);
   flex-shrink: 0;
 }
 
@@ -198,26 +198,26 @@ const goToDetailPage = (post) => {
 .like-icon::before {
   content: '';
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: rem(14px);
+  height: rem(14px);
   background-image: url('/src/assets/icons/board/like.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  margin-right: 4px;
-  transform: translateY(-1px);
+  margin-right: rem(4px);
+  transform: translateY(rem(-1px));
 }
 
 .comment-icon::before {
   content: '';
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: rem(14px);
+  height: rem(14px);
   background-image: url('/src/assets/icons/board/comment.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  margin-right: 4px;
-  transform: translateY(-1px);
+  margin-right: rem(4px);
+  transform: translateY(rem(-1px));
 }
 </style>

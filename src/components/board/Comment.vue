@@ -1,5 +1,5 @@
 <template>
-  <div class="comment-container" :style="{ marginLeft: `${indentationLevel * 20}px` }">
+  <div class="comment-container" :style="{ marginLeft: `${indentationLevel * 1.25}rem` }">
     <div class="comment-item">
       <div v-if="indentationLevel > 0" class="reply-icon">
         <img src="@/assets/icons/board/turn-right 1.png" alt="Reply" />
@@ -9,7 +9,7 @@
           <span class="comment-user">{{ comment.author_nickname }}</span>
           <div class="comment-actions">
             <button class="comment-like" @click="handleLikeClick">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
               </svg>
               <span>{{ likeCount }}</span>
@@ -35,7 +35,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { defineProps, defineEmits, computed, ref } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
@@ -80,9 +79,11 @@ const handleLikeClick = () => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@/assets/styles/utils/_pxToRem.scss';
+
 .comment-container {
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: rem(1px) solid var(--color-border-subtle);
 }
 .comment-container:last-child {
   border-bottom: none;
@@ -90,15 +91,15 @@ const handleLikeClick = () => {
 
 .comment-item {
   display: flex;
-  gap: 10px;
-  padding: 15px 20px;
-  background: white;
+  gap: rem(10px);
+  padding: rem(15px) rem(20px);
+  background: var(--white);
 }
 
 .reply-icon {
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: rem(20px);
+  height: rem(20px);
 }
 .reply-icon img {
   width: 100%;
@@ -107,59 +108,63 @@ const handleLikeClick = () => {
 
 .comment-box {
   flex-grow: 1;
-  background-color: #f8f9fa;
-  border-radius: 12px;
-  padding: 12px 15px;
+  background-color: var(--bg-subtle);
+  border-radius: rem(12px);
+  padding: rem(12px) rem(15px);
 }
 
 .comment-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: rem(4px);
 }
 
 .comment-user {
-  font-weight: 700;
-  font-size: 14px;
+  font-weight: var(--font-weight-bold);
+  font-size: rem(14px);
 }
 
 .comment-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: rem(12px);
 }
 
 .comment-like {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: #666;
+  gap: rem(4px);
+  font-size: rem(12px);
+  color: var(--color-text-light);
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
+
+  svg {
+    stroke: var(--color-text-light);
+  }
 }
 
 .reply-btn {
   background: none;
   border: none;
-  color: #666;
-  font-size: 12px;
+  color: var(--color-text-light);
+  font-size: rem(12px);
   cursor: pointer;
 }
 
 .comment-content {
-  font-size: 14px;
+  font-size: rem(14px);
   line-height: 1.4;
-  color: #333;
-  margin-bottom: 6px;
+  color: var(--color-text-strong);
+  margin-bottom: rem(6px);
 }
 
 .comment-date {
-  font-size: 11px;
-  color: #aaa;
+  font-size: rem(11px);
+  color: var(--color-text-subtle);
   text-align: right;
 }
 

@@ -11,7 +11,7 @@
     </div>
 
     <div class="pagination-wrapper">
-      <div style="padding: 40px 0">
+      <div class="pagination-inner">
         <AppPagination
           :current-page="currentPage"
           :total-items="totalPosts"
@@ -56,12 +56,14 @@ const goToWritePage = () => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@/assets/styles/utils/_pxToRem.scss';
+
 /* 전체 컨테이너: 화면 높이 100% 고정 */
 .board-container {
-  max-width: 800px;
+  max-width: rem(800px);
   margin: 0 auto;
-  background-color: #fdfdfd;
+  background-color: var(--bg-default);
 
   display: flex;
   flex-direction: column;
@@ -76,47 +78,47 @@ const goToWritePage = () => {
   justify-content: center;
   align-items: center;
   position: relative;
-  padding: 20px 0;
+  padding: rem(20px) 0;
 
   /* 게시판 테마 색상 (배경) */
-  background-color: rgba(46, 105, 85, 0.1);
-  border-bottom: 1px solid #eee;
+  background-color: var(--bg-header-local);
+  border-bottom: rem(1px) solid var(--grey-light);
 
   flex-shrink: 0;
   z-index: 10;
 }
 
 .board-title {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #2e6955;
+  font-size: rem(19px);
+  font-weight: var(--font-weight-extra-bold);
+  color: var(--board-local);
   margin: 0;
 }
 
 .write-btn {
   position: absolute;
-  right: 15px;
+  right: rem(15px);
   display: flex;
   align-items: center;
-  gap: 5px;
-  background-color: #fff;
-  border: 1px solid #2e6955;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #333;
+  gap: rem(5px);
+  background-color: var(--white);
+  border: rem(1px) solid var(--board-local);
+  border-radius: rem(6px);
+  padding: rem(6px) rem(12px);
+  font-size: rem(14px);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-strong);
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 .write-btn:hover {
-  background-color: rgba(46, 105, 85, 0.15);
+  background-color: var(--bg-header-local);
 }
 
 .post-list-wrapper {
-  background-color: #fff;
-  padding: 0 15px;
+  background-color: var(--white);
+  padding: 0 rem(15px);
 
   flex: 1;
 
@@ -126,27 +128,31 @@ const goToWritePage = () => {
 
 .empty-state {
   margin: auto;
-  padding: 50px;
+  padding: rem(50px);
   text-align: center;
-  color: #888;
+  color: var(--grey);
 }
 
 .pagination-wrapper {
   flex-shrink: 0;
-  background-color: #fff;
-  border-top: 1px solid #eee;
+  background-color: var(--white);
+  border-top: rem(1px) solid var(--grey-light);
 
-  padding-bottom: 80px;
-  padding-top: 10px;
+  padding-bottom: rem(80px);
+  padding-top: rem(10px);
   z-index: 10;
+}
+
+.pagination-inner {
+  padding: rem(40px) 0;
 }
 
 /* 스크롤바 커스텀 (선택사항) */
 .post-list-wrapper::-webkit-scrollbar {
-  width: 6px;
+  width: rem(6px);
 }
 .post-list-wrapper::-webkit-scrollbar-thumb {
   background-color: #ddd;
-  border-radius: 3px;
+  border-radius: rem(3px);
 }
 </style>

@@ -83,58 +83,65 @@ const handleLikeClick = async () => {
 }
 </script>
 
-<style>
+<style scoped lang="scss">
+@import '@/assets/styles/utils/_pxToRem.scss';
+
 .post-container {
-  padding: 20px;
-  background-color: white;
-  border-bottom: 8px solid #f4f4f4;
+  padding: rem(20px);
+  background-color: var(--white);
+  border-bottom: rem(8px) solid var(--color-border-bold);
 }
 
 .post-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: rem(15px);
 }
 
 .username {
-  font-weight: 700;
-  font-size: 16px;
-  color: #000;
+  font-weight: var(--font-weight-bold);
+  font-size: rem(16px);
+  color: var(--black);
 }
 
 .date {
-  font-size: 13px;
-  color: #999;
+  font-size: rem(13px);
+  color: var(--text-subtitle);
 }
 
 .post-title {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 15px 0;
-  color: #000;
+  font-size: rem(20px);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 rem(15px) 0;
+  color: var(--black);
 }
 
 .post-body {
-  font-size: 15px;
+  font-size: rem(15px);
   line-height: 1.5;
-  color: #333;
-  margin-bottom: 30px;
+  color: var(--color-text-strong);
+  margin-bottom: rem(30px);
 }
 
 .post-footer {
   display: flex;
   justify-content: space-around;
-  border-top: 1px solid #eee;
-  padding-top: 15px;
+  border-top: rem(1px) solid var(--grey-light);
+  padding-top: rem(15px);
+
+  &.no-border {
+    border-top: none;
+  }
 }
 
 .action-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  gap: rem(8px);
+  font-size: rem(14px);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
+  color: var(--color-text-light);
 }
 </style>

@@ -108,36 +108,38 @@ const submitComment = async () => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@/assets/styles/utils/_pxToRem.scss';
+
 .comment-input-wrapper {
   display: flex;
-  padding: 10px;
-  gap: 5px;
-  border-top: 1px solid #eee;
+  padding: rem(10px);
+  gap: rem(5px);
+  border-top: rem(1px) solid var(--grey-light);
 }
 .comment-input {
   flex-grow: 1;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 14px;
+  border: rem(1px) solid var(--grey);
+  border-radius: rem(6px);
+  padding: rem(8px) rem(12px);
+  font-size: rem(14px);
 }
 .comment-submit-btn,
 .cancel-reply-btn {
   border: none;
-  background-color: #ffc145;
-  color: white;
-  padding: 8px 15px;
-  border-radius: 6px;
+  background-color: var(--board-free);
+  color: var(--white);
+  padding: rem(8px) rem(15px);
+  border-radius: rem(6px);
   cursor: pointer;
 }
 .cancel-reply-btn {
-  background-color: #aaa;
+  background-color: var(--color-text-subtle);
 }
 .loading-state,
 .empty-state {
-  padding: 40px;
+  padding: rem(40px);
   text-align: center;
-  color: #888;
+  color: var(--grey);
 }
 </style>

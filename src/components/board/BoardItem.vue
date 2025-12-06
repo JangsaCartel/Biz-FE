@@ -64,17 +64,19 @@ const goToDetailPage = () => {
 </script>
 
 <style scoped lang="scss">
+@import '@/assets/styles/utils/_pxToRem.scss';
+
 .post-item {
   display: flex;
   flex-direction: column;
-  padding: 16px 0;
-  border-bottom: 1px solid #f1f1f1;
+  padding: rem(16px) 0;
+  border-bottom: rem(1px) solid var(--color-border-subtle);
   cursor: pointer;
-  background-color: #fff;
+  background-color: var(--white);
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #f9f9f9;
+    background-color: var(--bg-default);
   }
 
   &:last-child {
@@ -86,31 +88,31 @@ const goToDetailPage = () => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 6px;
+  margin-bottom: rem(6px);
 }
 
 .post-title {
-  font-weight: 700;
-  font-size: 1rem;
-  color: #222;
+  font-weight: var(--font-weight-bold);
+  font-size: rem(16px);
+  color: var(--color-text-strong);
   margin: 0;
   line-height: 1.3;
 
   flex: 1;
-  padding-right: 15px;
+  padding-right: rem(15px);
 }
 
 .post-date {
-  font-size: 0.8rem;
-  color: #aaa;
+  font-size: rem(13px);
+  color: var(--color-text-subtle);
   white-space: nowrap;
-  padding-top: 2px;
+  padding-top: rem(2px);
 }
 
 .post-content {
-  font-size: 0.95rem;
-  color: #444;
-  margin: 0 0 8px 0;
+  font-size: rem(15px);
+  color: var(--color-text-default);
+  margin: 0 0 rem(8px) 0;
   line-height: 1.4;
 
   display: -webkit-box;
@@ -128,23 +130,23 @@ const goToDetailPage = () => {
 
 .post-stats {
   display: flex;
-  gap: 12px;
-  font-size: 0.9rem;
-  color: #333;
+  gap: rem(12px);
+  font-size: rem(14px);
+  color: var(--color-text-strong);
 }
 
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: rem(4px);
 }
 
 .like-icon::before,
 .comment-icon::before {
   content: '';
   display: inline-block;
-  width: 16px;
-  height: 16px;
+  width: rem(16px);
+  height: rem(16px);
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;

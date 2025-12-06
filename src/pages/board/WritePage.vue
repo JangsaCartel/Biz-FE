@@ -108,20 +108,22 @@ const closePage = () => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@/assets/styles/utils/_pxToRem.scss';
+
 .write-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f9f9f9;
+  background-color: var(--bg-default);
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
-  padding: 0 16px;
+  height: rem(56px);
+  padding: 0 rem(16px);
 }
 
 .close-btn {
@@ -132,50 +134,54 @@ const closePage = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  
+  svg {
+    stroke: var(--black);
+  }
 }
 
 .page-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #000;
+  font-size: rem(18px);
+  font-weight: var(--font-weight-bold);
+  color: var(--black);
   margin: 0;
 }
 
 .complete-btn {
   background: none;
   border: none;
-  font-size: 16px;
-  font-weight: 600;
-  color: #ffcc00;
+  font-size: rem(16px);
+  font-weight: var(--font-weight-semibold);
+  color: var(--signature-color);
   cursor: pointer;
   padding: 0;
 }
 
 .editor-area {
   flex: 1;
-  padding: 20px;
+  padding: rem(20px);
   display: flex;
   flex-direction: column;
 }
 
 .title-wrapper {
-  border-bottom: 2px solid #e0e0e0;
-  margin-bottom: 20px;
+  border-bottom: rem(2px) solid var(--grey-light);
+  margin-bottom: rem(20px);
 }
 
 .input-title {
   width: 100%;
   border: none;
-  font-size: 18px;
-  padding: 10px 0;
+  font-size: rem(18px);
+  padding: rem(10px) 0;
   outline: none;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   font-family: inherit;
   background-color: transparent;
 }
 
 .input-title::placeholder {
-  color: #bdbdbd;
+  color: var(--grey);
 }
 
 .input-content {
@@ -183,18 +189,18 @@ const closePage = () => {
   flex: 1;
   border: none;
   resize: none;
-  font-size: 16px;
+  font-size: rem(16px);
   line-height: 1.6;
   outline: none;
   font-family: inherit;
 
-  background-color: #ffffff;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background-color: var(--white);
+  padding: rem(16px);
+  border-radius: rem(8px);
+  box-shadow: 0 rem(1px) rem(3px) rgba(0, 0, 0, 0.05);
 }
 
 .input-content::placeholder {
-  color: #bdbdbd;
+  color: var(--grey);
 }
 </style>

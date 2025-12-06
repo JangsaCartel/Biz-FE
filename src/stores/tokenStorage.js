@@ -82,3 +82,4 @@ export function getPostLoginRedirect() {
 export function clearPostLoginRedirect() {
   window.sessionStorage.removeItem(POST_LOGIN_REDIRECT_KEY)
 }
+

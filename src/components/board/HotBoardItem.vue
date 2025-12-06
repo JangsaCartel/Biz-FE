@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { computed, defineProps, onMounted } from 'vue'
+import { computed, defineProps } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({

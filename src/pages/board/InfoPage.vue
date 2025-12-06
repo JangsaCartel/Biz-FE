@@ -28,7 +28,7 @@ import { onMounted, computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBoardStore } from '@/stores/board/board.js'
 import BoardItem from '@/components/board/BoardItem.vue'
-import AppNavbar from '@/components/layouts/AppNavbar.vue'
+
 import AppPagination from '@/components/common/AppPagination.vue'
 
 const router = useRouter()

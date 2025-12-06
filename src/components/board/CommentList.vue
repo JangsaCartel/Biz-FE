@@ -3,7 +3,7 @@
     <div v-if="loading" class="loading-state">댓글을 불러오는 중...</div>
     <div v-else-if="comments.length === 0" class="empty-state">작성된 댓글이 없습니다.</div>
     <div v-else>
-      <Comment
+      <BoardComment
         v-for="comment in nestedComments"
         :key="comment.comment_id"
         :comment="comment"
@@ -29,7 +29,7 @@
 <script setup>
 import { ref, onMounted, computed, defineProps } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
-import Comment from './Comment.vue'
+import BoardComment from './BoardComment.vue'
 
 const props = defineProps({
   postId: {

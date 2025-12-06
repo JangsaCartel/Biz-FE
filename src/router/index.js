@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import SignupLayout from '@/components/layouts/SignupLayout.vue'
-import { getAccessToken } from '@/services/tokenStorage'
+import { getAccessToken } from '@/stores/tokenStorage'
 
 // 라우트 파일 import
 import homeRoutes from './home'

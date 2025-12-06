@@ -2,7 +2,7 @@
 import { computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import BizIcon from '@/assets/icons/logo/logo-app-icon.png'
-import { getAccessToken, savePostLoginRedirect } from '@/services/tokenStorage'
+import { getAccessToken, savePostLoginRedirect } from '@/stores/tokenStorage'
 
 const router = useRouter()
 const route = useRoute()

@@ -5,15 +5,22 @@ import BoardListItem from '@/components/board/BoardListItem.vue'
 
 const boardStore = useBoardStore()
 
-const postsByCategory = computed(() => boardStore.getCategorizedPosts)
+const postsByCategory = computed(() => {
+  const categories = boardStore.getCategorizedPosts
+  const { hot, ...otherCategories } = categories
+  return otherCategories
+})
+const hotPosts = computed(() => boardStore.getHotBoardPosts)
 
 onMounted(() => {
   boardStore.fetchPosts()
+  boardStore.fetchHotBoardPosts()
 })
 </script>
 
 <template>
   <div class="home-container">
+    <BoardListItem :boardCategory="'hot'" :posts="hotPosts" />
     <BoardListItem
       v-for="(posts, categoryId) in postsByCategory"
       :key="categoryId"

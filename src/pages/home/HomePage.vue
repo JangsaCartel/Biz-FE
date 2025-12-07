@@ -1,16 +1,47 @@
-<script>
-export default {
-  name: 'HomeView',
-}
+<script setup>
+import { onMounted, computed } from 'vue'
+import { useBoardStore } from '@/stores/board/board.js'
+import BoardListItem from '@/components/board/BoardListItem.vue'
+
+const boardStore = useBoardStore()
+
+const postsByCategory = computed(() => {
+  const categories = boardStore.getCategorizedPosts
+  // eslint-disable-next-line no-unused-vars
+  const { hot, ...otherCategories } = categories
+  const limitedCategories = {}
+  for (const categoryId in otherCategories) {
+    limitedCategories[categoryId] = otherCategories[categoryId].slice(0, 3)
+  }
+  return limitedCategories
+})
+const hotPosts = computed(() => boardStore.getHotBoardPosts.slice(0, 3))
+
+onMounted(() => {
+  boardStore.fetchPosts()
+  boardStore.fetchHotBoardPosts()
+})
 </script>
 
 <template>
-  <div style="padding: 20px; text-align: center">
-    <h1>홈 페이지 입니다.</h1>
+  <div class="home-container">
+    <BoardListItem :boardCategory="'hot'" :posts="hotPosts" />
+    <BoardListItem
+      v-for="(posts, categoryId) in postsByCategory"
+      :key="categoryId"
+      :boardCategory="categoryId"
+      :posts="posts"
+    />
   </div>
 </template>
 
 <style scoped lang="scss">
-.home {
+.home-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 </style>

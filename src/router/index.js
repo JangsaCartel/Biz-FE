@@ -10,9 +10,10 @@ import hotRoutes from './hot'
 import mapRoutes from './map'
 import aiRoutes from './ai'
 import policyRoutes from './policy'
+import boardRoutes from './board'
 import testRoutes from './test'
 import authRoutes from './auth'
-import NotFoundPage from '@/pages/error/NotFoundPage.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +28,7 @@ const router = createRouter({
         ...mapRoutes,
         ...aiRoutes,
         ...policyRoutes,
+        ...boardRoutes,
         ...testRoutes,
       ],
     },
@@ -34,11 +36,6 @@ const router = createRouter({
       path: '/',
       component: SignupLayout,
       children: [...authRoutes],
-    },
-    {
-      path: '/:pathMatch(.*)*',
-      name: 'notFound',
-      component: NotFoundPage,
     },
   ],
 })

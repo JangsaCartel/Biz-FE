@@ -4,8 +4,8 @@ export const fetchPosts = () => {
   return apiClient.get('/')
 }
 
-export const fetchHotBoardPosts = (page = 1) => {
-  return apiClient.get(`/hot?page=${page}`)
+export const fetchHotBoardPosts = (page = 1, pageSize = 4) => {
+  return apiClient.get(`/hot?page=${page}&pageSize=${pageSize}`)
 }
 
 export const fetchFreeBoardPosts = (page = 1, pageSize = 4) => {

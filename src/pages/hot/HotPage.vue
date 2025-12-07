@@ -11,20 +11,47 @@
       <div v-else class="no-posts">
         <p>현재 HOT 게시글이 없습니다.</p>
       </div>
+
+      <div class="pagination-container" v-if="hotPosts.length > 0">
+        <AppPagination
+          :current-page="currentPage"
+          :total-items="totalPosts"
+          :page-size="pageSize"
+          @page-change="handlePageChange"
+        />
+      </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref, watch } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
 import HotBoardItem from '@/components/board/HotBoardItem.vue'
+import AppPagination from '@/components/common/AppPagination.vue'
 
 const boardStore = useBoardStore()
+
 const hotPosts = computed(() => boardStore.getHotBoardPosts)
+const totalPosts = computed(() => boardStore.getHotBoardTotal)
+
+const currentPage = ref(1)
+const pageSize = ref(4)
+
+const fetchPosts = () => {
+  boardStore.fetchHotBoardPosts(currentPage.value, pageSize.value)
+}
+
+const handlePageChange = (page) => {
+  currentPage.value = page
+}
 
 onMounted(() => {
-  boardStore.fetchHotBoardPosts()
+  fetchPosts()
+})
+
+watch(currentPage, () => {
+  fetchPosts()
 })
 </script>
 

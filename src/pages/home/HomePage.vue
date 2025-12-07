@@ -7,10 +7,15 @@ const boardStore = useBoardStore()
 
 const postsByCategory = computed(() => {
   const categories = boardStore.getCategorizedPosts
+  // eslint-disable-next-line no-unused-vars
   const { hot, ...otherCategories } = categories
-  return otherCategories
+  const limitedCategories = {}
+  for (const categoryId in otherCategories) {
+    limitedCategories[categoryId] = otherCategories[categoryId].slice(0, 3)
+  }
+  return limitedCategories
 })
-const hotPosts = computed(() => boardStore.getHotBoardPosts)
+const hotPosts = computed(() => boardStore.getHotBoardPosts.slice(0, 3))
 
 onMounted(() => {
   boardStore.fetchPosts()

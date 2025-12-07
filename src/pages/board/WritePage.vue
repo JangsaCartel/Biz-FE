@@ -34,13 +34,19 @@
         <input v-model="title" type="text" class="input-title" placeholder="제목을 입력하세요" />
       </div>
 
-      <textarea v-model="content" class="input-content" placeholder="내용을 입력하세요"></textarea>
+      <textarea
+        v-model="content"
+        class="input-content"
+        placeholder="내용을 입력하세요"
+        :maxlength="MAX_CHARS"
+      ></textarea>
+      <div class="char-count">{{ currentChars }}자 / {{ MAX_CHARS }}자</div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBoardStore } from '@/stores/board/board.js'
 
@@ -50,6 +56,10 @@ const boardStore = useBoardStore()
 
 const title = ref('')
 const content = ref('')
+
+const MAX_CHARS = 1000
+
+const currentChars = computed(() => content.value.length)
 
 const categoryName = route.params.category
 
@@ -77,8 +87,6 @@ const savePost = async () => {
     await boardStore.createPost(postData)
     router.push({ name: categoryName })
   } catch (error) {
-    // The interceptor in apiClient should handle 401 errors and redirect to login.
-    // However, if there are other errors, you might want to show a message to the user.
     console.error('Error creating post:', error)
     alert('게시글 작성에 실패했습니다. 다시 시도해주세요.')
   }
@@ -115,7 +123,7 @@ const closePage = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   svg {
     stroke: var(--black);
   }
@@ -183,5 +191,13 @@ const closePage = () => {
 
 .input-content::placeholder {
   color: var(--grey);
+}
+
+.char-count {
+  text-align: right;
+  font-size: rem(13px);
+  color: var(--grey);
+  margin-top: rem(5px);
+  padding-right: rem(16px);
 }
 </style>

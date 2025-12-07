@@ -51,9 +51,9 @@ export const useBoardStore = defineStore('board', {
         }
       }
     },
-    async fetchHotBoardPosts(page = 1) {
+    async fetchHotBoardPosts(page = 1, pageSize = 4) {
       try {
-        const response = await fetchHotBoardPosts(page)
+        const response = await fetchHotBoardPosts(page, pageSize)
         this.hotPosts = response.data.posts
         this.hotPostsTotal = response.data.totalCount
       } catch (error) {

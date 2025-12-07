@@ -14,7 +14,7 @@ const route = useRoute()
 const pathHideHeader = ['login', 'landing']
 
 // (임시) 네비바를 보여줄 페이지 이름
-const visableNav = ['hot', 'map', 'home', 'ai', 'policy', 'test', 'free', 'info', 'local']
+const visableNav = ['hot', 'map', 'home', 'ai', 'policy', 'test', 'free', 'info', 'local', 'postDetail']
 
 // computed로 현재 페이지에 따라 표시 여부 계산
 const showHeader = computed(() => !pathHideHeader.includes(route.name))

@@ -122,6 +122,7 @@ const handleLikeClick = async () => {
   line-height: 1.5;
   color: var(--color-text-strong);
   margin-bottom: rem(30px);
+  overflow-wrap: break-word;
 }
 
 .post-footer {

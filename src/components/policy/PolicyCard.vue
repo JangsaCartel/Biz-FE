@@ -18,7 +18,7 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  dDay: {
+  dday: {
     type: String,
     required: true,
   },
@@ -38,9 +38,10 @@ const handleClick = () => {
   emit('click', props.id)
 }
 
-//해쉬태그 13 + 12개로 분할
-const tagsRow1 = computed(() => (Array.isArray(props.tags) ? props.tags.slice(0, 13) : []))
-const tagsRow2 = computed(() => (Array.isArray(props.tags) ? props.tags.slice(13, 25) : []))
+const tagsText = computed(() => {
+  if (!Array.isArray(props.tags) || props.tags.length === 0) return ''
+  return props.tags.map((t) => `#${t}`).join(' ')
+})
 </script>
 
 <template>
@@ -59,21 +60,12 @@ const tagsRow2 = computed(() => (Array.isArray(props.tags) ? props.tags.slice(13
     <!-- 기간 + D-DAY -->
     <p class="PolicyCard-period">
       기간 {{ period }}
-      <span class="PolicyCard-dday">[{{ dDay }}]</span>
+      <span class="PolicyCard-dday">[{{ dday }}]</span>
     </p>
 
     <!-- 해시태그 -->
     <div class="PolicyCard-tags">
-      <div class="PolicyCard-tag-row">
-        <span v-for="(tag, idx) in tagsRow1" :key="'r1-' + idx" class="PolicyCard-tag">
-          #{{ tag }}
-        </span>
-      </div>
-      <div class="PolicyCard-tag-row">
-        <span v-for="(tag, idx) in tagsRow2" :key="'r2-' + idx" class="PolicyCard-tag">
-          #{{ tag }}
-        </span>
-      </div>
+      {{ tagsText }}
     </div>
   </div>
 </template>
@@ -85,7 +77,6 @@ const tagsRow2 = computed(() => (Array.isArray(props.tags) ? props.tags.slice(13
   box-sizing: border-box;
   background-color: var(--white);
   cursor: pointer;
-
   margin-bottom: rem(10px);
 
   &-top {
@@ -123,8 +114,9 @@ const tagsRow2 = computed(() => (Array.isArray(props.tags) ? props.tags.slice(13
     line-height: 1.4;
 
     display: -webkit-box;
-    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
     overflow: hidden;
     text-overflow: ellipsis;
 
@@ -146,21 +138,24 @@ const tagsRow2 = computed(() => (Array.isArray(props.tags) ? props.tags.slice(13
 
   &-tags {
     margin-top: rem(2px);
-  }
-
-  &-tag-row {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: rem(2px) rem(4px);
     font-size: rem(10px);
     line-height: 1.3;
     color: var(--text-subtitle);
 
-    min-height: 1.3em;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    line-clamp: 2; /* 표준 속성 */
+    -webkit-line-clamp: 2; /* 벤더 프리픽스 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    min-height: calc(1.3em * 2);
+    max-height: calc(1.3em * 2);
   }
 
   &-tag {
     white-space: nowrap;
+    margin-right: rem(4px);
   }
 }
 </style>

@@ -6,4 +6,9 @@ export default [
     name: 'policy',
     component: PolicyPage,
   },
+  {
+    path: '/policy/:id',
+    name: 'policyDetail',
+    component: () => import('@/pages/policy/PolicyDetailPage.vue'),
+  },
 ]

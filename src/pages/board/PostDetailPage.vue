@@ -123,12 +123,17 @@ const goToBoardList = () => {
   if (post.value && post.value.categoryId) {
     const category = categoryMap[post.value.categoryId]
     if (category && category.routeName) {
-      router.push({ name: category.routeName })
+      const previousRoute = router.options.history.state.back
+      if (previousRoute && previousRoute.startsWith('/' + category.routeName)) {
+        router.back()
+      } else {
+        router.push({ name: category.routeName })
+      }
     } else {
-      router.go(-1)
+      router.back()
     }
   } else {
-    router.go(-1)
+    router.back()
   }
 }
 

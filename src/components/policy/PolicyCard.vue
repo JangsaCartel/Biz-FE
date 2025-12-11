@@ -30,12 +30,48 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  target: {
+    type: String,
+    default: '',
+  },
+  contact: {
+    type: String,
+    default: '',
+  },
+  htmlContent: {
+    type: String,
+    default: '',
+  },
+  applyUrl: {
+    type: String,
+    default: null,
+  },
+  originalUrl: {
+    type: String,
+    default: null,
+  },
+  mainFileName: {
+    type: String,
+    default: '',
+  },
+  printFlpthNm: {
+    type: String,
+    default: '',
+  },
+  extraFileNames: {
+    type: Array,
+    default: () => [],
+  },
+  extraFileUrls: {
+    type: Array,
+    default: () => [],
+  },
 })
 
 const emit = defineEmits(['click'])
 
 const handleClick = () => {
-  emit('click', props.id)
+  emit('click', { ...props })
 }
 
 const tagsText = computed(() => {

@@ -1,13 +1,16 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-// import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { fetchPolicyList } from '@/api/policyApi'
+
+import { usePolicyStore } from '@/stores/policyStore'
+const policyStore = usePolicyStore()
 
 import PolicyCard from '@/components/policy/PolicyCard.vue'
 import PolicyFilterModal from '@/components/policy/PolicyFilterModal.vue'
 import AppPagination from '@/components/common/AppPagination.vue'
 
-// const router = useRouter()
+const router = useRouter()
 
 /* ================= 상태 ================= */
 
@@ -64,9 +67,15 @@ async function loadPolicies(page = currentPage.value) {
 
 /* ================= 이벤트 핸들러 ================= */
 
-const handleCardClick = (id) => {
-  console.log('카드 클릭, 공고 ID:', id)
-  // router.push({ name: 'policy-detail', params: { id } })
+const handleCardClick = (item) => {
+  console.log('카드 클릭, 공고 ID:', item.id)
+
+  policyStore.setSelectedPolicy(item)
+
+  router.push({
+    name: 'policyDetail',
+    params: { id: item.id },
+  })
 }
 
 /** 페이지네이션에서 페이지 클릭 */

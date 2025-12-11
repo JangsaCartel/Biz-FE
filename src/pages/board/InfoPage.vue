@@ -66,6 +66,7 @@ const goToWritePage = () => {
 
   display: flex;
   flex-direction: column;
+  height: 100%;
 
   box-sizing: border-box;
   position: relative;
@@ -111,8 +112,15 @@ const goToWritePage = () => {
   background-color: var(--white);
   padding: 0 rem(15px);
   flex: 1;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .empty-state {
@@ -127,12 +135,12 @@ const goToWritePage = () => {
   background-color: var(--white);
   border-top: rem(1px) solid var(--grey-light);
 
-  padding-bottom: rem(80px);
+  padding-bottom: rem(10px);
   padding-top: rem(10px);
   z-index: 10;
 }
 
 .pagination-inner {
-  padding: rem(40px) 0;
+  padding: rem(10px) 0;
 }
 </style>

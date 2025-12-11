@@ -12,7 +12,6 @@
     <p class="post-content">{{ truncatedContent }}</p>
 
     <div class="post-footer">
-      <span class="extra-info">추가정보</span>
       <div class="post-stats">
         <div class="stat-item">
           <i class="like-icon"></i>
@@ -65,8 +64,7 @@ const boardColor = computed(() => {
 
 const truncatedContent = computed(() => {
   if (!props.post.content) return ''
-  const strippedContent = props.post.content.replace(/<[^>]*>?/gm, '') // HTML 태그 제거
-  return strippedContent.length > 100 ? strippedContent.substring(0, 100) + '...' : strippedContent
+  return props.post.content.replace(/<[^>]*>?/gm, '') // HTML 태그 제거
 })
 
 const formattedDate = computed(() => {
@@ -93,12 +91,12 @@ const goToDetailPage = () => {
   background-color: var(--white);
 
   border-bottom: rem(1px) solid var(--color-border-subtle);
-  padding: rem(20px) rem(15px);
+  padding: rem(20px) rem(20px);
   cursor: pointer;
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: var(--bg-default);
+    background-color: #f0f0f0;
   }
 }
 
@@ -137,18 +135,12 @@ const goToDetailPage = () => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .post-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-}
-
-.extra-info {
-  font-size: rem(13px);
-  color: var(--grey);
 }
 
 .post-stats {

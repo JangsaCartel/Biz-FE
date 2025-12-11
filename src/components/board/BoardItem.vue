@@ -69,14 +69,14 @@ const goToDetailPage = () => {
 .post-item {
   display: flex;
   flex-direction: column;
-  padding: rem(16px) 0;
+  padding: rem(16px) rem(20px);
   border-bottom: rem(1px) solid var(--color-border-subtle);
   cursor: pointer;
   background-color: var(--white);
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: var(--bg-default);
+    background-color: #f0f0f0;
   }
 
   &:last-child {

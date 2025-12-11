@@ -59,40 +59,36 @@ const totalPages = computed(() => {
 })
 
 const displayedPages = computed(() => {
-  const total = totalPages.value
   const current = props.currentPage
-  const pageRange = []
+  const total = totalPages.value
+  const sidePages = 2
+  const pages = []
 
-  if (total === 1) {
+  if (total <= 1) {
     return [1]
   }
 
-  if (total <= 5) {
-    for (let i = 1; i <= total; i++) {
-      pageRange.push(i)
+  for (let i = current - sidePages; i <= current + sidePages; i++) {
+    if (i > 0 && i <= total) {
+      pages.push(i)
     }
-    return pageRange
   }
 
-  if (current <= 5) {
-    for (let i = 1; i <= 5; i++) {
-      pageRange.push(i)
-    }
-    pageRange.push('...')
-    pageRange.push(total)
-    return pageRange
-  } else {
-    pageRange.push(1)
-    pageRange.push('...')
-    pageRange.push(current)
-
-    if (current < total) {
-      pageRange.push('...')
-      pageRange.push(total)
-    }
-
-    return pageRange
+  if (pages[0] > 2) {
+    pages.unshift('...')
+    pages.unshift(1)
+  } else if (pages[0] === 2) {
+    pages.unshift(1)
   }
+
+  if (pages[pages.length - 1] < total - 1) {
+    pages.push('...')
+    pages.push(total)
+  } else if (pages[pages.length - 1] === total - 1) {
+    pages.push(total)
+  }
+
+  return pages
 })
 
 const changePage = (page) => {

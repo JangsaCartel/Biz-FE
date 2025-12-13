@@ -6,12 +6,7 @@
     </div>
 
     <ul class="post-list">
-      <li
-        v-for="post in posts"
-        :key="post.post_id"
-        class="post-item"
-        @click="goToDetailPage(post)"
-      >
+      <li v-for="post in posts" :key="post.post_id" class="post-item" @click="goToDetailPage(post)">
         <span class="post-title">{{ post.title }}</span>
         <div class="post-stats">
           <span class="stat-item like-icon">{{ post.like_count }}</span>
@@ -148,7 +143,7 @@ const goToDetailPage = (post) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: rem(14px) 0;
+  padding: rem(10px) 0;
   border-bottom: rem(1px) solid var(--grey-light);
   color: var(--color-text-strong);
   cursor: pointer;

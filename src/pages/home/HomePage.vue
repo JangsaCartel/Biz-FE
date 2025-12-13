@@ -39,8 +39,8 @@ onMounted(() => {
 .home-container {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 20px;
+  gap: 0.3rem;
+  padding: 15px;
   max-width: 800px;
   margin: 0 auto;
   height: 100%;

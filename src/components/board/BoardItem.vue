@@ -40,6 +40,10 @@ const props = defineProps({
 const truncatedContent = computed(() => {
   if (!props.post.content) return ''
   const strippedContent = props.post.content.replace(/<[^>]*>?/gm, '')
+  const maxLength = 15 // 최대 글자 수
+  if (strippedContent.length > maxLength) {
+    return strippedContent.slice(0, maxLength) + '...'
+  }
   return strippedContent
 })
 
@@ -114,12 +118,8 @@ const goToDetailPage = () => {
   color: var(--color-text-default);
   margin: 0 0 rem(8px) 0;
   line-height: 1.4;
-
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  height: calc(1.4em * 2);
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .post-footer {

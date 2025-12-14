@@ -82,7 +82,7 @@ const closePage = () => {
 .write-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   background-color: var(--bg-default);
 }
 
@@ -163,6 +163,7 @@ const closePage = () => {
   line-height: 1.6;
   outline: none;
   font-family: inherit;
+  overflow-y: auto;
 
   background-color: var(--white);
   padding: rem(16px);

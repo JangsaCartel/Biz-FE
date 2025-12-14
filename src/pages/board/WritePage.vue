@@ -2,28 +2,7 @@
   <div class="write-container">
     <header class="header">
       <button class="close-btn" aria-label="닫기" @click="closePage">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M18 6L6 18"
-            stroke="black"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M6 6L18 18"
-            stroke="black"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
+        <img src="@/assets/icons/common/close.png" alt="닫기" class="icon-img" />
       </button>
       <h1 class="page-title">글쓰기</h1>
       <button class="complete-btn" @click="savePost">완료</button>
@@ -103,7 +82,7 @@ const closePage = () => {
 .write-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   background-color: var(--bg-default);
 }
 
@@ -123,10 +102,11 @@ const closePage = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
 
-  svg {
-    stroke: var(--black);
-  }
+.close-btn .icon-img {
+  width: rem(18px);
+  height: rem(18px);
 }
 
 .page-title {
@@ -151,6 +131,7 @@ const closePage = () => {
   padding: rem(20px);
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .title-wrapper {
@@ -182,11 +163,18 @@ const closePage = () => {
   line-height: 1.6;
   outline: none;
   font-family: inherit;
+  overflow-y: auto;
 
   background-color: var(--white);
   padding: rem(16px);
   border-radius: rem(8px);
   box-shadow: 0 rem(1px) rem(3px) rgba(0, 0, 0, 0.05);
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .input-content::placeholder {

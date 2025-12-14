@@ -6,12 +6,7 @@
     </div>
 
     <ul class="post-list">
-      <li
-        v-for="post in posts"
-        :key="post.post_id"
-        class="post-item"
-        @click="goToDetailPage(post)"
-      >
+      <li v-for="post in posts" :key="post.post_id" class="post-item" @click="goToDetailPage(post)">
         <span class="post-title">{{ post.title }}</span>
         <div class="post-stats">
           <span class="stat-item like-icon">{{ post.like_count }}</span>
@@ -137,6 +132,10 @@ const goToDetailPage = (post) => {
   margin: 0;
   list-style: none;
   box-shadow: 0 rem(2px) rem(8px) rgba(0, 0, 0, 0.03);
+  min-height: rem(131px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 /* 개별 게시글 항목 */
@@ -144,7 +143,7 @@ const goToDetailPage = (post) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: rem(14px) 0;
+  padding: rem(10px) 0;
   border-bottom: rem(1px) solid var(--grey-light);
   color: var(--color-text-strong);
   cursor: pointer;

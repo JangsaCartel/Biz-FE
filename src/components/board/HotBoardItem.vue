@@ -12,7 +12,6 @@
     <p class="post-content">{{ truncatedContent }}</p>
 
     <div class="post-footer">
-      <span class="extra-info">추가정보</span>
       <div class="post-stats">
         <div class="stat-item">
           <i class="like-icon"></i>
@@ -66,7 +65,11 @@ const boardColor = computed(() => {
 const truncatedContent = computed(() => {
   if (!props.post.content) return ''
   const strippedContent = props.post.content.replace(/<[^>]*>?/gm, '') // HTML 태그 제거
-  return strippedContent.length > 100 ? strippedContent.substring(0, 100) + '...' : strippedContent
+  const maxLength = 15 // 최대 글자 수
+  if (strippedContent.length > maxLength) {
+    return strippedContent.slice(0, maxLength) + '...'
+  }
+  return strippedContent
 })
 
 const formattedDate = computed(() => {
@@ -90,15 +93,20 @@ const goToDetailPage = () => {
 @import '@/assets/styles/utils/_pxToRem.scss';
 
 .hot-post-item {
-  background-color: var(--white);
-
+  display: flex;
+  flex-direction: column;
+  padding: rem(16px) rem(20px);
   border-bottom: rem(1px) solid var(--color-border-subtle);
-  padding: rem(20px) rem(15px);
   cursor: pointer;
+  background-color: var(--white);
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: var(--bg-default);
+    background-color: #e0e0e0;
+  }
+
+  &:last-child {
+    border-bottom: none;
   }
 }
 
@@ -117,38 +125,34 @@ const goToDetailPage = () => {
 .post-date {
   font-size: rem(13px);
   color: var(--color-text-subtle);
+  white-space: nowrap;
+  padding-top: rem(2px);
 }
 
 .post-title {
-  font-size: rem(18px);
   font-weight: var(--font-weight-bold);
+  font-size: rem(16px);
   color: var(--color-text-strong);
-  margin: 0 0 rem(6px) 0;
+  margin: 0;
   line-height: 1.3;
+
+  flex: 1;
+  padding-right: rem(15px);
 }
 
 .post-content {
   font-size: rem(15px);
-  color: var(--text-title);
-  margin: 0 0 rem(14px) 0;
+  color: var(--color-text-default);
+  margin: 0 0 rem(8px) 0;
   line-height: 1.4;
-
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  height: calc(1.4em * 2);
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .post-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-}
-
-.extra-info {
-  font-size: rem(13px);
-  color: var(--grey);
 }
 
 .post-stats {

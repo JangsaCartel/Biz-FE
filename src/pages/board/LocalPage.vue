@@ -24,31 +24,46 @@
 </template>
 
 <script setup>
-import { onMounted, computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, ref, watch, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useBoardStore } from '@/stores/board/board.js'
 import BoardItem from '@/components/board/BoardItem.vue'
-
 import AppPagination from '@/components/common/AppPagination.vue'
 
 const router = useRouter()
+const route = useRoute()
 const boardStore = useBoardStore()
 
 const currentPage = ref(1)
-const pageSize = 4 // 한 페이지당 게시글 수
+const pageSize = 4
 
 const posts = computed(() => boardStore.getLocalBoardPosts)
 const totalPosts = computed(() => boardStore.getLocalBoardTotal)
 
+const fetchPosts = (page) => {
+  boardStore.fetchLocalBoardPosts(page, pageSize)
+}
+
 onMounted(() => {
-  boardStore.fetchLocalBoardPosts(currentPage.value, pageSize)
+  const pageFromUrl = parseInt(route.query.page) || 1
+  currentPage.value = pageFromUrl
+  fetchPosts(pageFromUrl)
 })
 
+watch(
+  () => route.query.page,
+  (newPage) => {
+    const pageAsNumber = parseInt(newPage) || 1
+    if (currentPage.value !== pageAsNumber) {
+      currentPage.value = pageAsNumber
+      fetchPosts(pageAsNumber)
+      document.querySelector('.post-list-wrapper').scrollTop = 0
+    }
+  }
+)
+
 const handlePageChange = (page) => {
-  currentPage.value = page
-  boardStore.fetchLocalBoardPosts(page, pageSize)
-  // 전체 화면 대신 리스트 영역 내부 스크롤을 맨 위로 이동
-  document.querySelector('.post-list-wrapper').scrollTop = 0
+  router.push({ query: { page: page } })
 }
 
 const goToWritePage = () => {
@@ -67,6 +82,7 @@ const goToWritePage = () => {
 
   display: flex;
   flex-direction: column;
+  height: 100%;
 
   box-sizing: border-box;
   position: relative;
@@ -121,9 +137,16 @@ const goToWritePage = () => {
   padding: 0 rem(15px);
 
   flex: 1;
+  overflow-y: auto;
 
   display: flex;
   flex-direction: column;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .empty-state {
@@ -138,13 +161,13 @@ const goToWritePage = () => {
   background-color: var(--white);
   border-top: rem(1px) solid var(--grey-light);
 
-  padding-bottom: rem(80px);
+  padding-bottom: rem(10px);
   padding-top: rem(10px);
   z-index: 10;
 }
 
 .pagination-inner {
-  padding: rem(40px) 0;
+  padding: rem(10px) 0;
 }
 
 /* 스크롤바 커스텀 (선택사항) */

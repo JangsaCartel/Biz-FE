@@ -59,7 +59,7 @@ watch(currentPage, () => {
 /* 전체 페이지 배경 */
 .hot-page-wrapper {
   background-color: #f8f8f8;
-  min-height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -87,12 +87,26 @@ watch(currentPage, () => {
   width: 100%;
   padding: 0 15px 20px 15px;
   box-sizing: border-box;
+
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .post-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* 게시글 없을 때 */

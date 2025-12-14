@@ -1,21 +1,27 @@
 <template>
   <div class="post-detail-page">
-    <div class="scrollable-content">
-      <header v-if="post" class="board-header">
-        <button @click="goToBoardList" class="back-button">&lt;</button>
-        <h1 class="board-title" :style="{ color: boardColor }">{{ boardName }}</h1>
-      </header>
+    <header v-if="post" class="board-header">
+      <button @click="goToBoardList" class="back-button">
+        <img src="@/assets/icons/common/next.png" alt="뒤로가기" class="icon-img" />
+      </button>
+      <h1 class="board-title" :style="{ color: boardColor }">{{ boardName }}</h1>
+    </header>
 
-      <PostContent v-if="post" :post="post" />
-      <div v-else-if="loading" class="loading-state">게시글을 불러오는 중입니다...</div>
-      <div v-else class="empty-state">게시글을 찾을 수 없습니다.</div>
+    <div class="scrollable-main-content">
+      <div class="post-content-area">
+        <PostContent v-if="post" :post="post" />
+        <div v-else-if="loading" class="loading-state">게시글을 불러오는 중입니다...</div>
+        <div v-else class="empty-state">게시글을 찾을 수 없습니다.</div>
+      </div>
 
-      <CommentList
-        v-if="postId"
-        :post-id="postId"
-        :key="commentListKey"
-        @reply-to="handleReplyTo"
-      />
+      <div class="comment-list-scroll-area">
+        <CommentList
+          v-if="postId"
+          :post-id="postId"
+          :key="commentListKey"
+          @reply-to="handleReplyTo"
+        />
+      </div>
 
       <div class="pagination-wrapper">
         <div class="pagination-inner">
@@ -117,12 +123,17 @@ const goToBoardList = () => {
   if (post.value && post.value.categoryId) {
     const category = categoryMap[post.value.categoryId]
     if (category && category.routeName) {
-      router.push({ name: category.routeName })
+      const previousRoute = router.options.history.state.back
+      if (previousRoute && previousRoute.startsWith('/' + category.routeName)) {
+        router.back()
+      } else {
+        router.push({ name: category.routeName })
+      }
     } else {
-      router.go(-1)
+      router.back()
     }
   } else {
-    router.go(-1)
+    router.back()
   }
 }
 
@@ -144,9 +155,22 @@ onMounted(async () => {
   height: 100%;
 }
 
-.scrollable-content {
+.scrollable-main-content {
   flex-grow: 1;
   overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.post-content-area {
+  flex-shrink: 0;
+  padding-bottom: rem(20px);
+}
+
+.comment-list-container {
   padding-bottom: rem(20px);
 }
 
@@ -174,10 +198,11 @@ onMounted(async () => {
   border: none;
   cursor: pointer;
   padding: 0;
-  font-size: rem(24px);
-  font-weight: bold;
-  color: var(--color-text-strong);
-  line-height: 1;
+}
+
+.back-button .icon-img {
+  width: rem(24px);
+  height: rem(24px);
 }
 
 .pagination-wrapper {

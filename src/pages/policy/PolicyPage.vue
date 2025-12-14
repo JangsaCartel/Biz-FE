@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { fetchPolicyList } from '@/api/policyApi'
 
 import { usePolicyStore } from '@/stores/policyStore'
@@ -11,6 +11,7 @@ import PolicyFilterModal from '@/components/policy/PolicyFilterModal.vue'
 import AppPagination from '@/components/common/AppPagination.vue'
 
 const router = useRouter()
+const route = useRoute()
 
 /* ================= 상태 ================= */
 
@@ -32,9 +33,47 @@ const filterSummary = computed(() => ({
   hashtagsText: selectedHashtags.value.length ? selectedHashtags.value.join(', ') : '전체',
 }))
 
+/* ================= query 파싱/생성 ================= */
+
+const parsePage = (q) => {
+  const n = Number(q)
+  return Number.isFinite(n) && n > 0 ? n : 1
+}
+
+const parseHashtags = (q) => {
+  if (Array.isArray(q)) {
+    return q.flatMap((v) => String(v).split(',')).filter(Boolean)
+  }
+  if (typeof q === 'string' && q.trim()) {
+    return q
+      .split(',')
+      .map((v) => v.trim())
+      .filter(Boolean)
+  }
+  return []
+}
+
+const buildQuery = ({ page, domain, hashtags }) => {
+  const next = { ...route.query }
+
+  // page는 항상 유지
+  next.page = String(page)
+
+  // domain 없으면 제거
+  if (domain) next.domain = domain
+  else delete next.domain
+
+  // hashtags 없으면 제거 (CSV 한 칸으로 저장)
+  const hs = (hashtags ?? []).length ? (hashtags ?? []).join(',') : ''
+  if (hs) next.hashtags = hs
+  else delete next.hashtags
+
+  return next
+}
+
 /* ================= API 호출 ================= */
 
-async function loadPolicies(page = currentPage.value) {
+async function loadPolicies(page) {
   try {
     isLoading.value = true
     errorMessage.value = ''
@@ -51,10 +90,7 @@ async function loadPolicies(page = currentPage.value) {
     currentPage.value = res.page ?? page
     pageSize.value = res.size ?? pageSize.value
     totalItems.value = res.totalItems ?? 0
-
     policyList.value = items
-
-    // console.log('[PolicyPage] items:', policyList.value.length, '개')
   } catch (err) {
     console.error('[PolicyPage] 정책 목록 조회 실패:', err)
     errorMessage.value = '정책 목록을 불러오는 중 오류가 발생했습니다.'
@@ -65,22 +101,46 @@ async function loadPolicies(page = currentPage.value) {
   }
 }
 
+/* ================= route.query 변화에 따라 복원/로딩 ================= */
+/**
+ * - 상세로 갔다가 뒤로오면 query가 그대로 남아있음
+ * - 브라우저 뒤/앞 이동에도 동일하게 복원됨
+ */
+watch(
+  () => [route.query.page, route.query.domain, route.query.hashtags],
+  async () => {
+    currentPage.value = parsePage(route.query.page)
+    selectedDomain.value = typeof route.query.domain === 'string' ? route.query.domain : ''
+    selectedHashtags.value = parseHashtags(route.query.hashtags)
+
+    await loadPolicies(currentPage.value)
+  },
+  { immediate: true },
+)
+
 /* ================= 이벤트 핸들러 ================= */
 
 const handleCardClick = (item) => {
-  console.log('카드 클릭, 공고 ID:', item.id)
-
   policyStore.setSelectedPolicy(item)
 
+  // ✅ 현재 목록 상태(query)를 상세로도 같이 넘겨두면, 상세의 "목록으로" 버튼에서도 그대로 복귀 가능
   router.push({
     name: 'policyDetail',
     params: { id: item.id },
+    query: route.query,
   })
 }
 
 /** 페이지네이션에서 페이지 클릭 */
 const handlePageChange = (newPage) => {
-  loadPolicies(newPage)
+  // ✅ query만 바꾸면 watch가 알아서 loadPolicies 실행
+  router.replace({
+    query: buildQuery({
+      page: newPage,
+      domain: selectedDomain.value,
+      hashtags: selectedHashtags.value,
+    }),
+  })
 }
 
 /** 필터 모달 열기/닫기 */
@@ -96,20 +156,11 @@ const handleFilterConfirm = ({ domain, hashtag }) => {
   selectedDomain.value = domain || ''
   selectedHashtags.value = hashtag || []
 
-  // console.log('[PolicyPage] 현재 필터:', {
-  //   domain: selectedDomain.value,
-  //   hashtag: selectedHashtags.value,
-  // })
-
-  currentPage.value = 1
-  loadPolicies(1)
+  // ✅ 필터 바꾸면 1페이지로 + query 갱신 → watch가 1페이지 로딩
+  router.replace({
+    query: buildQuery({ page: 1, domain: selectedDomain.value, hashtags: selectedHashtags.value }),
+  })
 }
-
-/* ================= 초기 로딩 ================= */
-
-onMounted(() => {
-  loadPolicies(1)
-})
 </script>
 
 <template>
@@ -128,20 +179,22 @@ onMounted(() => {
     </div>
 
     <!-- 로딩/에러/목록 -->
-    <div v-if="isLoading" class="PolicyState-text">불러오는 중...</div>
+    <div class="PolicyList">
+      <div v-if="isLoading" class="PolicyState-text">불러오는 중...</div>
 
-    <div v-else-if="errorMessage" class="PolicyState-text PolicyState-error">
-      {{ errorMessage }}
-    </div>
+      <div v-else-if="errorMessage" class="PolicyState-text PolicyState-error">
+        {{ errorMessage }}
+      </div>
 
-    <div v-else class="PolicyList">
-      <PolicyCard
-        v-for="item in policyList"
-        :key="item.id"
-        v-bind="item"
-        @click="handleCardClick"
-      />
-      <div v-if="!policyList.length" class="PolicyState-text">표시할 공고가 없습니다.</div>
+      <div v-else class="PolicyList">
+        <PolicyCard
+          v-for="item in policyList"
+          :key="item.id"
+          v-bind="item"
+          @click="handleCardClick"
+        />
+        <div v-if="!policyList.length" class="PolicyState-text">표시할 공고가 없습니다.</div>
+      </div>
     </div>
 
     <!-- 페이지네이션 -->
@@ -170,13 +223,18 @@ onMounted(() => {
   background-color: var(--bg-default);
   width: 100%;
   height: 100%;
+  max-height: 100%;
   min-height: 0;
+
   display: flex;
   flex-direction: column;
-  overflow-y: hidden;
+
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .PolicyFilterBar {
+  flex: 0 0 auto;
   padding: rem(8px) rem(12px);
   display: flex;
   flex-direction: column;
@@ -204,12 +262,35 @@ onMounted(() => {
 }
 
 .PolicyList {
-  overflow: hidden;
+  flex: 1 1 auto;
+  min-height: 0; /* ✅ overflow-y가 정상 동작하는 핵심 */
+  overflow-y: auto; /* ✅ 리스트만 스크롤 */
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+
+  overscroll-behavior: contain;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.PolicyList::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+.PolicyList::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+.PolicyList::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .PolicyPagination {
   flex: 0 0 auto;
+  margin-top: auto;
   padding: rem(6px) rem(12px) rem(10px);
+
+  background-color: var(--bg-default);
 }
 
 .PolicyState-text {

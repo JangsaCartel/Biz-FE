@@ -36,14 +36,16 @@ const parseHashtags = (q) => {
 const saveToSession = (id, data) => {
   try {
     sessionStorage.setItem(getStorageKey(id), JSON.stringify(data))
-  } catch (_) {}
+  } catch {
+    // ignore (sessionStorage unavailable)
+  }
 }
 
 const loadFromSession = (id) => {
   try {
     const raw = sessionStorage.getItem(getStorageKey(id))
     return raw ? JSON.parse(raw) : null
-  } catch (_) {
+  } catch {
     return null
   }
 }

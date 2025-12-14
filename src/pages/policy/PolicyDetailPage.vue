@@ -1,22 +1,57 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { usePolicyStore } from '@/stores/policyStore'
+import { fetchPolicyList } from '@/api/policyApi'
 
 import fileIcon from '@/assets/icons/policy/file.png'
 import nextIcon from '@/assets/icons/common/next.png'
 import shareIcon from '@/assets/icons/common/share.png'
 
 const router = useRouter()
-
+const route = useRoute()
 const policyStore = usePolicyStore()
 
 const detail = ref(null)
 const isLoading = ref(false)
 const errorMessage = ref('')
 
+const getStorageKey = (id) => `policy_detail:${id}`
+
+const parsePage = (q) => {
+  const n = Number(q)
+  return Number.isFinite(n) && n > 0 ? n : 1
+}
+
+const parseHashtags = (q) => {
+  if (Array.isArray(q)) return q.flatMap((v) => String(v).split(',')).filter(Boolean)
+  if (typeof q === 'string' && q.trim())
+    return q
+      .split(',')
+      .map((v) => v.trim())
+      .filter(Boolean)
+  return []
+}
+
+const saveToSession = (id, data) => {
+  try {
+    sessionStorage.setItem(getStorageKey(id), JSON.stringify(data))
+  } catch (_) {}
+}
+
+const loadFromSession = (id) => {
+  try {
+    const raw = sessionStorage.getItem(getStorageKey(id))
+    return raw ? JSON.parse(raw) : null
+  } catch (_) {
+    return null
+  }
+}
+
 const goBack = () => {
-  router.back()
+  // 히스토리 없는 상태(새로고침/직접접속)면 목록으로 안전하게
+  if (window.history.length > 1) router.back()
+  else router.push({ name: 'policy', query: route.query })
 }
 
 const handleShare = () => {
@@ -42,12 +77,64 @@ const handleOriginalClick = () => {
   }
 }
 
-onMounted(() => {
-  detail.value = policyStore.selectedPolicy
-  if (!detail.value) {
-    alert('유효하지 않은 접근입니다.')
-    router.replace('/policy')
+const resolveDetail = async () => {
+  const id = String(route.params.id ?? '')
+
+  // 1) 스토어에 있고, id도 일치하면 그대로 사용
+  if (policyStore.selectedPolicy && String(policyStore.selectedPolicy.id) === id) {
+    detail.value = policyStore.selectedPolicy
+    saveToSession(id, detail.value)
+    return
   }
+
+  // 2) sessionStorage에서 복구
+  const cached = loadFromSession(id)
+  if (cached && String(cached.id) === id) {
+    detail.value = cached
+    policyStore.setSelectedPolicy(cached)
+    return
+  }
+
+  // 3) query(page/domain/hashtags) 기반으로 목록 재호출 후 id로 찾기
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    const page = parsePage(route.query.page)
+    const domain = typeof route.query.domain === 'string' ? route.query.domain : ''
+    const hashtags = parseHashtags(route.query.hashtags)
+
+    const res = await fetchPolicyList({
+      page,
+      size: 4, // PolicyPage의 pageSize와 동일하게 유지
+      domain,
+      hashtags,
+    })
+
+    const items = res.items ?? []
+    const found = items.find((it) => String(it.id) === id)
+
+    if (found) {
+      detail.value = found
+      policyStore.setSelectedPolicy(found)
+      saveToSession(id, found)
+      return
+    }
+
+    // 4) 그래도 못 찾으면 -> 목록으로 (여기서만 “유효하지 않은 접근” 처리)
+    errorMessage.value = '정책 정보를 불러올 수 없습니다.'
+    router.replace({ name: 'policy', query: route.query })
+  } catch (e) {
+    console.error('[PolicyDetail] 상세 복구 실패:', e)
+    errorMessage.value = '정책 정보를 불러오는 중 오류가 발생했습니다.'
+    router.replace({ name: 'policy', query: route.query })
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => {
+  resolveDetail()
 })
 </script>
 

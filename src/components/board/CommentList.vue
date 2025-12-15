@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, defineProps, defineEmits } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
 import BoardComment from './BoardComment.vue'
 

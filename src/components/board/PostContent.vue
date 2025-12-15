@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { defineProps, computed, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
 
 const props = defineProps({

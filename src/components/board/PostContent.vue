@@ -84,8 +84,6 @@ const handleLikeClick = async () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/styles/utils/_pxToRem.scss';
-
 .post-container {
   padding: rem(20px);
   background-color: var(--white);

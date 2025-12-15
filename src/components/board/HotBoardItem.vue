@@ -90,8 +90,6 @@ const goToDetailPage = () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/styles/utils/_pxToRem.scss';
-
 .hot-post-item {
   display: flex;
   flex-direction: column;

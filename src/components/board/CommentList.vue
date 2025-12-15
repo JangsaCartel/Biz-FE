@@ -65,8 +65,6 @@ const handleReplyTo = (commentId) => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/styles/utils/_pxToRem.scss';
-
 .loading-state,
 .empty-state {
   padding: rem(40px);

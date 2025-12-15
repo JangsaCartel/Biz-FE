@@ -68,8 +68,6 @@ const goToDetailPage = () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/styles/utils/_pxToRem.scss';
-
 .post-item {
   display: flex;
   flex-direction: column;

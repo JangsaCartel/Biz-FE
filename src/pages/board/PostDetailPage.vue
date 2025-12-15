@@ -147,8 +147,6 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/styles/utils/_pxToRem.scss';
-
 .post-detail-page {
   display: flex;
   flex-direction: column;

@@ -9,14 +9,21 @@
           <span class="comment-user">{{ comment.author_nickname }}</span>
           <div class="comment-actions">
             <button class="comment-like" @click="handleLikeClick">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"
+                ></path>
               </svg>
               <span>{{ likeCount }}</span>
             </button>
-            <button class="reply-btn" @click="onReplyClick">
-              답글
-            </button>
+            <button class="reply-btn" @click="onReplyClick">답글</button>
           </div>
         </div>
         <div class="comment-content" v-html="comment.content"></div>
@@ -36,7 +43,7 @@
   </div>
 </template>
 <script setup>
-import { defineProps, defineEmits, computed, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
 
 const props = defineProps({
@@ -80,8 +87,6 @@ const handleLikeClick = () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/styles/utils/_pxToRem.scss';
-
 .comment-container {
   border-bottom: rem(1px) solid var(--color-border-subtle);
 }

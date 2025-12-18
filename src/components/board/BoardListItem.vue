@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import { defineProps, computed } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
@@ -82,8 +82,6 @@ const goToDetailPage = (post) => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/styles/utils/_pxToRem.scss';
-
 /* 위젯 전체 컨테이너 */
 .board-widget-container {
   width: 100%;

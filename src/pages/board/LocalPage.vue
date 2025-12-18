@@ -59,7 +59,7 @@ watch(
       fetchPosts(pageAsNumber)
       document.querySelector('.post-list-wrapper').scrollTop = 0
     }
-  }
+  },
 )
 
 const handlePageChange = (page) => {
@@ -72,8 +72,6 @@ const goToWritePage = () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/styles/utils/_pxToRem.scss';
-
 /* 전체 컨테이너: 화면 높이 100% 고정 */
 .board-container {
   max-width: rem(800px);

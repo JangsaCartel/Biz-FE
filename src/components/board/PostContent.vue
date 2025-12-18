@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { defineProps, computed, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
 
 const props = defineProps({
@@ -84,8 +84,6 @@ const handleLikeClick = async () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/styles/utils/_pxToRem.scss';
-
 .post-container {
   padding: rem(20px);
   background-color: var(--white);

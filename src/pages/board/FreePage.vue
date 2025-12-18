@@ -58,7 +58,7 @@ watch(
       currentPage.value = pageAsNumber
       fetchPosts(pageAsNumber)
     }
-  }
+  },
 )
 
 const handlePageChange = (page) => {
@@ -72,8 +72,6 @@ const goToWritePage = () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/styles/utils/_pxToRem.scss';
-
 /* 전체 컨테이너 */
 .board-container {
   max-width: rem(800px);

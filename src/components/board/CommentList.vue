@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, defineProps, defineEmits } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
 import BoardComment from './BoardComment.vue'
 
@@ -65,8 +65,6 @@ const handleReplyTo = (commentId) => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/styles/utils/_pxToRem.scss';
-
 .loading-state,
 .empty-state {
   padding: rem(40px);

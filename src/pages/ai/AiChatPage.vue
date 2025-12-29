@@ -10,17 +10,20 @@ const scrollEl = ref(null)
 const messages = ref([])
 const input = ref('')
 
-const llmMode = ref(false)
 const isStreaming = ref(false)
 const abortCtrl = ref(null)
 
 const currentNodeId = ref(null)
 
-const followUpMode = ref(false)
-const lastAnswerContext = ref(null) // { title, promptKey, trailSnapshot, answerText }
+// 입력 모드: NONE(막힘) | FREE(자유질문 /llm/stream) | FOLLOWUP(버튼답변 후속 /answer/stream)
+const inputMode = ref('NONE') // 'NONE' | 'FREE' | 'FOLLOWUP'
 
-// ✅ 사용자가 버튼으로 선택한 의도 트레일 (LLM에 그대로 전달)
-const trail = ref([]) // [{ from, label, to }]
+// 버튼 기반 답변 이후, 후속 입력을 같은 맥락으로 보내기 위한 컨텍스트
+// { promptKey, title, trail, slotValues }
+const followupCtx = ref(null)
+
+// 사용자가 버튼으로 선택한 흐름 (Backend TrailItem(label,nodeId) 형태에 맞춤)
+const trail = ref([]) // [{ label, nodeId }]
 
 // ===== helpers =====
 function uid() {
@@ -38,12 +41,8 @@ function goBack() {
   router.back()
 }
 
-// ===== Node API =====
-async function fetchNode(nodeId) {
-  return await fetchChatNode(nodeId)
-}
-
-function stopStream() {
+// ===== streaming control =====
+function abortStream() {
   if (abortCtrl.value) {
     abortCtrl.value.abort()
     abortCtrl.value = null
@@ -51,46 +50,78 @@ function stopStream() {
   isStreaming.value = false
 }
 
-async function _streamIntoMessage(payload, answerMsg) {
+function endStream() {
+  abortCtrl.value = null
+  isStreaming.value = false
+}
+
+// ===== Node API =====
+async function fetchNode(nodeId) {
+  return await fetchChatNode(nodeId)
+}
+
+async function _streamAnswerIntoMessage(payload, answerMsg) {
   isStreaming.value = true
   abortCtrl.value = new AbortController()
-
-  let firstDelta = true
 
   await streamChatAnswer(
     payload,
     {
       onDelta(delta) {
-        if (firstDelta) {
-          // 첫 토큰 들어오면 placeholder 제거
-          if ((answerMsg.text || '').startsWith('답변 생성 중')) {
-            answerMsg.text = ''
-          }
-          firstDelta = false
-        }
-
         answerMsg.text += delta
         scrollToBottom()
       },
       onDone() {},
       onError(err) {
-        if (err?.name === 'AbortError') return
+        if (err?.name === 'AbortError') {
+          answerMsg.text = answerMsg.text || '요청을 중지했어요.'
+          return
+        }
         answerMsg.text = answerMsg.text || '요청 중 오류가 발생했어요.'
       },
     },
     abortCtrl.value.signal,
   )
 
-  stopStream()
+  endStream()
   await scrollToBottom()
 }
 
-// node.type에 따라 메시지 추가
+async function _streamLlmIntoMessage(payload, answerMsg) {
+  isStreaming.value = true
+  abortCtrl.value = new AbortController()
+
+  await streamChatLlm(
+    payload,
+    {
+      onDelta(delta) {
+        answerMsg.text += delta
+        scrollToBottom()
+      },
+      onDone() {},
+      onError(err) {
+        if (err?.name === 'AbortError') {
+          answerMsg.text = answerMsg.text || '요청을 중지했어요.'
+          return
+        }
+        answerMsg.text = answerMsg.text || '요청 중 오류가 발생했어요.'
+      },
+    },
+    abortCtrl.value.signal,
+  )
+
+  endStream()
+  await scrollToBottom()
+}
+
+// ===== node renderer =====
 async function renderNode(node) {
-  llmMode.value = node.type === 'LLM_MODE'
   currentNodeId.value = node.nodeId || currentNodeId.value
 
   if (node.type === 'CHOICE') {
+    inputMode.value = 'NONE'
+    followupCtx.value = null
+
     messages.value.push({
       id: uid(),
       role: 'bot',
@@ -110,6 +141,9 @@ async function renderNode(node) {
   }
 
   if (node.type === 'ANSWER_STATIC') {
+    inputMode.value = 'NONE'
+    followupCtx.value = null
+
     messages.value.push({
       id: uid(),
       role: 'bot',
@@ -117,6 +151,7 @@ async function renderNode(node) {
       title: node.title || null,
       text: node.content || '',
     })
+
     if (node.afterOptions?.length) {
       messages.value.push({
         id: uid(),
@@ -126,43 +161,44 @@ async function renderNode(node) {
         options: node.afterOptions,
       })
     }
+
     await scrollToBottom()
     return
   }
 
-  // ✅ 핵심: ANSWER_LLM (버튼 의도 기반 최종 답변 생성)
   if (node.type === 'ANSWER_LLM') {
-    // 답변 박스 생성 후, 자동 스트리밍으로 채움
+    // 스트리밍 중엔 입력 막음
+    inputMode.value = 'NONE'
+
     const answerMsg = {
       id: uid(),
       role: 'bot',
       kind: 'llmAnswer',
-      text: '답변 생성 중...\n',
+      text: '',
       suggestions: [],
       title: node.title || null,
     }
     messages.value.push(answerMsg)
     await scrollToBottom()
 
-    // Biz-AI로 보낼 payload (의도 트레일 + promptKey)
     const payload = {
       promptKey: node.promptKey || 'UNKNOWN',
       title: node.title || '',
-      trail: trail.value,
-      slots: node.slots || [],
+      trail: JSON.parse(JSON.stringify(trail.value)), // 스냅샷
       slotValues: {},
+      userText: '', // 첫 답변은 비움
     }
 
-    await _streamIntoMessage(payload, answerMsg)
+    await _streamAnswerIntoMessage(payload, answerMsg)
 
-    // ✅ 버튼 기반 답변 뒤에는 "후속 질문" 허용
-    followUpMode.value = true
-    lastAnswerContext.value = {
-      title: node.title || '',
-      promptKey: node.promptKey || 'UNKNOWN',
-      trailSnapshot: [...trail.value],
-      answerText: answerMsg.text || '',
+    // 후속 입력을 같은 promptKey + trail로 보내기 위해 컨텍스트 저장
+    followupCtx.value = {
+      promptKey: payload.promptKey,
+      title: payload.title,
+      trail: payload.trail,
+      slotValues: payload.slotValues,
     }
+    inputMode.value = 'FOLLOWUP'
 
     if (node.afterOptions?.length) {
       messages.value.push({
@@ -173,11 +209,15 @@ async function renderNode(node) {
         options: node.afterOptions,
       })
     }
+
     await scrollToBottom()
     return
   }
 
   if (node.type === 'LLM_MODE') {
+    inputMode.value = 'FREE'
+    followupCtx.value = null
+
     messages.value.push({
       id: uid(),
       role: 'bot',
@@ -201,6 +241,8 @@ async function renderNode(node) {
   }
 
   // fallback
+  inputMode.value = 'NONE'
+  followupCtx.value = null
   messages.value.push({
     id: uid(),
     role: 'bot',
@@ -221,10 +263,9 @@ async function moveTo(nodeId) {
 }
 
 async function resetToRoot() {
-  llmMode.value = false
-  followUpMode.value = false
-  lastAnswerContext.value = null
   input.value = ''
+  inputMode.value = 'NONE'
+  followupCtx.value = null
   trail.value = []
   await moveTo('ROOT')
 }
@@ -233,30 +274,36 @@ async function resetToRoot() {
 async function onChoice(opt) {
   if (isStreaming.value) return
 
-  // ✅ "메뉴로"는 trail 쌓지 말고 완전 리셋
   if (opt?.next === 'ROOT' && opt?.label === '메뉴로') {
     await resetToRoot()
+    return
+  }
+
+  // "그 외 질문 계속"은 자유질문 모드로만 이동
+  if (opt?.next === 'LLM_FREE') {
+    messages.value.push({ id: uid(), role: 'user', kind: 'userText', text: opt.label })
+    await scrollToBottom()
+    await moveTo(opt.next)
     return
   }
 
   messages.value.push({ id: uid(), role: 'user', kind: 'userText', text: opt.label })
   await scrollToBottom()
 
-  trail.value.push({ from: currentNodeId.value, label: opt.label, to: opt.next || null })
+  // TrailItem 형태로 누적
+  trail.value.push({ label: opt.label, nodeId: opt.next || null })
 
   if (opt.next) await moveTo(opt.next)
 }
 
-// ===== LLM stream (free 질문) =====
-const canSend = computed(
-  () =>
-    (llmMode.value || followUpMode.value) && input.value.trim().length > 0 && !isStreaming.value,
-)
+// ===== send =====
+const canSend = computed(() => {
+  return input.value.trim().length > 0 && !isStreaming.value && inputMode.value !== 'NONE'
+})
 
-async function sendLlm() {
+async function send() {
   const text = input.value.trim()
-  if (!text || isStreaming.value) return
-  if (!llmMode.value && !followUpMode.value) return
+  if (!text || isStreaming.value || inputMode.value === 'NONE') return
 
   input.value = ''
   messages.value.push({ id: uid(), role: 'user', kind: 'userText', text })
@@ -265,53 +312,43 @@ async function sendLlm() {
   messages.value.push(answerMsg)
   await scrollToBottom()
 
-  isStreaming.value = true
-  abortCtrl.value = new AbortController()
+  // 1) 자유질문
+  if (inputMode.value === 'FREE') {
+    await _streamLlmIntoMessage({ text }, answerMsg)
 
-  // ✅ 후속 질문이면 컨텍스트 포함
-  let sendText = text
-  if (!llmMode.value && followUpMode.value && lastAnswerContext.value) {
-    const ctx = lastAnswerContext.value
-    sendText =
-      `이전 주제: ${ctx.title} (promptKey=${ctx.promptKey})\n` +
-      `버튼 선택 흐름:\n` +
-      `${(ctx.trailSnapshot || []).map((t, i) => `${i + 1}. ${t.label}`).join('\n')}\n\n` +
-      `이전 답변:\n${ctx.answerText}\n\n` +
-      `추가 질문: ${text}`
+    // 자유질문 끝나면 메뉴/계속 버튼
+    messages.value.push({
+      id: uid(),
+      role: 'bot',
+      kind: 'quickReplies',
+      title: null,
+      options: [
+        { label: '메뉴로', next: 'ROOT' },
+        { label: '그 외 질문 계속', next: 'LLM_FREE' },
+      ],
+    })
+
+    await scrollToBottom()
+    return
   }
 
-  await streamChatLlm(
-    { text: sendText },
-    {
-      onDelta(delta) {
-        answerMsg.text += delta
-        scrollToBottom()
-      },
-      onDone(evt) {
-        if (evt.suggestions?.length) answerMsg.suggestions = evt.suggestions
-      },
-      onError(err) {
-        if (err?.name === 'AbortError') return
-        answerMsg.text = answerMsg.text || '요청 중 오류가 발생했어요.'
-      },
-    },
-    abortCtrl.value.signal,
-  )
+  // 2) 버튼 기반 답변의 후속 입력
+  if (inputMode.value === 'FOLLOWUP') {
+    const ctx = followupCtx.value
+    const payload = {
+      promptKey: ctx?.promptKey || 'UNKNOWN',
+      title: ctx?.title || '',
+      trail: ctx?.trail || [],
+      slotValues: ctx?.slotValues || {},
+      userText: text, // ✅ 사용자가 방금 입력한 답
+    }
 
-  // ✅ 답변 뒤 공통 버튼
-  messages.value.push({
-    id: uid(),
-    role: 'bot',
-    kind: 'quickReplies',
-    title: null,
-    options: [
-      { label: '메뉴로', next: 'ROOT' },
-      { label: '그 외 질문 계속', next: 'LLM_FREE' },
-    ],
-  })
+    await _streamAnswerIntoMessage(payload, answerMsg)
 
-  stopStream()
-  await scrollToBottom()
+    // FOLLOWUP은 계속 이어갈 수 있게 유지
+    inputMode.value = 'FOLLOWUP'
+    await scrollToBottom()
+  }
 }
 
 onMounted(async () => {
@@ -395,12 +432,18 @@ onMounted(async () => {
         v-model="input"
         class="Input"
         type="text"
-        placeholder="질문을 입력하세요 (그 외 질문에서 사용)"
-        :disabled="!llmMode || isStreaming"
-        @keydown.enter.prevent="sendLlm"
+        :placeholder="
+          inputMode === 'FREE'
+            ? '질문을 입력하세요 (자유질문)'
+            : inputMode === 'FOLLOWUP'
+              ? '추가 정보를 입력하세요 (방금 답변 이어서)'
+              : '버튼을 선택해주세요'
+        "
+        :disabled="inputMode === 'NONE' || isStreaming"
+        @keydown.enter.prevent="send"
       />
-      <button type="button" class="SendBtn" :disabled="!canSend" @click="sendLlm">전송</button>
-      <button type="button" class="StopBtn" :disabled="!isStreaming" @click="stopStream">
+      <button type="button" class="SendBtn" :disabled="!canSend" @click="send">전송</button>
+      <button type="button" class="StopBtn" :disabled="!isStreaming" @click="abortStream">
         중지
       </button>
     </footer>

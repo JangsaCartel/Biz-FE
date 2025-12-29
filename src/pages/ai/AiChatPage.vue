@@ -416,37 +416,49 @@ onMounted(async () => {
 
 .Header {
   display: grid;
-  grid-template-columns: 56px 1fr 56px;
+  grid-template-columns: rem(56px) 1fr rem(56px);
   align-items: center;
-  height: 56px;
-  padding: 0 10px;
-  background: #ffe59b;
+  height: rem(56px);
+  padding: 0 rem(10px);
+  background: #ffcc3c80;
+  box-sizing: border-box;
 }
 
 .HeaderTitle {
+  margin: 0;
+  padding: 0;
+  line-height: rem(56px);
   text-align: center;
-  font-weight: 900;
-  font-size: 16px;
+  font-weight: var(--font-weight-extra-bold);
+  font-size: rem(16px);
+  align-self: center;
 }
 
 .HeaderBtn {
+  margin: 0;
+  padding: 0;
   border: 0;
   background: transparent;
-  font-weight: 900;
-  font-size: 16px;
+  font-weight: var(--font-weight-extra-bold);
+  font-size: rem(16px);
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  height: rem(40px);
+  width: rem(56px);
 }
 
 .Body {
   flex: 1;
   overflow-y: auto;
-  padding: 14px 12px 18px;
-  background: #ffe8a8;
+  padding: rem(14px) rem(12px) rem(18px);
+  background: #ffcc3c80;
 }
 
 .Row {
   display: flex;
-  gap: 10px;
-  margin: 10px 0;
+  gap: rem(10px);
+  margin: rem(10px) 0;
 }
 
 .Row.user {
@@ -454,32 +466,32 @@ onMounted(async () => {
 }
 
 .Avatar {
-  width: 34px;
-  height: 34px;
+  width: rem(34px);
+  height: rem(34px);
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: #fff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  flex: 0 0 34px;
+  background: var(--white);
+  box-shadow: 0 rem(2px) rem(10px) rgba(0, 0, 0, 0.08);
+  flex: 0 0 rem(34px);
 }
 
 .Bubble {
   max-width: 78%;
-  background: #fff;
-  border-radius: 14px;
-  padding: 12px 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  background: var(--white);
+  border-radius: rem(10px);
+  padding: rem(12px) rem(12px);
+  box-shadow: 0 rem(2px) rem(12px) rgba(0, 0, 0, 0.08);
 }
 
 .Title {
-  font-weight: 900;
-  font-size: 14px;
-  margin-bottom: 8px;
+  font-weight: var(--font-weight-extra-bold);
+  font-size: rem(14px);
+  margin-bottom: rem(8px);
 }
 
 .Text {
-  font-size: 14px;
+  font-size: rem(14px);
   line-height: 1.35;
   white-space: pre-wrap;
   word-break: break-word;
@@ -491,59 +503,92 @@ onMounted(async () => {
 
 .BtnGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: rem(10px);
 }
 
 .ChoiceBtn {
-  height: 44px;
-  border: 0;
-  border-radius: 12px;
-  background: #fff6d4;
-  font-weight: 900;
-  box-shadow: inset 0 0 0 1px #f2d48f;
+  width: 100%;
+  min-height: rem(46px);
+  padding: rem(6px) rem(8px);
+  border: rem(1px) solid #ffcc3c80;
+  border-radius: rem(12px);
+  background: #ffcc3c35;
+  font-weight: var(--font-weight-extra-bold);
+  font-size: rem(14px);
+  line-height: 1.2;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+
+  cursor: pointer;
+  transition:
+    transform 0.06s ease,
+    filter 0.12s ease;
+}
+
+.ChoiceBtn:active {
+  transform: translateY(1px);
+}
+
+.ChoiceBtn:hover:not(:disabled) {
+  filter: brightness(0.98);
 }
 
 .ChoiceBtn:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* 화면이 좁으면 1열로 */
+@media (max-width: rem(360px)) {
+  .BtnGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .InputBar {
   display: grid;
   grid-template-columns: 1fr auto auto;
-  gap: 8px;
-  padding: 10px 12px;
-  background: #ffe8a8;
+  gap: rem(8px);
+  padding: rem(10px) rem(12px);
+  background: #ffcc3c80;
 }
 
 .Input {
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid #f2d48f;
-  padding: 0 12px;
-  background: #fff;
-  font-size: 14px;
+  height: rem(44px);
+  border-radius: rem(12px);
+  border: rem(1px) solid var(--signature-color);
+  padding: 0 rem(12px);
+  background: var(--white);
+  font-size: rem(14px);
 }
 
 .SendBtn,
 .StopBtn {
-  height: 44px;
-  padding: 0 12px;
+  height: rem(44px);
+  padding: 0 rem(12px);
   border: 0;
-  border-radius: 12px;
-  font-weight: 900;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px #f2d48f;
+  border-radius: rem(12px);
+  font-weight: var(--font-weight-extra-bold);
+  background: var(--white);
+  box-shadow: inset 0 0 0 rem(1px) var(--signature-color);
 }
 
 .Hint {
-  margin-top: 8px;
-  font-size: 12px;
+  margin-top: rem(8px);
+  font-size: rem(12px);
   opacity: 0.65;
   text-align: center;
 }
 
 .mt8 {
-  margin-top: 8px;
+  margin-top: rem(8px);
 }
 </style>

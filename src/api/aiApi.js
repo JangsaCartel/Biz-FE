@@ -33,8 +33,6 @@ function _normalizeBaseURL(baseURL) {
   return baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL
 }
 
-// 네 프로젝트에서 ACCESS_TOKEN_KEY가 이미 있으면 그걸 import해서 쓰면 되고,
-// 지금 파일 단독으로 완결되게 하려면 아래처럼 상수로 둬.
 const ACCESS_TOKEN_KEY = 'accessToken'
 
 function _extractAuthHeader() {
@@ -64,21 +62,54 @@ async function _consumeSse(res, handlers = {}) {
 
       buffer += decoder.decode(value, { stream: true })
 
-      let idx
-      while ((idx = buffer.indexOf('\n\n')) !== -1) {
+      while (true) {
+        // \n\n 또는 \r\n\r\n 둘 다 처리
+        const idxLF = buffer.indexOf('\n\n')
+        const idxCRLF = buffer.indexOf('\r\n\r\n')
+
+        let idx = -1
+        let sepLen = 0
+
+        if (idxCRLF !== -1 && (idxLF === -1 || idxCRLF < idxLF)) {
+          idx = idxCRLF
+          sepLen = 4
+        } else if (idxLF !== -1) {
+          idx = idxLF
+          sepLen = 2
+        } else {
+          break
+        }
+
         const rawEvent = buffer.slice(0, idx)
-        buffer = buffer.slice(idx + 2)
+        buffer = buffer.slice(idx + sepLen)
 
-        const dataLine = rawEvent.split('\n').find((l) => l.startsWith('data:'))
-        if (!dataLine) continue
+        // 라인 split도 \r?\n 처리
+        const lines = rawEvent.split(/\r?\n/)
 
-        const jsonStr = dataLine.replace(/^data:\s*/, '').trim()
+        // SSE는 data: 가 여러 줄일 수 있음 → 누적
+        const dataLines = lines
+          .filter((l) => l.startsWith('data:'))
+          .map((l) => l.replace(/^data:\s*/, ''))
+
+        if (!dataLines.length) continue
+
+        const jsonStr = dataLines.join('\n').trim()
         if (!jsonStr) continue
 
         let evt
         try {
           evt = JSON.parse(jsonStr)
         } catch {
+          continue
+        }
+
+        if (evt.error) {
+          // evt.error = { code, message } 형태 가정
+          const msg = evt.error?.message || '요청 중 오류가 발생했어요.'
+          const err = new Error(msg)
+          err.code = evt.error?.code
+          if (onError) onError(err)
+          if (evt.done && onDone) onDone(evt)
           continue
         }
 
@@ -93,7 +124,7 @@ async function _consumeSse(res, handlers = {}) {
 }
 
 /**
- * ✅ 구조화 답변 스트리밍 (ANSWER_LLM)
+ * 구조화 답변 스트리밍 (ANSWER_LLM)
  * POST /ai/chat/answer/stream
  */
 export async function streamChatAnswer(payload, handlers = {}, signal) {
@@ -115,7 +146,7 @@ export async function streamChatAnswer(payload, handlers = {}, signal) {
 }
 
 /**
- * ✅ 자유질문 스트리밍 (LLM_MODE)
+ * 자유질문 스트리밍 (LLM_MODE)
  * POST /ai/chat/llm/stream
  */
 export async function streamChatLlm(payload, handlers = {}, signal) {

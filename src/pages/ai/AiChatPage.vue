@@ -1,6 +1,6 @@
 <script setup>
-import { computed, nextTick, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, nextTick, onMounted, ref, onBeforeUnmount } from 'vue'
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import { fetchChatNode, streamChatLlm, streamChatAnswer } from '@/api/aiApi'
 
@@ -38,22 +38,32 @@ async function scrollToBottom() {
 }
 
 function goBack() {
+  abortStream()
   router.back()
 }
 
 // ===== streaming control =====
 function abortStream() {
-  if (abortCtrl.value) {
-    abortCtrl.value.abort()
-    abortCtrl.value = null
-  }
-  isStreaming.value = false
-}
-
-function endStream() {
+  const ctrl = abortCtrl.value
+  if (ctrl) ctrl.abort()
   abortCtrl.value = null
   isStreaming.value = false
 }
+
+function endStream(ctrl) {
+  // 내가 시작한 스트림의 ctrl일 때만 정리
+  if (abortCtrl.value !== ctrl) return
+  abortCtrl.value = null
+  isStreaming.value = false
+}
+
+onBeforeRouteLeave(() => {
+  abortStream()
+})
+
+onBeforeUnmount(() => {
+  abortStream()
+})
 
 // ===== Node API =====
 async function fetchNode(nodeId) {
@@ -61,57 +71,88 @@ async function fetchNode(nodeId) {
 }
 
 async function _streamAnswerIntoMessage(payload, answerMsg) {
+  abortStream()
+
   isStreaming.value = true
-  abortCtrl.value = new AbortController()
+  const ctrl = new AbortController()
+  abortCtrl.value = ctrl
 
-  await streamChatAnswer(
-    payload,
-    {
-      onDelta(delta) {
-        answerMsg.text += delta
-        scrollToBottom()
+  try {
+    await streamChatAnswer(
+      payload,
+      {
+        onDelta(delta) {
+          // 내 ctrl이 아닌 스트림이면 무시(늦게 오는 이벤트 방지)
+          if (abortCtrl.value !== ctrl) return
+          answerMsg.text += delta
+          scrollToBottom()
+        },
+        onDone() {},
+        onError(err) {
+          if (err?.name === 'AbortError') {
+            answerMsg.text = answerMsg.text || '요청을 중지했어요.'
+            return
+          }
+          if (err?.code === 429) {
+            answerMsg.text =
+              answerMsg.text || '요청이 많아 일시적으로 제한됐어요. 20~60초 후 다시 시도해주세요.'
+            return
+          }
+          answerMsg.text = answerMsg.text || '요청 중 오류가 발생했어요.'
+        },
       },
-      onDone() {},
-      onError(err) {
-        if (err?.name === 'AbortError') {
-          answerMsg.text = answerMsg.text || '요청을 중지했어요.'
-          return
-        }
-        answerMsg.text = answerMsg.text || '요청 중 오류가 발생했어요.'
-      },
-    },
-    abortCtrl.value.signal,
-  )
-
-  endStream()
-  await scrollToBottom()
+      ctrl.signal,
+    )
+  } catch (e) {
+    if (e?.name !== 'AbortError') {
+      answerMsg.text = answerMsg.text || '요청 중 오류가 발생했어요.'
+    }
+  } finally {
+    endStream(ctrl)
+    await scrollToBottom()
+  }
 }
 
 async function _streamLlmIntoMessage(payload, answerMsg) {
+  abortStream()
+
   isStreaming.value = true
-  abortCtrl.value = new AbortController()
+  const ctrl = new AbortController()
+  abortCtrl.value = ctrl
 
-  await streamChatLlm(
-    payload,
-    {
-      onDelta(delta) {
-        answerMsg.text += delta
-        scrollToBottom()
+  try {
+    await streamChatLlm(
+      payload,
+      {
+        onDelta(delta) {
+          if (abortCtrl.value !== ctrl) return
+          answerMsg.text += delta
+          scrollToBottom()
+        },
+        onDone() {},
+        onError(err) {
+          if (err?.name === 'AbortError') {
+            answerMsg.text = answerMsg.text || '요청을 중지했어요.'
+            return
+          }
+          if (err?.code === 429) {
+            answerMsg.text =
+              answerMsg.text || '요청이 많아 일시적으로 제한됐어요. 20~60초 후 다시 시도해주세요.'
+            return
+          }
+          answerMsg.text = answerMsg.text || '요청 중 오류가 발생했어요.'
+        },
       },
-      onDone() {},
-      onError(err) {
-        if (err?.name === 'AbortError') {
-          answerMsg.text = answerMsg.text || '요청을 중지했어요.'
-          return
-        }
-        answerMsg.text = answerMsg.text || '요청 중 오류가 발생했어요.'
-      },
-    },
-    abortCtrl.value.signal,
-  )
-
-  endStream()
-  await scrollToBottom()
+      ctrl.signal,
+    )
+  } catch (e) {
+    if (e?.name !== 'AbortError') {
+      answerMsg.text = answerMsg.text || '요청 중 오류가 발생했어요.'
+    }
+  } finally {
+    endStream(ctrl)
+    await scrollToBottom()
+  }
 }
 
 // ===== node renderer =====
@@ -263,6 +304,7 @@ async function moveTo(nodeId) {
 }
 
 async function resetToRoot() {
+  if (isStreaming.value) return
   input.value = ''
   inputMode.value = 'NONE'
   followupCtx.value = null
@@ -340,7 +382,7 @@ async function send() {
       title: ctx?.title || '',
       trail: ctx?.trail || [],
       slotValues: ctx?.slotValues || {},
-      userText: text, // ✅ 사용자가 방금 입력한 답
+      userText: text, // 사용자가 방금 입력한 답
     }
 
     await _streamAnswerIntoMessage(payload, answerMsg)
@@ -361,7 +403,9 @@ onMounted(async () => {
     <header class="Header">
       <button type="button" class="HeaderBtn" @click="goBack">←</button>
       <h1 class="HeaderTitle">AI 챗봇</h1>
-      <button type="button" class="HeaderBtn" @click="resetToRoot">메뉴</button>
+      <button type="button" class="HeaderBtn" :disabled="isStreaming" @click="resetToRoot">
+        기본메뉴
+      </button>
     </header>
 
     <main ref="scrollEl" class="Body">
@@ -489,6 +533,12 @@ onMounted(async () => {
   place-items: center;
   height: rem(40px);
   width: rem(56px);
+}
+
+.HeaderBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .Body {

@@ -126,6 +126,12 @@ async function _streamLlmIntoMessage(payload, answerMsg) {
       {
         onDelta(delta) {
           if (abortCtrl.value !== ctrl) return
+
+          if (answerMsg.__placeholder) {
+            answerMsg.text = ''
+            answerMsg.__placeholder = false
+          }
+
           answerMsg.text += delta
           scrollToBottom()
         },
@@ -350,7 +356,14 @@ async function send() {
   input.value = ''
   messages.value.push({ id: uid(), role: 'user', kind: 'userText', text })
 
-  const answerMsg = { id: uid(), role: 'bot', kind: 'llmAnswer', text: '', suggestions: [] }
+  const answerMsg = {
+    id: uid(),
+    role: 'bot',
+    kind: 'llmAnswer',
+    text: inputMode.value === 'FREE' ? '자유 질문' : '',
+    suggestions: [],
+    __placeholder: inputMode.value === 'FREE',
+  }
   messages.value.push(answerMsg)
   await scrollToBottom()
 
@@ -537,7 +550,7 @@ onMounted(async () => {
 
 .HeaderBtn:disabled {
   opacity: 0.45;
-  cursor: not-allowed;
+  cursor: default;
   pointer-events: none;
 }
 
@@ -636,7 +649,8 @@ onMounted(async () => {
 
 .ChoiceBtn:disabled {
   opacity: 0.55;
-  cursor: not-allowed;
+  cursor: default;
+  pointer-events: none;
 }
 
 /* 화면이 좁으면 1열로 */

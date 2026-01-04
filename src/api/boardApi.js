@@ -24,6 +24,10 @@ export const createPost = (postData) => {
   return apiClient.post('/posts', postData)
 }
 
+export const updatePost = (postId, postData) => {
+  return apiClient.patch(`/board/${postId}`, postData)
+}
+
 export const fetchPostById = (postId) => {
   return apiClient.get(`/board/${postId}`)
 }

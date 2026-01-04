@@ -13,7 +13,7 @@ import policyRoutes from './policy'
 import boardRoutes from './board'
 import testRoutes from './test'
 import authRoutes from './auth'
-
+import userRoutes from './user'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,6 +30,7 @@ const router = createRouter({
         ...policyRoutes,
         ...boardRoutes,
         ...testRoutes,
+        ...userRoutes,
       ],
     },
     {

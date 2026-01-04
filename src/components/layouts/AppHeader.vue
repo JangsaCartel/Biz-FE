@@ -14,7 +14,7 @@ const onAlarmClick = () => {
 }
 
 const onProfileClick = () => {
-  alert('프로필 클릭!')
+  router.push({ name: 'mypage' })
 }
 
 const onLogoutClick = () => {

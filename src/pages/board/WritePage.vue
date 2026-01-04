@@ -4,8 +4,8 @@
       <button class="close-btn" aria-label="닫기" @click="closePage">
         <img src="@/assets/icons/common/close.png" alt="닫기" class="icon-img" />
       </button>
-      <h1 class="page-title">글쓰기</h1>
-      <button class="complete-btn" @click="savePost">완료</button>
+      <h1 class="page-title">{{ isEditMode ? '게시글 수정' : '글쓰기' }}</h1>
+      <button class="complete-btn" @click="savePost">{{ isEditMode ? '수정' : '완료' }}</button>
     </header>
 
     <main class="editor-area">
@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBoardStore } from '@/stores/board/board.js'
 
@@ -35,12 +35,22 @@ const boardStore = useBoardStore()
 
 const title = ref('')
 const content = ref('')
+const isEditMode = ref(false)
+const postId = ref(null)
+const currentCategoryId = ref(null)
 
 const MAX_CHARS = 1000
 
 const currentChars = computed(() => content.value.length)
 
 const categoryName = route.params.category
+const postIdFromRoute = route.params.postId
+
+// 수정 모드인지 확인
+if (postIdFromRoute) {
+  postId.value = Number(postIdFromRoute)
+  isEditMode.value = true
+}
 
 const categoryMap = {
   free: 2,
@@ -48,7 +58,27 @@ const categoryMap = {
   local: 4,
 }
 
-const categoryId = categoryMap[categoryName]
+const categoryId = computed(() => {
+  return currentCategoryId.value || (categoryName ? categoryMap[categoryName] : null)
+})
+
+// 수정 모드일 때 게시글 데이터 로드
+onMounted(async () => {
+  if (isEditMode.value && postId.value) {
+    try {
+      const post = await boardStore.fetchPostById(postId.value)
+      if (post) {
+        title.value = post.title || ''
+        content.value = post.content || ''
+        currentCategoryId.value = post.categoryId || null
+      }
+    } catch (error) {
+      console.error('게시글 조회 실패:', error)
+      alert('게시글을 불러오는데 실패했습니다.')
+      router.back()
+    }
+  }
+})
 
 const savePost = async () => {
   if (!title.value.trim() || !content.value.trim()) {
@@ -56,27 +86,60 @@ const savePost = async () => {
     return
   }
 
+  if (!categoryId.value) {
+    alert('카테고리를 확인할 수 없습니다.')
+    return
+  }
+
   const postData = {
     title: title.value,
     content: content.value,
-    categoryId: categoryId,
+    categoryId: categoryId.value,
   }
 
   try {
-    await boardStore.createPost(postData)
-    router.push({ name: categoryName })
+    if (isEditMode.value && postId.value) {
+      // 수정 모드
+      await boardStore.updatePost(postId.value, postData)
+      alert('게시글이 수정되었습니다.')
+      router.push({ name: 'mypage' })
+    } else {
+      // 작성 모드
+      await boardStore.createPost(postData)
+      router.push({ name: categoryName })
+    }
   } catch (error) {
-    console.error('Error creating post:', error)
-    alert('게시글 작성에 실패했습니다. 다시 시도해주세요.')
+    console.error('Error saving post:', error)
+
+    // 403 에러 처리 (권한 없음)
+    if (error.response?.status === 403) {
+      alert('본인의 글만 수정할 수 있습니다.')
+      return
+    }
+
+    // 401 에러 처리 (인증 실패) - apiClient에서 자동 처리됨
+    if (error.response?.status === 401) {
+      // apiClient의 인터셉터에서 처리되므로 여기서는 추가 처리 불필요
+      return
+    }
+
+    // 기타 에러
+    alert(isEditMode.value ? '게시글 수정에 실패했습니다.' : '게시글 작성에 실패했습니다.')
   }
 }
 
 const closePage = () => {
-  router.push({ name: categoryName })
+  if (isEditMode.value) {
+    router.push({ name: 'mypage' })
+  } else {
+    router.push({ name: categoryName })
+  }
 }
 </script>
 
 <style scoped lang="scss">
+@use '@/assets/styles/utils/_pxToRem.scss' as *;
+
 .write-container {
   display: flex;
   flex-direction: column;

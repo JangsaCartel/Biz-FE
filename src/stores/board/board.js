@@ -138,11 +138,7 @@ export const useBoardStore = defineStore('board', {
       }
     },
     async likePost(postId) {
-      try {
-        await likePost(postId)
-      } catch (error) {
-        throw error
-      }
+      await likePost(postId)
     },
   },
 })

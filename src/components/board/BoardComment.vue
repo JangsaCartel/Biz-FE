@@ -71,9 +71,7 @@ const onReplyClick = () => {
   emit('reply-to', props.comment.commentId)
 }
 
-const emitReply = (commentId) => {
-  emit('reply-to', commentId)
-}
+
 
 const handleLikeClick = async () => {
   if (isMyComment.value) {

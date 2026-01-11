@@ -19,12 +19,14 @@
         <span>댓글 {{ post.commentCount }}</span>
       </div>
     </div>
+    <ModalDialog :message="modalMessage" :is-visible="isModalVisible" @close="closeModal" />
   </div>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
+import ModalDialog from '@/components/common/ModalDialog.vue'
 
 const props = defineProps({
   post: {
@@ -39,6 +41,21 @@ const props = defineProps({
 
 const boardStore = useBoardStore()
 const likeCount = ref(props.post.likeCount || 0)
+const isLiked = ref(props.post.isLiked || false)
+
+// Modal state
+const modalMessage = ref('')
+const isModalVisible = ref(false)
+
+const showModal = (message) => {
+  modalMessage.value = message
+  isModalVisible.value = true
+}
+
+const closeModal = () => {
+  isModalVisible.value = false
+  modalMessage.value = ''
+}
 
 const formattedDate = computed(() => {
   if (!props.post.createdAt) return ''
@@ -51,17 +68,25 @@ const formattedDate = computed(() => {
 })
 
 const handleLikeClick = async () => {
+  if (isLiked.value) {
+    showModal('이미 좋아요를 누른 게시글입니다.')
+    return
+  }
+
   likeCount.value++
+  isLiked.value = true
+
   try {
     await boardStore.likePost(props.post.postId)
   } catch (error) {
-    likeCount.value--
     if (error.response?.status === 409) {
-      console.log('좋아요 누름 : ' + error.response?.data)
-      alert(error.response.data || '이미 좋아요를 누른 글 입니다.')
+      likeCount.value--
+      showModal('이미 좋아요를 누른 게시글입니다.')
     } else {
-      alert('좋아요 처리에 실패했습니다.')
-      console.error(error)
+      likeCount.value--
+      isLiked.value = false
+      showModal('좋아요 처리에 실패했습니다.')
+      console.error(error) // Still log unexpected errors to console
     }
   }
 }

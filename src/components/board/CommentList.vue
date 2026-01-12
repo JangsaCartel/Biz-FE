@@ -4,10 +4,10 @@
     <div v-else-if="comments.length === 0" class="empty-state">작성된 댓글이 없습니다.</div>
     <div v-else>
       <BoardComment
-        v-for="comment in nestedComments"
-        :key="comment.comment_id"
-        :comment="comment"
-        :indentationLevel="0"
+        v-for="item in flatCommentsWithLevel"
+        :key="item.comment.commentId"
+        :comment="item.comment"
+        :indentationLevel="item.level"
         @reply-to="handleReplyTo"
       />
     </div>
@@ -37,26 +37,41 @@ onMounted(async () => {
   loading.value = false
 })
 
-const nestedComments = computed(() => {
-  const commentMap = {}
-  const nested = []
+const flatCommentsWithLevel = computed(() => {
+  if (!comments.value || comments.value.length === 0) {
+    return []
+  }
 
-  comments.value.forEach((comment) => {
-    commentMap[comment.comment_id] = { ...comment, replies: [] }
+  const commentMap = {}
+  const topLevelComments = []
+  
+  comments.value.forEach(comment => {
+    commentMap[comment.commentId] = { ...comment, replies: [] }
   })
 
-  comments.value.forEach((comment) => {
-    if (comment.parent_comment_id) {
-      const parent = commentMap[comment.parent_comment_id]
-      if (parent) {
-        parent.replies.push(commentMap[comment.comment_id])
-      }
+  comments.value.forEach(comment => {
+    if (comment.parentCommentId && commentMap[comment.parentCommentId]) {
+      commentMap[comment.parentCommentId].replies.push(commentMap[comment.commentId])
     } else {
-      nested.push(commentMap[comment.comment_id])
+      topLevelComments.push(commentMap[comment.commentId])
     }
   })
 
-  return nested
+  const flatList = []
+  function flatten(comment, level) {
+    flatList.push({ comment, level })
+    if (comment.replies) {
+      comment.replies.forEach(reply => {
+        flatten(reply, level + 1)
+      })
+    }
+  }
+
+  topLevelComments.forEach(comment => {
+    flatten(comment, 0)
+  })
+  
+  return flatList
 })
 
 const handleReplyTo = (commentId) => {

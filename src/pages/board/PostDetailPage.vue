@@ -22,17 +22,6 @@
           @reply-to="handleReplyTo"
         />
       </div>
-
-      <div class="pagination-wrapper">
-        <div class="pagination-inner">
-          <AppPagination
-            :current-page="currentPage"
-            :total-items="totalPosts"
-            :page-size="pageSize"
-            @page-change="handlePageChange"
-          ></AppPagination>
-        </div>
-      </div>
     </div>
 
     <div class="comment-input-wrapper">
@@ -84,7 +73,7 @@ const submitComment = async () => {
 
   const newComment = {
     content: newCommentContent.value,
-    parent_comment_id: replyingToCommentId.value,
+    parentCommentId: replyingToCommentId.value,
   }
 
   const createdComment = await boardStore.createComment(postId.value, newComment)
@@ -93,6 +82,7 @@ const submitComment = async () => {
     newCommentContent.value = ''
     replyingToCommentId.value = null
     commentListKey.value++
+    post.value = await boardStore.fetchPostById(postId.value)
   }
 }
 

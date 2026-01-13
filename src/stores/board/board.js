@@ -150,16 +150,7 @@ export const useBoardStore = defineStore('board', {
       }
     },
     async likePost(postId) {
-      try {
-        await likePost(postId)
-      } catch (error) {
-        console.error(`Error liking post with ID ${postId}:`, error)
-        // Re-throw the error so the component can catch it
-        if (error.response && error.response.data && error.response.data.message) {
-          throw new Error(error.response.data.message)
-        }
-        throw error
-      }
+      await likePost(postId)
     },
   },
 })

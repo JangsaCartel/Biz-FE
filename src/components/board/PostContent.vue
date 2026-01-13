@@ -11,42 +11,22 @@
 
     <div class="post-footer" :class="{ 'no-border': !showBorder }">
       <div class="action-item" @click="handleLikeClick">
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"
-          ></path>
-        </svg>
+        <img src="@/assets/icons/board/like.png" alt="like" width="20" height="20" />
         <span>좋아요 {{ likeCount }}</span>
       </div>
       <div class="action-item">
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
-          ></path>
-        </svg>
+        <img src="@/assets/icons/board/comment.png" alt="comment" width="20" height="20" />
         <span>댓글 {{ post.commentCount }}</span>
       </div>
     </div>
+    <ModalDialog :message="modalMessage" :is-visible="isModalVisible" @close="closeModal" />
   </div>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
+import ModalDialog from '@/components/common/ModalDialog.vue'
 
 const props = defineProps({
   post: {
@@ -61,6 +41,21 @@ const props = defineProps({
 
 const boardStore = useBoardStore()
 const likeCount = ref(props.post.likeCount || 0)
+const isLiked = ref(props.post.isLiked || false)
+
+// Modal state
+const modalMessage = ref('')
+const isModalVisible = ref(false)
+
+const showModal = (message) => {
+  modalMessage.value = message
+  isModalVisible.value = true
+}
+
+const closeModal = () => {
+  isModalVisible.value = false
+  modalMessage.value = ''
+}
 
 const formattedDate = computed(() => {
   if (!props.post.createdAt) return ''
@@ -73,12 +68,26 @@ const formattedDate = computed(() => {
 })
 
 const handleLikeClick = async () => {
+  if (isLiked.value) {
+    showModal('이미 좋아요를 누른 게시글입니다.')
+    return
+  }
+
   likeCount.value++
+  isLiked.value = true
+
   try {
     await boardStore.likePost(props.post.postId)
   } catch (error) {
-    likeCount.value-- // Revert optimistic update
-    alert(error.message || '좋아요 처리에 실패했습니다.')
+    if (error.response?.status === 409) {
+      likeCount.value--
+      showModal('이미 좋아요를 누른 게시글입니다.')
+    } else {
+      likeCount.value--
+      isLiked.value = false
+      showModal('좋아요 처리에 실패했습니다.')
+      console.error(error) // Still log unexpected errors to console
+    }
   }
 }
 </script>

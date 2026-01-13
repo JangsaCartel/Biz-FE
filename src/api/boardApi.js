@@ -33,11 +33,11 @@ export const fetchPostById = (postId) => {
 }
 
 export const fetchCommentsByPostId = (postId) => {
-  return apiClient.get(`/board/${postId}/comments`)
+  return apiClient.get(`/posts/${postId}/comments`)
 }
 
 export const createComment = (postId, commentData) => {
-  return apiClient.post(`/board/${postId}/comments`, commentData)
+  return apiClient.post(`/posts/${postId}/comments`, commentData)
 }
 
 export const likeComment = (commentId) => {

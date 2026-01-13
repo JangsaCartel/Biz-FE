@@ -13,8 +13,11 @@ import {
   clearPostLoginRedirect,
 } from '@/stores/tokenStorage'
 
+import { useNotificationStore } from '@/stores/notificationStore'
+
 const router = useRouter()
 const route = useRoute()
+const notificationStore = useNotificationStore()
 
 const handleLogin = async () => {
   const code = route.query.code
@@ -57,6 +60,9 @@ const handleLogin = async () => {
         // refreshToken 은 선택값이므로 있어도 되고 없어도 됨
         saveTokens(res.accessToken, res.refreshToken)
       }
+
+      notificationStore.connect(true)
+
       const storedRedirect = getPostLoginRedirect()
       const redirectTarget = storedRedirect && storedRedirect.startsWith('/') ? storedRedirect : '/'
       clearPostLoginRedirect()

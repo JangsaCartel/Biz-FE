@@ -1,6 +1,8 @@
 import axios from 'axios'
 import router from '@/router'
 
+import { useNotificationStore } from '@/stores/notificationStore'
+
 // 개발 환경에서는 Vite 프록시(`/biz-be` → `http://localhost:8080`)를 통해 CORS 없이 호출
 // 배포 환경에서는 VITE_API_BASE_URL에 실제 백엔드 주소를 넣어서 사용
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/biz-be'
@@ -127,6 +129,10 @@ apiClient.interceptors.response.use(
 
 // 로그아웃 처리 함수
 function handleLogout() {
+  const notificationStore = useNotificationStore()
+  notificationStore.disconnect()
+  notificationStore.clearLocal()
+
   // sessionStorage 비우기
   window.sessionStorage.removeItem(ACCESS_TOKEN_KEY)
   window.sessionStorage.removeItem(REFRESH_TOKEN_KEY)

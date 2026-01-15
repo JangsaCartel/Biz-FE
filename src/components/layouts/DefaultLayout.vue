@@ -11,7 +11,7 @@ const route = useRoute()
 // 헤더/네비바 표시 여부 결정
 
 // (임시) 헤더를 숨길 페이지 이름 (예: 로그인, 스플래시)
-const pathHideHeader = ['login', 'landing', 'writePost']
+const pathHideHeader = ['login', 'landing', 'writePost', 'notifications']
 
 // (임시) 네비바를 보여줄 페이지 이름
 const visableNav = [
@@ -25,6 +25,7 @@ const visableNav = [
   'info',
   'local',
   'postDetail',
+  'notifications',
   'policyDetail',
 ]
 

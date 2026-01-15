@@ -32,7 +32,9 @@ const openNotification = async (n) => {
       query,
     })
     return
-  } catch (e) {}
+  } catch (e) {
+    console.debug('[Notification] postDetail(postId) 라우팅 실패, id로 재시도', e)
+  }
 
   try {
     await router.push({

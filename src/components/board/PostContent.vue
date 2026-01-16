@@ -27,6 +27,7 @@
 import { computed, ref } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
 import ModalDialog from '@/components/common/ModalDialog.vue'
+import { getCurrentUserIdFromToken } from '@/stores/board/userUtil.js'
 
 const props = defineProps({
   post: {
@@ -41,7 +42,8 @@ const props = defineProps({
 
 const boardStore = useBoardStore()
 const likeCount = ref(props.post.likeCount || 0)
-const isLiked = ref(props.post.isLiked || false)
+const isLiked = ref(props.post.liked || false)
+const currentUserId = getCurrentUserIdFromToken()
 
 // Modal state
 const modalMessage = ref('')
@@ -68,6 +70,10 @@ const formattedDate = computed(() => {
 })
 
 const handleLikeClick = async () => {
+  if (props.post.userId === currentUserId) {
+    showModal('자신의 글에는 좋아요를 누를 수 없습니다.')
+    return
+  }
   if (isLiked.value) {
     showModal('이미 좋아요를 누른 게시글입니다.')
     return
@@ -86,7 +92,7 @@ const handleLikeClick = async () => {
       likeCount.value--
       isLiked.value = false
       showModal('좋아요 처리에 실패했습니다.')
-      console.error(error) // Still log unexpected errors to console
+      console.error('Failed to like post:', error) // Explicitly log other errors
     }
   }
 }

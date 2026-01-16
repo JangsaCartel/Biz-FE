@@ -103,7 +103,7 @@ const showNicknameModal = ref(false)
 const newNickname = ref('')
 
 const currentPage = ref(1)
-const pageSize = ref(5)
+const pageSize = ref(3)
 
 const paginatedPosts = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
@@ -286,6 +286,8 @@ onMounted(async () => {
   padding: rem(20px) rem(16px);
   background-color: var(--bg-default);
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .profile-section {
@@ -334,6 +336,9 @@ onMounted(async () => {
 
 .my-posts-section {
   margin-top: rem(20px);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .section-header {
@@ -387,6 +392,8 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: rem(16px);
+  flex: 1;
+  padding-bottom: rem(80px);
 }
 
 .post-item-wrapper {
@@ -403,14 +410,33 @@ onMounted(async () => {
   box-shadow: 0 rem(2px) rem(8px) rgba(0, 0, 0, 0.1);
 }
 
+// HotBoardItem 내부의 내용이 침범하지 않도록 제한
+.post-item-wrapper :deep(.post-content) {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  max-height: calc(1.4em * 2);
+  line-height: 1.4;
+}
+
 .checkbox-wrapper {
   position: absolute;
-  top: rem(16px);
+  top: 50%;
   right: rem(16px);
+  transform: translateY(-50%);
   z-index: 10;
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: rem(4px);
   padding: rem(4px);
+  width: rem(20px);
+  height: rem(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .checkbox-wrapper input[type='checkbox'] {
@@ -418,6 +444,7 @@ onMounted(async () => {
   height: rem(20px);
   cursor: pointer;
   accent-color: var(--signature-color);
+  margin: 0;
 }
 
 .no-posts {
@@ -428,9 +455,17 @@ onMounted(async () => {
 }
 
 .pagination-wrapper {
-  margin-top: rem(24px);
-  padding-top: rem(20px);
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: rem(430px);
+  padding: rem(16px) rem(16px) rem(20px);
+  background-color: var(--bg-default);
   border-top: rem(1px) solid var(--grey-light);
+  z-index: 100;
+  box-shadow: 0 rem(-2px) rem(8px) rgba(0, 0, 0, 0.05);
 }
 
 /* 모달 스타일 */

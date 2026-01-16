@@ -10,8 +10,15 @@
 
     <main class="editor-area">
       <div class="title-wrapper">
-        <input v-model="title" type="text" class="input-title" placeholder="제목을 입력하세요" />
+        <input
+          v-model="title"
+          type="text"
+          class="input-title"
+          placeholder="제목을 입력하세요"
+          :maxlength="MAX_TITLE_CHARS"
+        />
       </div>
+      <div class="char-count title-char-count">{{ currentTitleChars }}자 / {{ MAX_TITLE_CHARS }}자</div>
 
       <textarea
         v-model="content"
@@ -39,8 +46,10 @@ const isEditMode = ref(false)
 const postId = ref(null)
 const currentCategoryId = ref(null)
 
+const MAX_TITLE_CHARS = 30
 const MAX_CHARS = 1000
 
+const currentTitleChars = computed(() => title.value.length)
 const currentChars = computed(() => content.value.length)
 
 const categoryName = route.params.category
@@ -197,7 +206,7 @@ const closePage = () => {
 
 .title-wrapper {
   border-bottom: rem(2px) solid var(--grey-light);
-  margin-bottom: rem(20px);
+  /* margin-bottom: rem(20px); */
 }
 
 .input-title {
@@ -248,5 +257,11 @@ const closePage = () => {
   color: var(--grey);
   margin-top: rem(5px);
   padding-right: rem(16px);
+}
+
+.title-char-count {
+  margin-bottom: rem(20px);
+  margin-top: rem(8px);
+  padding-right: 0;
 }
 </style>

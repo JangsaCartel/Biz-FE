@@ -98,8 +98,7 @@ export const useBoardStore = defineStore('board', {
     },
     async createPost(postData) {
       try {
-        const response = await createPost(postData)
-        console.log('Post created successfully:', response.data)
+        await createPost(postData)
       } catch (error) {
         console.error('Error creating post:', error)
         throw error

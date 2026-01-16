@@ -1,5 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
+import { computed } from 'vue'
+import { useNotificationStore } from '@/stores/notificationStore'
 import {
   clearTokens,
   clearRegisterToken,
@@ -8,9 +10,12 @@ import {
 } from '@/stores/tokenStorage'
 
 const router = useRouter()
+const notificationStore = useNotificationStore()
+
+const hasUnread = computed(() => notificationStore.unreadCount > 0)
 
 const onAlarmClick = () => {
-  alert('알림 클릭!')
+  router.push({ name: 'notifications' })
 }
 
 const onProfileClick = () => {
@@ -37,8 +42,9 @@ const onLogoutClick = () => {
         <!-- 임시 로그아웃 버튼 (프로필 페이지 완성 후 제거 예정) -->
         <button class="logout-button" @click="onLogoutClick">로그아웃</button>
         <!-- TODO: 추후 로그인 상태에 따라 다른 UI(로그인/마이페이지 등)로 변경 -->
-        <button class="icon-button" @click="onAlarmClick">
+        <button class="icon-button alarm-button" @click="onAlarmClick" aria-label="알림">
           <img src="@/assets/icons/alarm/alarm.png" alt="알림" class="icon-image" />
+          <span v-if="hasUnread" class="alarm-dot" />
         </button>
         <button class="icon-button" @click="onProfileClick">
           <img src="@/assets/icons/profile/profile.png" alt="프로필" class="icon-image" />
@@ -125,6 +131,20 @@ const onLogoutClick = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.alarm-button {
+  position: relative;
+}
+
+.alarm-dot {
+  position: absolute;
+  top: rem(2px);
+  right: rem(2px);
+  width: rem(8px);
+  height: rem(8px);
+  border-radius: 50%;
+  background: #ff3b30;
 }
 
 .icon-image {

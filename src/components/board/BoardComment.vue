@@ -12,7 +12,7 @@
         <div class="comment-header">
           <span class="comment-user">{{ comment.nickname }}</span>
           <div class="comment-actions">
-            <button class="comment-like" @click="handleLikeClick" :disabled="isLiked">
+            <button class="comment-like" @click="handleLikeClick">
               <img
                 src="@/assets/icons/board/like.png"
                 alt="Like"
@@ -29,11 +29,17 @@
       </div>
     </div>
   </div>
+  <ModalDialog
+    :is-visible="showModal"
+    :message="modalMessage"
+    @close="closeModal"
+  />
 </template>
 <script setup>
 import { computed, ref } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
 import { getCurrentUserIdFromToken } from '@/stores/board/userUtil.js'
+import ModalDialog from '@/components/common/ModalDialog.vue'
 
 const props = defineProps({
   comment: {
@@ -50,7 +56,9 @@ const emit = defineEmits(['reply-to'])
 const boardStore = useBoardStore()
 
 const likeCount = ref(props.comment.likeCount || 0)
-const isLiked = ref(false)
+const isLiked = ref(props.comment.liked || false)
+const showModal = ref(false)
+const modalMessage = ref('')
 
 const currentUserId = getCurrentUserIdFromToken()
 const isMyComment = computed(() => {
@@ -71,14 +79,19 @@ const onReplyClick = () => {
   emit('reply-to', props.comment.commentId)
 }
 
-
+const closeModal = () => {
+  showModal.value = false
+}
 
 const handleLikeClick = async () => {
   if (isMyComment.value) {
-    alert('자신의 댓글에는 좋아요를 누를 수 없습니다.')
+    modalMessage.value = '자신의 댓글에는 좋아요를 누를 수 없습니다.'
+    showModal.value = true
     return
   }
   if (isLiked.value) {
+    modalMessage.value = '이미 좋아요를 누른 댓글입니다.'
+    showModal.value = true
     return
   }
 

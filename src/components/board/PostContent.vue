@@ -92,7 +92,7 @@ const handleLikeClick = async () => {
       likeCount.value--
       isLiked.value = false
       showModal('좋아요 처리에 실패했습니다.')
-      console.error('Failed to like post:', error) // Explicitly log other errors
+      console.error('Failed to like post:', error)
     }
   }
 }

@@ -1,39 +1,104 @@
 <template>
   <div class="region-dropdowns">
-    <select v-model="selectedSido" @change="handleSidoChange">
-      <option disabled value="">시/도</option>
-      <option v-for="sido in sidos" :key="sido" :value="sido">
-        {{ sido }}
-      </option>
-    </select>
+    <!-- 시/도 드롭다운 -->
+    <div class="FilterField">
+      <button
+        type="button"
+        class="FilterField-trigger"
+        :class="{ 'is-open': openMenu === 'sido' }"
+        @click="toggleMenu('sido')"
+      >
+        <span class="FilterField-trigger-text">
+          {{ selectedSido || '시/도 ' }}
+        </span>
+        <span class="FilterField-trigger-arrow" />
+      </button>
 
-    <select v-model="selectedSigungu" @change="handleSigunguChange" :disabled="!selectedSido">
-      <option disabled value="">시/군/구</option>
-      <option v-for="sigungu in sigungus" :key="sigungu" :value="sigungu">
-        {{ sigungu }}
-      </option>
-    </select>
+      <div v-if="openMenu === 'sido'" class="FilterField-dropdown">
+        <ul class="FilterField-list">
+          <li
+            v-for="option in sidos"
+            :key="option"
+            class="FilterField-item"
+            :class="{ 'is-selected': selectedSido === option }"
+            @click="selectSido(option)"
+          >
+            {{ option }}
+          </li>
+        </ul>
+      </div>
+    </div>
 
-    <select
-      v-model="selectedEupmyeondong"
-      @change="handleEupmyeondongChange"
-      :disabled="!selectedSigungu"
-    >
-      <option disabled value="">읍/면/동</option>
-      <option v-for="eupmyeondong in eupmyeondongs" :key="eupmyeondong" :value="eupmyeondong">
-        {{ eupmyeondong }}
-      </option>
-    </select>
+    <!-- 시/군/구 드롭다운 -->
+    <div class="FilterField">
+      <button
+        type="button"
+        class="FilterField-trigger"
+        :class="{ 'is-open': openMenu === 'sigungu' }"
+        :disabled="!selectedSido"
+        @click="toggleMenu('sigungu')"
+      >
+        <span class="FilterField-trigger-text">
+          {{ selectedSigungu || '시/군/구 ' }}
+        </span>
+        <span class="FilterField-trigger-arrow" />
+      </button>
+
+      <div v-if="openMenu === 'sigungu'" class="FilterField-dropdown">
+        <ul class="FilterField-list">
+          <li
+            v-for="option in sigungus"
+            :key="option"
+            class="FilterField-item"
+            :class="{ 'is-selected': selectedSigungu === option }"
+            @click="selectSigungu(option)"
+          >
+            {{ option }}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 읍/면/동 드롭다운 -->
+    <div class="FilterField">
+      <button
+        type="button"
+        class="FilterField-trigger"
+        :class="{ 'is-open': openMenu === 'eupmyeondong' }"
+        :disabled="!selectedSigungu"
+        @click="toggleMenu('eupmyeondong')"
+      >
+        <span class="FilterField-trigger-text">
+          {{ selectedEupmyeondong || '읍/면/동 ' }}
+        </span>
+        <span class="FilterField-trigger-arrow" />
+      </button>
+
+      <div v-if="openMenu === 'eupmyeondong'" class="FilterField-dropdown">
+        <ul class="FilterField-list">
+          <li
+            v-for="option in eupmyeondongs"
+            :key="option"
+            class="FilterField-item"
+            :class="{ 'is-selected': selectedEupmyeondong === option }"
+            @click="selectEupmyeondong(option)"
+          >
+            {{ option }}
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import allDistricts from '@/assets/data/district.json'
 
 const emit = defineEmits(['update:region'])
 
 const districts = ref(allDistricts)
+const openMenu = ref(null) // 현재 열려있는 드롭다운 메뉴
 
 const selectedSido = ref('')
 const selectedSigungu = ref('')
@@ -57,52 +122,130 @@ const eupmyeondongs = computed(() => {
     .map((d) => d.eupmyeondong)
 })
 
-const handleSidoChange = () => {
+const toggleMenu = (menu) => {
+  // disabled 상태의 버튼은 토글하지 않음
+  if (menu === 'sigungu' && !selectedSido.value) return
+  if (menu === 'eupmyeondong' && !selectedSigungu.value) return
+  openMenu.value = openMenu.value === menu ? null : menu
+}
+
+const selectSido = (sido) => {
+  selectedSido.value = sido
   selectedSigungu.value = ''
   selectedEupmyeondong.value = ''
+  openMenu.value = null
 }
 
-const handleSigunguChange = () => {
+const selectSigungu = (sigungu) => {
+  selectedSigungu.value = sigungu
   selectedEupmyeondong.value = ''
+  openMenu.value = null
 }
 
-const handleEupmyeondongChange = () => {
+const selectEupmyeondong = (eupmyeondong) => {
+  selectedEupmyeondong.value = eupmyeondong
+  openMenu.value = null
   emit('update:region', {
     sido: selectedSido.value,
     gugun: selectedSigungu.value,
     dong: selectedEupmyeondong.value,
   })
 }
-
-watch([selectedSido, selectedSigungu, selectedEupmyeondong], () => {})
 </script>
 
 <style scoped lang="scss">
 .region-dropdowns {
   display: flex;
   flex-wrap: wrap;
-  gap: rem(10px);
+  gap: rem(8px);
 }
 
-select {
-  padding-top: rem(8px);
-  padding-bottom: rem(8px);
-  border: rem(1px) solid #ccc;
-  border-radius: rem(4px);
-  font-size: rem(16px);
+.FilterField {
   flex: 1;
-  min-width: rem(120px);
-  text-align: center;
-  text-align-last: center;
-}
-
-.region-dropdowns select:nth-child(2) {
-  flex: 0.8;
   min-width: rem(100px);
+  position: relative;
 }
 
-select:disabled {
-  background-color: #f2f2f2;
-  cursor: not-allowed;
+.FilterField-trigger {
+  width: 100%;
+  padding: rem(8px) rem(10px);
+  border-radius: rem(8px);
+  border: rem(1px) solid var(--grey-light);
+  background-color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  gap: rem(10px);
+  overflow: visible;
+
+  &.is-open {
+    border-color: var(--semi-signature-color);
+  }
+
+  &:disabled {
+    background-color: #f2f2f2;
+    cursor: not-allowed;
+    .FilterField-trigger-text {
+      color: #999;
+    }
+  }
+}
+
+.FilterField-trigger-text {
+  font-size: rem(13px);
+  color: var(--black);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: rem(3px);
+}
+
+.FilterField-trigger-arrow {
+  flex: 0 0 auto;
+  width: rem(8px);
+  height: rem(8px);
+  border-right: rem(2px) solid var(--text-subtitle);
+  border-bottom: rem(2px) solid var(--text-subtitle);
+  box-sizing: content-box;
+  transform: translateY(rem(-1px)) rotate(45deg);
+}
+
+.FilterField-dropdown {
+  position: absolute;
+  top: calc(100% + rem(4px));
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  margin-top: rem(4px);
+  border-radius: rem(8px);
+  border: rem(1px) solid var(--grey-light);
+  background-color: var(--white);
+  max-height: rem(220px);
+  overflow-y: auto;
+}
+
+.FilterField-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 rem(4px);
+}
+
+.FilterField-item {
+  padding: rem(6px) rem(10px);
+  font-size: rem(13px);
+  color: var(--black);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--grey-light);
+  }
+
+  &.is-selected {
+    background-color: #ffcc3c30;
+    color: var(--text-title);
+    font-weight: var(--font-weight-semibold);
+  }
 }
 </style>

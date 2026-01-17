@@ -1,6 +1,6 @@
 import TestPage from '@/pages/test/TestPage.vue'
 import PaginationTestPage from '@/pages/test/PaginationTestPage.vue'
-import MapTestPage from '@/pages/test/maptest.vue'
+import MapTestPage from '@/pages/test/MapTest.vue'
 import RegionTestPage from '@/pages/test/RegionTestPage.vue' // 새 컴포넌트 임포트
 
 export default [

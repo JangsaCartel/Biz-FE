@@ -27,7 +27,8 @@ onMounted(async () => {
   }
 });
 
-function initMap(apiKey) {
+// eslint-disable-next-line no-unused-vars
+function initMap(_apiKey) {
   const mapContainer = document.getElementById('map');
   const mapOption = {
     center: new kakao.maps.LatLng(33.450701, 126.570667),

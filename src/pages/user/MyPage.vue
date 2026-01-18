@@ -205,6 +205,7 @@ const deleteCount = ref(0)
 const editProfile = ref({ nickname: '', userStoreName: '' })
 const editRegion = ref({ sido: '', gugun: '', dong: '' })
 const modalMessage = ref('')
+const modalCallback = ref(null)
 const isModalVisible = ref(false)
 const currentPage = ref(1)
 const pageSize = ref(3)
@@ -403,7 +404,9 @@ const confirmDelete = async () => {
       }
       await fetchMyPosts()
       selectedPostsForDelete.value = []
-      showModal('게시글이 삭제되었습니다.')
+      showModal('게시글이 삭제되었습니다.', () => {
+        window.location.reload()
+      })
     } else {
       for (const commentId of selectedCommentsForDelete.value) {
         await deleteComment(commentId)
@@ -516,14 +519,20 @@ const closeProfileModal = () => {
   editRegion.value = { sido: regionParts[0] || '', gugun: regionParts[1] || '', dong: regionParts[2] || '' }
 }
 
-const showModal = (message) => {
+const showModal = (message, callback = null) => {
   modalMessage.value = message
+  modalCallback.value = callback
   isModalVisible.value = true
 }
 
 const closeModal = () => {
   isModalVisible.value = false
   modalMessage.value = ''
+
+  if (modalCallback.value) {
+    modalCallback.value()
+    modalCallback.value = null
+  }
 }
 
 const handlePageChange = (page) => {

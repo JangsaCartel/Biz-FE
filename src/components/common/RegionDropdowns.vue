@@ -92,17 +92,36 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import allDistricts from '@/assets/data/district.json'
+
+const props = defineProps({
+  region: {
+    type: Object,
+    default: null,
+  },
+})
 
 const emit = defineEmits(['update:region'])
 
 const districts = ref(allDistricts)
-const openMenu = ref(null) // 현재 열려있는 드롭다운 메뉴
+const openMenu = ref(null)
 
 const selectedSido = ref('')
 const selectedSigungu = ref('')
 const selectedEupmyeondong = ref('')
+
+watch(() => props.region, (newRegion) => {
+  if (newRegion) {
+    selectedSido.value = newRegion.sido || ''
+    selectedSigungu.value = newRegion.gugun || ''
+    selectedEupmyeondong.value = newRegion.dong || ''
+  } else {
+    selectedSido.value = ''
+    selectedSigungu.value = ''
+    selectedEupmyeondong.value = ''
+  }
+}, { immediate: true })
 
 const sidos = computed(() => {
   return [...new Set(districts.value.map((d) => d.sido))]
@@ -123,7 +142,6 @@ const eupmyeondongs = computed(() => {
 })
 
 const toggleMenu = (menu) => {
-  // disabled 상태의 버튼은 토글하지 않음
   if (menu === 'sigungu' && !selectedSido.value) return
   if (menu === 'eupmyeondong' && !selectedSigungu.value) return
   openMenu.value = openMenu.value === menu ? null : menu
@@ -134,22 +152,30 @@ const selectSido = (sido) => {
   selectedSigungu.value = ''
   selectedEupmyeondong.value = ''
   openMenu.value = null
+  emit('update:region', { sido: sido, gugun: '', dong: '' })
 }
 
 const selectSigungu = (sigungu) => {
   selectedSigungu.value = sigungu
   selectedEupmyeondong.value = ''
   openMenu.value = null
+  emit('update:region', {
+    sido: selectedSido.value,
+    gugun: sigungu,
+    dong: '',
+  })
 }
 
 const selectEupmyeondong = (eupmyeondong) => {
   selectedEupmyeondong.value = eupmyeondong
   openMenu.value = null
-  emit('update:region', {
+  const selectedRegion = {
     sido: selectedSido.value,
     gugun: selectedSigungu.value,
     dong: selectedEupmyeondong.value,
-  })
+  }
+  console.log('RegionDropdowns emitting:', selectedRegion)
+  emit('update:region', selectedRegion)
 }
 </script>
 

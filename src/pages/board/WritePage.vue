@@ -28,6 +28,12 @@
       ></textarea>
       <div class="char-count">{{ currentChars }}자 / {{ MAX_CHARS }}자</div>
     </main>
+
+    <ModalDialog
+      :message="modalMessage"
+      :is-visible="isModalVisible"
+      @close="closeModal"
+    />
   </div>
 </template>
 
@@ -35,6 +41,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBoardStore } from '@/stores/board/board.js'
+import ModalDialog from '@/components/common/ModalDialog.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -42,6 +49,9 @@ const boardStore = useBoardStore()
 
 const title = ref('')
 const content = ref('')
+
+const modalMessage = ref('')
+const isModalVisible = ref(false)
 
 const MAX_TITLE_CHARS = 30
 const MAX_CHARS = 1000
@@ -59,9 +69,19 @@ const categoryMap = {
 
 const categoryId = categoryMap[categoryName]
 
+const showModal = (message) => {
+  modalMessage.value = message
+  isModalVisible.value = true
+}
+
+const closeModal = () => {
+  isModalVisible.value = false
+  modalMessage.value = ''
+}
+
 const savePost = async () => {
   if (!title.value.trim() || !content.value.trim()) {
-    alert('제목과 내용을 모두 입력해주세요.')
+    showModal('제목과 내용을 모두 입력해주세요.')
     return
   }
 
@@ -76,7 +96,7 @@ const savePost = async () => {
     router.push({ name: categoryName })
   } catch (error) {
     console.error('Error creating post:', error)
-    alert('게시글 작성에 실패했습니다. 다시 시도해주세요.')
+    showModal('게시글 작성에 실패했습니다. 다시 시도해주세요.')
   }
 }
 

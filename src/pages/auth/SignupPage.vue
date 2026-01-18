@@ -9,6 +9,8 @@ import {
   getPostLoginRedirect,
   clearPostLoginRedirect,
 } from '@/stores/tokenStorage'
+import RegionDropdowns from '@/components/common/RegionDropdowns.vue'
+import ModalDialog from '@/components/common/ModalDialog.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -18,6 +20,7 @@ const currentStep = ref(1)
 
 const nickname = ref('')
 const region = ref('')
+const regionData = ref({ sido: '', gugun: '', dong: '' })
 const userStoreName = ref('')
 const businessType = ref('')
 const businessRegNo = ref('')
@@ -30,6 +33,11 @@ const selectedDay = ref('')
 const isSubmitting = ref(false)
 const globalError = ref('')
 
+const aiConsent = ref(false)
+const termsConsent = ref(false)
+
+const futureDateModalVisible = ref(false)
+
 const stepOneErrors = ref({
   businessRegNo: '',
   businessStartDate: '',
@@ -40,6 +48,8 @@ const stepTwoErrors = ref({
   region: '',
   userStoreName: '',
   businessType: '',
+  aiConsent: '',
+  termsConsent: '',
 })
 
 const currentYear = new Date().getFullYear()
@@ -81,11 +91,15 @@ const handleBusinessRegNoInput = (event) => {
 }
 
 const businessTypeOptions = [
-  { label: '한식', value: 1 },
-  { label: '중식', value: 2 },
-  { label: '일식', value: 3 },
-  { label: '양식', value: 4 },
-  { label: '카페/디저트', value: 5 },
+  { label: '외식업', value: 1 },
+  { label: '카페업', value: 2 },
+  { label: '도·소매업', value: 3 },
+  { label: '스포츠·오락', value: 4 },
+  { label: '미용업', value: 5 },
+  { label: '숙박업', value: 6 },
+  { label: '부동산', value: 7 },
+  { label: '제조업', value: 8 },
+  { label: '건설업', value: 9 },
 ]
 
 onMounted(() => {
@@ -117,21 +131,60 @@ const validateStepOne = () => {
 
 const validateStepTwo = () => {
   stepTwoErrors.value.nickname = nickname.value ? '' : '닉네임을 입력해주세요.'
-  stepTwoErrors.value.region = region.value ? '' : '활동 지역을 입력해주세요.'
+  stepTwoErrors.value.region =
+    regionData.value.sido && regionData.value.gugun && regionData.value.dong
+      ? ''
+      : '활동 지역을 선택해주세요.'
   stepTwoErrors.value.userStoreName = userStoreName.value ? '' : '가게 상호명을 입력해주세요.'
   stepTwoErrors.value.businessType = businessType.value ? '' : '사업 종류를 선택해주세요.'
+  stepTwoErrors.value.aiConsent = aiConsent.value ? '' : 'AI 활용 동의는 필수입니다.'
+  stepTwoErrors.value.termsConsent = termsConsent.value ? '' : '약관 동의는 필수입니다.'
 
   return (
     !stepTwoErrors.value.nickname &&
     !stepTwoErrors.value.region &&
     !stepTwoErrors.value.userStoreName &&
-    !stepTwoErrors.value.businessType
+    !stepTwoErrors.value.businessType &&
+    !stepTwoErrors.value.aiConsent &&
+    !stepTwoErrors.value.termsConsent
   )
 }
 
 const handleNextStep = () => {
   if (validateStepOne()) {
+    // 미래 날짜 검증
+    if (businessStartDate.value) {
+      const selectedDate = new Date(businessStartDate.value)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      if (selectedDate > today) {
+        futureDateModalVisible.value = true
+        return
+      }
+    }
     currentStep.value = 2
+  }
+}
+
+const handleFutureDateModalPrimary = () => {
+  // 다음 버튼 클릭 - 다음 단계로 진행
+  futureDateModalVisible.value = false
+  currentStep.value = 2
+}
+
+const handleFutureDateModalSecondary = () => {
+  // 이전 버튼 클릭 - 모달만 닫고 현재 단계 유지
+  futureDateModalVisible.value = false
+}
+
+const handleRegionUpdate = (regionInfo) => {
+  regionData.value = regionInfo
+  // 백엔드에 전달할 형식으로 변환 (예: "서울 강남구 역삼동")
+  if (regionInfo.sido && regionInfo.gugun && regionInfo.dong) {
+    region.value = `${regionInfo.sido} ${regionInfo.gugun} ${regionInfo.dong}`
+  } else {
+    region.value = ''
   }
 }
 
@@ -288,8 +341,36 @@ const onSubmit = async () => {
 
         <div class="form-group">
           <label class="form-label">활동 지역 *</label>
-          <input v-model="region" class="form-input" placeholder="예) 서울 강남구" />
+          <RegionDropdowns @update:region="handleRegionUpdate" />
           <p v-if="stepTwoErrors.region" class="error-text">{{ stepTwoErrors.region }}</p>
+        </div>
+
+        <div class="form-group">
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input
+                v-model="aiConsent"
+                type="checkbox"
+                class="checkbox-input"
+              />
+              <span>AI 활용 동의 *</span>
+            </label>
+            <p v-if="stepTwoErrors.aiConsent" class="error-text">{{ stepTwoErrors.aiConsent }}</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input
+                v-model="termsConsent"
+                type="checkbox"
+                class="checkbox-input"
+              />
+              <span>약관 동의 *</span>
+            </label>
+            <p v-if="stepTwoErrors.termsConsent" class="error-text">{{ stepTwoErrors.termsConsent }}</p>
+          </div>
         </div>
 
         <div class="button-row">
@@ -301,6 +382,16 @@ const onSubmit = async () => {
 
         <p v-if="globalError" class="error-text global">{{ globalError }}</p>
       </div>
+
+      <!-- 미래 날짜 확인 모달 -->
+      <ModalDialog
+        :message="'개업하실 예정이시군요! 미래의 사장님을 응원합니다!'"
+        :is-visible="futureDateModalVisible"
+        button-type="double"
+        @primary="handleFutureDateModalPrimary"
+        @secondary="handleFutureDateModalSecondary"
+        @close="handleFutureDateModalSecondary"
+      />
     </div>
   </section>
 </template>
@@ -443,5 +534,25 @@ const onSubmit = async () => {
 .error-text.global {
   margin-top: rem(12px);
   text-align: center;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: rem(8px);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: rem(8px);
+  font-size: rem(16px);
+  cursor: pointer;
+}
+
+.checkbox-input {
+  width: rem(18px);
+  height: rem(18px);
+  cursor: pointer;
 }
 </style>

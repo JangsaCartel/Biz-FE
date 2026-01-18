@@ -39,24 +39,54 @@ export const useNotificationStore = defineStore('notificationStore', {
 
       this._streamHandle = streamNotifications({
         onEvent: ({ event, data }) => {
-          if (event !== 'notification') return
+          if (event !== 'notification' && event !== 'message') return
 
-          const nid = data.notificationId
-          if (nid != null) {
-            const idx = this.items.findIndex((x) => x.notificationId === nid)
-            if (idx !== -1) {
-              this.items[idx] = { ...this.items[idx], ...data }
-              this.items[idx].isRead = !!this.items[idx].isRead
-              return
-            }
+          // 디버그
+          console.debug('[notification SSE] recv:', event, data)
+
+          const nid = data?.notificationId ?? data?.id ?? null
+
+          // nid가 없으면(서버 payload 키가 다르거나 이상한 이벤트)
+          // 안전하게 목록 재동기화로 복구
+          if (nid == null) {
+            this.syncList({ page: 1, size: 50 }).catch(() => {})
+            return
           }
 
-          this.items.unshift({ ...data, isRead: !!data.isRead })
+          // 기존 항목 업데이트
+          const idx = this.items.findIndex((x) => x.notificationId === nid)
+          if (idx !== -1) {
+            this.items[idx] = {
+              ...this.items[idx],
+              ...data,
+              eventId: this.items[idx].eventId ?? `n-${nid}`,
+              notificationId: nid,
+              isRead: !!(data.isRead ?? this.items[idx].isRead),
+            }
+            this.unreadCount = this.items.filter((x) => !x.isRead).length
+            return
+          }
+
+          // 새 항목 추가
+          const item = {
+            eventId: data.eventId ?? `n-${nid}`,
+            notificationId: nid,
+            title: data.title,
+            message: data.message,
+            postId: data.postId,
+            commentId: data.commentId,
+            createdAt: data.createdAt,
+            isRead: !!data.isRead,
+          }
+
+          this.items.unshift(item)
           this.unreadCount = this.items.filter((x) => !x.isRead).length
         },
+
         onError: (e) => {
           console.error('[notification SSE] error:', e)
           this.disconnect()
+          setTimeout(() => this.connect(), 1000) // 1초 뒤 재연결
         },
       })
     },

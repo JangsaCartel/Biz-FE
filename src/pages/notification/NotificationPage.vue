@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNotificationStore } from '@/stores/notificationStore'
 
@@ -49,6 +49,11 @@ const openNotification = async (n) => {
 
 onMounted(async () => {
   await notificationStore.syncList({ page: 1, size: 50 })
+  notificationStore.connect()
+})
+
+onBeforeUnmount(() => {
+  notificationStore.disconnect()
 })
 </script>
 

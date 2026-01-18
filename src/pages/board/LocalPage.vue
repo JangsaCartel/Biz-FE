@@ -5,9 +5,16 @@
       <button class="write-btn" @click="goToWritePage"><span class="icon">✏️</span> 글 쓰기</button>
     </header>
 
+    <div class="filter-wrapper">
+      <button type="button" class="filter-btn" @click="openRegionModal">필터</button>
+      <div class="filter-summary">
+        <span>{{ regionSummary }}</span>
+      </div>
+    </div>
+
     <div class="post-list-wrapper">
-      <div v-if="posts.length === 0" class="empty-state">게시글이 없습니다.</div>
-      <BoardItem v-for="post in posts" :key="post.post_id" :post="post" />
+      <div v-if="filteredPosts.length === 0" class="empty-state">게시글이 없습니다.</div>
+      <BoardItem v-for="post in filteredPosts" :key="post.post_id" :post="post" />
     </div>
 
     <div class="pagination-wrapper">
@@ -20,6 +27,12 @@
         />
       </div>
     </div>
+    <RegionFilterModal
+      :open="isRegionModalOpen"
+      v-model:region="tempRegion"
+      @close="closeRegionModal"
+      @confirm="handleRegionConfirm"
+    />
   </div>
 </template>
 
@@ -29,6 +42,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useBoardStore } from '@/stores/board/board.js'
 import BoardItem from '@/components/board/BoardItem.vue'
 import AppPagination from '@/components/common/AppPagination.vue'
+import RegionFilterModal from '@/components/board/RegionFilterModal.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -36,12 +50,45 @@ const boardStore = useBoardStore()
 
 const currentPage = ref(1)
 const pageSize = 4
+const selectedRegion = ref(null)
+const tempRegion = ref(null)
+const isRegionModalOpen = ref(false)
 
 const posts = computed(() => boardStore.getLocalBoardPosts)
 const totalPosts = computed(() => boardStore.getLocalBoardTotal)
 
+const regionSummary = computed(() => {
+  if (!selectedRegion.value || (!selectedRegion.value.sido && !selectedRegion.value.gugun && !selectedRegion.value.dong)) {
+    return '전체'
+  }
+  return `${selectedRegion.value.sido} ${selectedRegion.value.gugun} ${selectedRegion.value.dong}`.trim()
+})
+
+const filteredPosts = computed(() => {
+  if (!selectedRegion.value || (!selectedRegion.value.sido && !selectedRegion.value.gugun && !selectedRegion.value.dong)) {
+    return posts.value
+  }
+  const regionString = `${selectedRegion.value.sido} ${selectedRegion.value.gugun} ${selectedRegion.value.dong}`.trim()
+  return posts.value.filter(post => post.region === regionString)
+})
+
 const fetchPosts = (page) => {
   boardStore.fetchLocalBoardPosts(page, pageSize)
+}
+
+const openRegionModal = () => {
+  tempRegion.value = selectedRegion.value ? { ...selectedRegion.value } : null
+  isRegionModalOpen.value = true
+}
+
+const closeRegionModal = () => {
+  isRegionModalOpen.value = false
+}
+
+const handleRegionConfirm = () => {
+  console.log('Region confirmed in LocalPage:', tempRegion.value)
+  selectedRegion.value = tempRegion.value
+  closeRegionModal()
 }
 
 onMounted(() => {
@@ -128,6 +175,32 @@ const goToWritePage = () => {
 
 .write-btn:hover {
   background-color: var(--bg-header-local);
+}
+
+.filter-wrapper {
+  padding: rem(10px) rem(15px);
+  background-color: var(--white);
+  border-bottom: 1px solid var(--grey-light);
+  display: flex;
+  align-items: center;
+  gap: rem(10px);
+}
+
+.filter-btn {
+  padding: rem(8px) rem(20px);
+  height: rem(40px);
+  border-radius: rem(999px);
+  border: none;
+  background: linear-gradient(90deg, var(--signature-color), var(--semi-signature-color));
+  font-size: rem(14px);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-title);
+  cursor: pointer;
+}
+
+.filter-summary {
+  font-size: rem(13px);
+  color: var(--color-text-default);
 }
 
 .post-list-wrapper {

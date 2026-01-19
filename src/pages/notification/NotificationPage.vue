@@ -12,6 +12,21 @@ const isSyncing = computed(() => notificationStore.isSyncing)
 
 const listRef = ref(null)
 
+const formatCreatedAt = (v) => {
+  if (!v) return ''
+  // [YYYY, M, D, H, m, s] 형태
+  if (Array.isArray(v) && v.length >= 3) {
+    const [Y, M, D, h = 0, m = 0, s = 0] = v
+    const pad = (n) => String(n).padStart(2, '0')
+    return `${Y}-${pad(M)}-${pad(D)} ${pad(h)}:${pad(m)}:${pad(s)}`
+  }
+  const str = String(v)
+  if (str.includes('T')) {
+    return str.replace('T', ' ').slice(0, 19) // "YYYY-MM-DD HH:mm:ss"
+  }
+  return str
+}
+
 const goBack = () => router.back()
 
 const refreshNow = async () => {
@@ -106,7 +121,7 @@ onBeforeUnmount(() => {
           <div class="Body">
             <div class="TitleRow">
               <span class="Title">{{ n.title ?? '알림' }}</span>
-              <span class="Time">{{ n.createdAt ?? '' }}</span>
+              <span class="Time">{{ formatCreatedAt(n.createdAt) }}</span>
             </div>
             <div class="Message">
               {{ n.message ?? '' }}
@@ -141,7 +156,7 @@ onBeforeUnmount(() => {
   height: rem(56px);
 
   display: grid;
-  grid-template-columns: rem(56px) 1fr auto;
+  grid-template-columns: rem(120px) 1fr rem(120px);
   align-items: center;
 
   padding: 0 rem(12px);
@@ -248,7 +263,7 @@ onBeforeUnmount(() => {
   gap: rem(10px);
 
   background: var(--white);
-  border-radius: rem(14px);
+  border-bottom: rem(1px) solid var(--grey-light);
   padding: rem(12px);
   box-sizing: border-box;
 

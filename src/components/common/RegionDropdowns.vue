@@ -111,17 +111,21 @@ const selectedSido = ref('')
 const selectedSigungu = ref('')
 const selectedEupmyeondong = ref('')
 
-watch(() => props.region, (newRegion) => {
-  if (newRegion) {
-    selectedSido.value = newRegion.sido || ''
-    selectedSigungu.value = newRegion.gugun || ''
-    selectedEupmyeondong.value = newRegion.dong || ''
-  } else {
-    selectedSido.value = ''
-    selectedSigungu.value = ''
-    selectedEupmyeondong.value = ''
-  }
-}, { immediate: true })
+watch(
+  () => props.region,
+  (newRegion) => {
+    if (newRegion) {
+      selectedSido.value = newRegion.sido || ''
+      selectedSigungu.value = newRegion.gugun || ''
+      selectedEupmyeondong.value = newRegion.dong || ''
+    } else {
+      selectedSido.value = ''
+      selectedSigungu.value = ''
+      selectedEupmyeondong.value = ''
+    }
+  },
+  { immediate: true },
+)
 
 const sidos = computed(() => {
   return [...new Set(districts.value.map((d) => d.sido))]
@@ -174,7 +178,7 @@ const selectEupmyeondong = (eupmyeondong) => {
     gugun: selectedSigungu.value,
     dong: selectedEupmyeondong.value,
   }
-  console.log('RegionDropdowns emitting:', selectedRegion)
+  // console.log('RegionDropdowns emitting:', selectedRegion)
   emit('update:region', selectedRegion)
 }
 </script>

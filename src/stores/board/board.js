@@ -84,9 +84,9 @@ export const useBoardStore = defineStore('board', {
         this.infoPostsTotal = 0
       }
     },
-    async fetchLocalBoardPosts(page = 1, pageSize = 4) {
+    async fetchLocalBoardPosts(page = 1, pageSize = 4, region = null) {
       try {
-        const response = await fetchLocalBoardPosts(page, pageSize)
+        const response = await fetchLocalBoardPosts(page, pageSize, region)
         this.localPosts = response.data.posts
         this.localPostsTotal = response.data.totalCount
       } catch (error) {

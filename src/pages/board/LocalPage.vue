@@ -13,8 +13,8 @@
     </div>
 
     <div class="post-list-wrapper">
-      <div v-if="filteredPosts.length === 0" class="empty-state">게시글이 없습니다.</div>
-      <BoardItem v-for="post in filteredPosts" :key="post.post_id" :post="post" />
+      <div v-if="posts.length === 0" class="empty-state">게시글이 없습니다.</div>
+      <BoardItem v-for="post in posts" :key="post.post_id" :post="post" />
     </div>
 
     <div class="pagination-wrapper">
@@ -58,22 +58,21 @@ const posts = computed(() => boardStore.getLocalBoardPosts)
 const totalPosts = computed(() => boardStore.getLocalBoardTotal)
 
 const regionSummary = computed(() => {
-  if (!selectedRegion.value || (!selectedRegion.value.sido && !selectedRegion.value.gugun && !selectedRegion.value.dong)) {
-    return '전체'
+  if (
+    !selectedRegion.value ||
+    (!selectedRegion.value.sido && !selectedRegion.value.gugun && !selectedRegion.value.dong)
+  ) {
+    return '필터 없음'
   }
   return `${selectedRegion.value.sido} ${selectedRegion.value.gugun} ${selectedRegion.value.dong}`.trim()
 })
 
-const filteredPosts = computed(() => {
-  if (!selectedRegion.value || (!selectedRegion.value.sido && !selectedRegion.value.gugun && !selectedRegion.value.dong)) {
-    return posts.value
+const fetchPosts = (page, region) => {
+  let regionString = null
+  if (region && region.sido && region.gugun && region.dong) {
+    regionString = `${region.sido} ${region.gugun} ${region.dong}`.trim()
   }
-  const regionString = `${selectedRegion.value.sido} ${selectedRegion.value.gugun} ${selectedRegion.value.dong}`.trim()
-  return posts.value.filter(post => post.region === regionString)
-})
-
-const fetchPosts = (page) => {
-  boardStore.fetchLocalBoardPosts(page, pageSize)
+  boardStore.fetchLocalBoardPosts(page, pageSize, regionString)
 }
 
 const openRegionModal = () => {
@@ -85,16 +84,19 @@ const closeRegionModal = () => {
   isRegionModalOpen.value = false
 }
 
-const handleRegionConfirm = () => {
-  console.log('Region confirmed in LocalPage:', tempRegion.value)
-  selectedRegion.value = tempRegion.value
+const handleRegionConfirm = (confirmedRegion) => {
+  selectedRegion.value = confirmedRegion
   closeRegionModal()
 }
+
+watch(selectedRegion, (newRegion) => {
+  fetchPosts(currentPage.value, newRegion)
+})
 
 onMounted(() => {
   const pageFromUrl = parseInt(route.query.page) || 1
   currentPage.value = pageFromUrl
-  fetchPosts(pageFromUrl)
+  fetchPosts(pageFromUrl, selectedRegion.value)
 })
 
 watch(
@@ -103,7 +105,7 @@ watch(
     const pageAsNumber = parseInt(newPage) || 1
     if (currentPage.value !== pageAsNumber) {
       currentPage.value = pageAsNumber
-      fetchPosts(pageAsNumber)
+      fetchPosts(pageAsNumber, selectedRegion.value)
       document.querySelector('.post-list-wrapper').scrollTop = 0
     }
   },
@@ -191,7 +193,7 @@ const goToWritePage = () => {
   height: rem(40px);
   border-radius: rem(999px);
   border: none;
-  background: linear-gradient(90deg, var(--signature-color), var(--semi-signature-color));
+  background: linear-gradient(90deg, #2e695560, #2e695560);
   font-size: rem(14px);
   font-weight: var(--font-weight-semibold);
   color: var(--text-title);
@@ -241,7 +243,7 @@ const goToWritePage = () => {
   padding: rem(10px) 0;
 }
 
-/* 스크롤바 커스텀 (선택사항) */
+/* 스크롤바 커스텀 */
 .post-list-wrapper::-webkit-scrollbar {
   width: rem(6px);
 }

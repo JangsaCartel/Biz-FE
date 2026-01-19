@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBoardStore } from '@/stores/board/board.js'
 import BoardItem from '@/components/board/BoardItem.vue'
@@ -85,34 +85,37 @@ const closeRegionModal = () => {
 }
 
 const handleRegionConfirm = (confirmedRegion) => {
-  selectedRegion.value = confirmedRegion
+  let regionQuery = ''
+  if (confirmedRegion && confirmedRegion.sido && confirmedRegion.gugun && confirmedRegion.dong) {
+    regionQuery = `${confirmedRegion.sido}-${confirmedRegion.gugun}-${confirmedRegion.dong}`
+  }
+  // When filter changes, reset to page 1
+  router.push({ query: { ...route.query, region: regionQuery || undefined, page: 1 } })
   closeRegionModal()
 }
 
-watch(selectedRegion, (newRegion) => {
-  fetchPosts(currentPage.value, newRegion)
-})
-
-onMounted(() => {
-  const pageFromUrl = parseInt(route.query.page) || 1
-  currentPage.value = pageFromUrl
-  fetchPosts(pageFromUrl, selectedRegion.value)
-})
-
+// 필터링 데이터 유지
 watch(
-  () => route.query.page,
-  (newPage) => {
-    const pageAsNumber = parseInt(newPage) || 1
-    if (currentPage.value !== pageAsNumber) {
-      currentPage.value = pageAsNumber
-      fetchPosts(pageAsNumber, selectedRegion.value)
-      document.querySelector('.post-list-wrapper').scrollTop = 0
+  () => route.query,
+  (query) => {
+    const regionStr = query.region || ''
+    if (regionStr) {
+      const [sido, gugun, dong] = regionStr.split('-')
+      selectedRegion.value = { sido, gugun, dong }
+    } else {
+      selectedRegion.value = null
     }
+
+    const pageAsNumber = parseInt(query.page) || 1
+    currentPage.value = pageAsNumber
+
+    fetchPosts(pageAsNumber, selectedRegion.value)
   },
+  { immediate: true },
 )
 
 const handlePageChange = (page) => {
-  router.push({ query: { page: page } })
+  router.push({ query: { ...route.query, page: page } })
 }
 
 const goToWritePage = () => {

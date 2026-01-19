@@ -16,8 +16,12 @@ export const fetchInfoBoardPosts = (page = 1, pageSize = 4) => {
   return apiClient.get(`/info?page=${page}&pageSize=${pageSize}`)
 }
 
-export const fetchLocalBoardPosts = (page = 1, pageSize = 4) => {
-  return apiClient.get(`/local?page=${page}&pageSize=${pageSize}`)
+export const fetchLocalBoardPosts = (page = 1, pageSize = 4, region = null) => {
+  let url = `/local?page=${page}&pageSize=${pageSize}`
+  if (region) {
+    url += `&region=${region}`
+  }
+  return apiClient.get(url)
 }
 
 export const createPost = (postData) => {

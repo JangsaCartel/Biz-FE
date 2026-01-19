@@ -134,8 +134,6 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/styles/utils/_pxToRem.scss' as *;
-
 .NotificationWrapper {
   background-color: var(--bg-default);
   width: 100%;

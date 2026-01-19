@@ -520,7 +520,7 @@ onMounted(async () => {
   align-items: center;
   height: rem(56px);
   padding: 0 rem(10px);
-  background: #ffcc3c80;
+  background: #ffcc3c50;
   box-sizing: border-box;
 }
 
@@ -558,7 +558,7 @@ onMounted(async () => {
   flex: 1;
   overflow-y: auto;
   padding: rem(14px) rem(12px) rem(18px);
-  background: #ffcc3c80;
+  background: #ffcc3c50;
 }
 
 .Row {
@@ -665,7 +665,7 @@ onMounted(async () => {
   grid-template-columns: 1fr auto auto;
   gap: rem(8px);
   padding: rem(10px) rem(12px);
-  background: #ffcc3c80;
+  background: #ffcc3c50;
 }
 
 .Input {

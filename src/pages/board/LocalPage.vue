@@ -58,19 +58,19 @@ const posts = computed(() => boardStore.getLocalBoardPosts)
 const totalPosts = computed(() => boardStore.getLocalBoardTotal)
 
 const regionSummary = computed(() => {
-  if (
-    !selectedRegion.value ||
-    (!selectedRegion.value.sido && !selectedRegion.value.gugun && !selectedRegion.value.dong)
-  ) {
+  if (!selectedRegion.value || !selectedRegion.value.sido) {
     return '필터 없음'
   }
-  return `${selectedRegion.value.sido} ${selectedRegion.value.gugun} ${selectedRegion.value.dong}`.trim()
+
+  return [selectedRegion.value.sido, selectedRegion.value.gugun, selectedRegion.value.dong]
+    .filter(Boolean)
+    .join(' ')
 })
 
 const fetchPosts = (page, region) => {
   let regionString = null
-  if (region && region.sido && region.gugun && region.dong) {
-    regionString = `${region.sido} ${region.gugun} ${region.dong}`.trim()
+  if (region && region.sido) {
+    regionString = [region.sido, region.gugun, region.dong].filter(Boolean).join(' ').trim()
   }
   boardStore.fetchLocalBoardPosts(page, pageSize, regionString)
 }
@@ -86,22 +86,23 @@ const closeRegionModal = () => {
 
 const handleRegionConfirm = (confirmedRegion) => {
   let regionQuery = ''
-  if (confirmedRegion && confirmedRegion.sido && confirmedRegion.gugun && confirmedRegion.dong) {
-    regionQuery = `${confirmedRegion.sido}-${confirmedRegion.gugun}-${confirmedRegion.dong}`
+  if (confirmedRegion && confirmedRegion.sido) {
+    regionQuery = [confirmedRegion.sido, confirmedRegion.gugun, confirmedRegion.dong]
+      .filter(Boolean)
+      .join('-')
   }
-  // When filter changes, reset to page 1
+
   router.push({ query: { ...route.query, region: regionQuery || undefined, page: 1 } })
   closeRegionModal()
 }
 
-// 필터링 데이터 유지
 watch(
   () => route.query,
   (query) => {
     const regionStr = query.region || ''
     if (regionStr) {
       const [sido, gugun, dong] = regionStr.split('-')
-      selectedRegion.value = { sido, gugun, dong }
+      selectedRegion.value = { sido, gugun: gugun || null, dong: dong || null }
     } else {
       selectedRegion.value = null
     }

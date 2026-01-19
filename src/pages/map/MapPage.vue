@@ -4,22 +4,26 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router' // Import useRouter
 import { getKakaoMapApiKey, getBoundaries } from '@/api/mapApi'
+
+const router = useRouter()
 
 let map = null // 지도 인스턴스
 const polygons = ref([]) // 현재 그려진 폴리곤들을 관리하기 위한 ref
+let infowindow = null // InfoWindow 인스턴스를 script-level로 이동
 
 onMounted(async () => {
-  console.log('0. onMounted: Component is mounted.')
+  // console.log('0. onMounted: Component is mounted.')
   try {
     const response = await getKakaoMapApiKey()
     const apiKey = response.kakaoMapApiKey
 
     if (window.kakao && window.kakao.maps) {
-      console.log('0. onMounted: Kakao map script already loaded.')
+      // console.log('0. onMounted: Kakao map script already loaded.')
       initMap()
     } else {
-      console.log('0. onMounted: Kakao map script not found, creating script tag...')
+      // console.log('0. onMounted: Kakao map script not found, creating script tag...')
       const script = document.createElement('script')
       script.onload = () => {
         kakao.maps.load(() => initMap())
@@ -33,32 +37,42 @@ onMounted(async () => {
 })
 
 function initMap() {
-  console.log('2. initMap: Function started.')
+  // console.log('2. initMap: Function started.')
   const mapContainer = document.getElementById('map')
   const mapOption = {
     center: new kakao.maps.LatLng(37.566826, 126.9786567),
-    level: 6, // 지도를 줌인 (더 확대)
+    level: 6,
   }
   map = new kakao.maps.Map(mapContainer, mapOption)
-  console.log('3. initMap: Map object created.')
+  map.removeOverlayMapTypeId(kakao.maps.MapTypeId.TRAFFIC) // 교통정보 제거
+  // console.log('3. initMap: Map object created.')
+
+  infowindow = new kakao.maps.InfoWindow({
+    removable: false,
+    disableAutoPan: true,
+  })
 
   // 지도 로딩 후 첫 경계선 데이터 요청
   updatePolygons()
 
   // 지도 이동 및 줌 변경 시 경계선 다시 그리도록 이벤트 등록
-  console.log('3. initMap: Adding map event listeners (dragend, zoom_changed).')
+  // console.log('3. initMap: Adding map event listeners (dragend, zoom_changed).')
   kakao.maps.event.addListener(map, 'dragend', updatePolygons)
   kakao.maps.event.addListener(map, 'zoom_changed', updatePolygons)
 }
 
 // 지도 영역에 맞는 폴리곤을 API로 요청하여 그리는 함수
 async function updatePolygons() {
-  console.log('4. updatePolygons: Function started.')
+  if (infowindow) {
+    infowindow.close()
+  }
+
+  // console.log('4. updatePolygons: Function started.')
   if (!map) {
     console.error('4. updatePolygons: Map object is null!')
     return
   }
-  console.log('5. updatePolygons: Map object is valid, preparing to fetch boundaries.')
+  // console.log('5. updatePolygons: Map object is valid, preparing to fetch boundaries.')
 
   // 기존 폴리곤 제거
   polygons.value.forEach((p) => p.setMap(null))
@@ -69,25 +83,21 @@ async function updatePolygons() {
 
   try {
     // API를 통해 현재 영역의 경계선 데이터만 받아옴
-    console.log('6. updatePolygons: Calling getBoundaries API...')
+    // console.log('6. updatePolygons: Calling getBoundaries API...')
     const districtsData = await getBoundaries(bounds)
-    console.log('7. updatePolygons: API response received.', districtsData)
+    // console.log('7. updatePolygons: API response received.', districtsData)
     if (!districtsData || !districtsData.features) {
       console.warn('7. updatePolygons: Response data is invalid or has no features.')
       return
     }
 
-    // 받아온 데이터로 폴리곤 그리기
-    const infowindow = new kakao.maps.InfoWindow({ removable: true })
-
     districtsData.features.forEach((feature) => {
-      const name = feature.properties.adm_nm || feature.properties.emd_nm // 속성 이름 임시로 조정해둠
+      const name = feature.properties.adm_nm || feature.properties.emd_nm
       if (!name || !feature.geometry) return
 
       const geometryType = feature.geometry.type
       const coordinates = feature.geometry.coordinates
 
-      // MultiPolygon일 경우, 첫 번째 폴리곤만 그리도록 단순화 (추후 확장 가능성 있음)
       const polygonCoords = geometryType === 'Polygon' ? coordinates[0] : coordinates[0][0]
 
       const path = polygonCoords.map((coord) => new kakao.maps.LatLng(coord[1], coord[0]))
@@ -102,24 +112,42 @@ async function updatePolygons() {
         fillOpacity: 0.2,
       })
 
-      // 폴리곤에 마우스오버/아웃/클릭 이벤트 등록
-      kakao.maps.event.addListener(polygon, 'mouseover', function () {
-        polygon.setOptions({ fillColor: '#ffcc3c', fillOpacity: 0.5 }) // 마우스 오버 시 시그니처 색상(노란색)으로 변경
-      })
-      kakao.maps.event.addListener(polygon, 'mouseout', function () {
-        polygon.setOptions({ fillColor: '#F5F5F5', fillOpacity: 0.2 }) // 마우스 아웃 시 원래 색상으로 복구
-      })
-      kakao.maps.event.addListener(polygon, 'click', function (mouseEvent) {
-        console.log('Polygon clicked:', feature.properties)
-        const content = `<div style="padding:5px;text-align:center;">${name}</div>`
-        infowindow.setContent(content)
+      kakao.maps.event.addListener(polygon, 'mouseover', function (mouseEvent) {
+        polygon.setOptions({ fillColor: '#ffcc3c', fillOpacity: 0.5 })
+        infowindow.setContent(
+          `<div style="padding:5px;text-align:center;font-size:12px;color:black;">${name}</div>`,
+        )
         infowindow.setPosition(mouseEvent.latLng)
         infowindow.open(map)
       })
 
-      polygons.value.push(polygon) // 새로 그린 폴리곤을 관리 목록에 추가
+      kakao.maps.event.addListener(polygon, 'mouseout', function () {
+        polygon.setOptions({ fillColor: '#F5F5F5', fillOpacity: 0.2 })
+        infowindow.close()
+      })
+
+      kakao.maps.event.addListener(polygon, 'click', function () {
+        infowindow.close()
+        const nameParts = name.split(' ')
+        if (nameParts.length >= 2) {
+          const sido = nameParts[0]
+          const gugun = nameParts[1]
+          const regionQuery = `${sido}-${gugun}`
+
+          router.push({ name: 'local', query: { region: regionQuery, page: 1 } })
+        } else {
+          console.warn('Cannot navigate. Region name format is not as expected:', name)
+          const fallbackInfoWindow = new kakao.maps.InfoWindow({ removable: true })
+          const content = `<div style="padding:5px;text-align:center;">${name}<br>(상세 지역 정보 부족)</div>`
+          fallbackInfoWindow.setContent(content)
+          fallbackInfoWindow.setPosition(mouseEvent.latLng)
+          fallbackInfoWindow.open(map)
+        }
+      })
+
+      polygons.value.push(polygon)
     })
-    console.log(`8. updatePolygons: Successfully drawn ${districtsData.features.length} polygons.`)
+    // console.log(`8. updatePolygons: Successfully drawn ${districtsData.features.length} polygons.`)
   } catch (error) {
     console.error('9. updatePolygons: Failed during API call or polygon drawing.', error)
   }

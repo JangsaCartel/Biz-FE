@@ -28,6 +28,12 @@
       ></textarea>
       <div class="char-count">{{ currentChars }}자 / {{ MAX_CHARS }}자</div>
     </main>
+
+    <ModalDialog
+      :message="modalMessage"
+      :is-visible="isModalVisible"
+      @close="handleModalClose"
+    />
   </div>
 </template>
 
@@ -35,6 +41,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBoardStore } from '@/stores/board/board.js'
+import ModalDialog from '@/components/common/ModalDialog.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -45,6 +52,11 @@ const content = ref('')
 const isEditMode = ref(false)
 const postId = ref(null)
 const currentCategoryId = ref(null)
+
+// 모달 관련 상태
+const isModalVisible = ref(false)
+const modalMessage = ref('')
+const modalCallback = ref(null)
 
 const MAX_TITLE_CHARS = 30
 const MAX_CHARS = 1000
@@ -71,6 +83,22 @@ const categoryId = computed(() => {
   return currentCategoryId.value || (categoryName ? categoryMap[categoryName] : null)
 })
 
+// [추가] 모달 표시 함수 (콜백 지원)
+const showModal = (message, callback = null) => {
+  modalMessage.value = message
+  modalCallback.value = callback
+  isModalVisible.value = true
+}
+
+// [추가] 모달 닫기 핸들러
+const handleModalClose = () => {
+  isModalVisible.value = false
+  if (modalCallback.value) {
+    modalCallback.value()
+    modalCallback.value = null
+  }
+}
+
 // 수정 모드일 때 게시글 데이터 로드
 onMounted(async () => {
   if (isEditMode.value && postId.value) {
@@ -83,20 +111,21 @@ onMounted(async () => {
       }
     } catch (error) {
       console.error('게시글 조회 실패:', error)
-      alert('게시글을 불러오는데 실패했습니다.')
-      router.back()
+      showModal('게시글을 불러오는데 실패했습니다.', () => {
+        router.back()
+      })
     }
   }
 })
 
 const savePost = async () => {
   if (!title.value.trim() || !content.value.trim()) {
-    alert('제목과 내용을 모두 입력해주세요.')
+    showModal('제목과 내용을 모두 입력해주세요.')
     return
   }
 
   if (!categoryId.value) {
-    alert('카테고리를 확인할 수 없습니다.')
+    showModal('카테고리를 확인할 수 없습니다.')
     return
   }
 
@@ -110,8 +139,9 @@ const savePost = async () => {
     if (isEditMode.value && postId.value) {
       // 수정 모드
       await boardStore.updatePost(postId.value, postData)
-      alert('게시글이 수정되었습니다.')
-      router.push({ name: 'mypage' })
+      showModal('게시글이 수정되었습니다.', () => {
+        router.push({ name: 'mypage' })
+      })
     } else {
       // 작성 모드
       await boardStore.createPost(postData)
@@ -122,18 +152,17 @@ const savePost = async () => {
 
     // 403 에러 처리 (권한 없음)
     if (error.response?.status === 403) {
-      alert('본인의 글만 수정할 수 있습니다.')
+      showModal('본인의 글만 수정할 수 있습니다.')
       return
     }
 
     // 401 에러 처리 (인증 실패) - apiClient에서 자동 처리됨
     if (error.response?.status === 401) {
-      // apiClient의 인터셉터에서 처리되므로 여기서는 추가 처리 불필요
       return
     }
 
     // 기타 에러
-    alert(isEditMode.value ? '게시글 수정에 실패했습니다.' : '게시글 작성에 실패했습니다.')
+    showModal(isEditMode.value ? '게시글 수정에 실패했습니다.' : '게시글 작성에 실패했습니다.')
   }
 }
 

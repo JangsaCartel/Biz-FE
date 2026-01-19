@@ -5,6 +5,13 @@
       <button class="write-btn" @click="goToWritePage"><span class="icon">✏️</span> 글 쓰기</button>
     </header>
 
+    <div class="filter-wrapper">
+      <button type="button" class="filter-btn" @click="openRegionModal">필터</button>
+      <div class="filter-summary">
+        <span>{{ regionSummary }}</span>
+      </div>
+    </div>
+
     <div class="post-list-wrapper">
       <div v-if="posts.length === 0" class="empty-state">게시글이 없습니다.</div>
       <BoardItem v-for="post in posts" :key="post.post_id" :post="post" />
@@ -20,15 +27,22 @@
         />
       </div>
     </div>
+    <RegionFilterModal
+      :open="isRegionModalOpen"
+      v-model:region="tempRegion"
+      @close="closeRegionModal"
+      @confirm="handleRegionConfirm"
+    />
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, watch, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBoardStore } from '@/stores/board/board.js'
 import BoardItem from '@/components/board/BoardItem.vue'
 import AppPagination from '@/components/common/AppPagination.vue'
+import RegionFilterModal from '@/components/board/RegionFilterModal.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -36,34 +50,72 @@ const boardStore = useBoardStore()
 
 const currentPage = ref(1)
 const pageSize = 4
+const selectedRegion = ref(null)
+const tempRegion = ref(null)
+const isRegionModalOpen = ref(false)
 
 const posts = computed(() => boardStore.getLocalBoardPosts)
 const totalPosts = computed(() => boardStore.getLocalBoardTotal)
 
-const fetchPosts = (page) => {
-  boardStore.fetchLocalBoardPosts(page, pageSize)
-}
-
-onMounted(() => {
-  const pageFromUrl = parseInt(route.query.page) || 1
-  currentPage.value = pageFromUrl
-  fetchPosts(pageFromUrl)
+const regionSummary = computed(() => {
+  if (
+    !selectedRegion.value ||
+    (!selectedRegion.value.sido && !selectedRegion.value.gugun && !selectedRegion.value.dong)
+  ) {
+    return '필터 없음'
+  }
+  return `${selectedRegion.value.sido} ${selectedRegion.value.gugun} ${selectedRegion.value.dong}`.trim()
 })
 
+const fetchPosts = (page, region) => {
+  let regionString = null
+  if (region && region.sido && region.gugun && region.dong) {
+    regionString = `${region.sido} ${region.gugun} ${region.dong}`.trim()
+  }
+  boardStore.fetchLocalBoardPosts(page, pageSize, regionString)
+}
+
+const openRegionModal = () => {
+  tempRegion.value = selectedRegion.value ? { ...selectedRegion.value } : null
+  isRegionModalOpen.value = true
+}
+
+const closeRegionModal = () => {
+  isRegionModalOpen.value = false
+}
+
+const handleRegionConfirm = (confirmedRegion) => {
+  let regionQuery = ''
+  if (confirmedRegion && confirmedRegion.sido && confirmedRegion.gugun && confirmedRegion.dong) {
+    regionQuery = `${confirmedRegion.sido}-${confirmedRegion.gugun}-${confirmedRegion.dong}`
+  }
+  // When filter changes, reset to page 1
+  router.push({ query: { ...route.query, region: regionQuery || undefined, page: 1 } })
+  closeRegionModal()
+}
+
+// 필터링 데이터 유지
 watch(
-  () => route.query.page,
-  (newPage) => {
-    const pageAsNumber = parseInt(newPage) || 1
-    if (currentPage.value !== pageAsNumber) {
-      currentPage.value = pageAsNumber
-      fetchPosts(pageAsNumber)
-      document.querySelector('.post-list-wrapper').scrollTop = 0
+  () => route.query,
+  (query) => {
+    const regionStr = query.region || ''
+    if (regionStr) {
+      const [sido, gugun, dong] = regionStr.split('-')
+      selectedRegion.value = { sido, gugun, dong }
+    } else {
+      selectedRegion.value = null
     }
+
+    const pageAsNumber = parseInt(query.page) || 1
+    currentPage.value = pageAsNumber
+
+    fetchPosts(pageAsNumber, selectedRegion.value)
   },
+  { immediate: true },
 )
 
 const handlePageChange = (page) => {
-  router.push({ query: { page: page } })
+  router.push({ query: { ...route.query, page: page } })
 }
 
 const goToWritePage = () => {
@@ -130,6 +182,32 @@ const goToWritePage = () => {
   background-color: var(--bg-header-local);
 }
 
+.filter-wrapper {
+  padding: rem(10px) rem(15px);
+  background-color: var(--white);
+  border-bottom: 1px solid var(--grey-light);
+  display: flex;
+  align-items: center;
+  gap: rem(10px);
+}
+
+.filter-btn {
+  padding: rem(8px) rem(20px);
+  height: rem(40px);
+  border-radius: rem(999px);
+  border: none;
+  background: linear-gradient(90deg, #2e695560, #2e695560);
+  font-size: rem(14px);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-title);
+  cursor: pointer;
+}
+
+.filter-summary {
+  font-size: rem(13px);
+  color: var(--color-text-default);
+}
+
 .post-list-wrapper {
   background-color: var(--white);
   padding: 0 rem(15px);
@@ -168,7 +246,7 @@ const goToWritePage = () => {
   padding: rem(10px) 0;
 }
 
-/* 스크롤바 커스텀 (선택사항) */
+/* 스크롤바 커스텀 */
 .post-list-wrapper::-webkit-scrollbar {
   width: rem(6px);
 }

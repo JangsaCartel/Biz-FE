@@ -20,11 +20,11 @@
         <div class="action-buttons">
           <button class="action-btn" @click="handleEditClick" :disabled="isActionDisabled">
             <span class="action-icon">✏️</span>
-            <span>수정하기</span>
+            <span>수정</span>
           </button>
           <button class="action-btn" @click="handleDeleteSelected" :disabled="isActionDisabled">
             <span class="action-icon">🗑️</span>
-            <span>삭제하기</span>
+            <span>삭제</span>
           </button>
         </div>
       </div>
@@ -295,7 +295,6 @@ const getCategoryId = (item) => {
   return categoryId
 }
 
-// [수정] 게시글 제목 25자, 내용 50자 제한
 const transformPostForHotBoardItem = (post) => {
   return {
     postId: post.postId,
@@ -309,7 +308,6 @@ const transformPostForHotBoardItem = (post) => {
   }
 }
 
-// [수정] 댓글 제목(게시글제목) 25자, 댓글 내용 50자 제한
 const transformCommentForHotBoardItem = (comment) => {
   return {
     postId: comment.postId,
@@ -702,7 +700,7 @@ onMounted(async () => {
 .section-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end; /* [수정] 하단 라인에 맞춤 (center -> flex-end) */
   margin-bottom: rem(16px);
   padding-bottom: rem(12px);
   border-bottom: rem(1px) solid var(--grey-light);
@@ -747,9 +745,9 @@ onMounted(async () => {
   border-radius: rem(20px);
   background-color: transparent;
   color: var(--color-text-light);
-  font-size: rem(14px);
+  font-size: rem(12px);
   cursor: pointer;
-  padding: rem(6px) rem(12px);
+  padding: rem(4px) rem(10px);
   transition: all 0.2s;
 }
 
@@ -767,7 +765,7 @@ onMounted(async () => {
 }
 
 .action-icon {
-  font-size: rem(16px);
+  font-size: rem(12px);
 }
 
 .posts-list,
@@ -799,17 +797,16 @@ onMounted(async () => {
   box-shadow: 0 rem(2px) rem(8px) rgba(0, 0, 0, 0.1);
 }
 
-/* [수정] 게시글 내용 및 댓글 내용 줄 수 제한 2줄 -> 3줄로 변경 (50자 표시에 유리하도록) */
 .post-item-wrapper :deep(.post-content),
 .comment-item-wrapper :deep(.post-content) {
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* 2 -> 3 */
-  line-clamp: 3;         /* 2 -> 3 */
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   word-break: break-word;
-  max-height: calc(1.4em * 3); /* 높이도 3줄에 맞춰 조정 */
+  max-height: calc(1.4em * 3);
   line-height: 1.4;
   margin-top: rem(8px);
 }

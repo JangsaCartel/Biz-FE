@@ -33,7 +33,9 @@ const refreshNow = async () => {
   await notificationStore.refreshList()
   try {
     listRef.value?.scrollTo?.({ top: 0, behavior: 'smooth' })
-  } catch {}
+  } catch (e) {
+    console.debug('[Notification] scrollTo ignored:', e)
+  }
 }
 
 const deleteRead = async () => {

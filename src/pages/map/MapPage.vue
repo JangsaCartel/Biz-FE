@@ -10,6 +10,7 @@
 </template>
 
 <script setup>
+/* eslint-disable no-unused-vars */
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getKakaoMapApiKey, getBoundaries, fetchUserRegionForMap } from '@/api/mapApi'
@@ -114,8 +115,8 @@ async function updatePolygons() {
     }
 
     districtsData.features.forEach((feature) => {
-      const name = feature.properties.adm_nm || feature.properties.emd_nm
-      if (!name || !feature.geometry) return
+      const regionName = feature.properties.adm_nm || feature.properties.emd_nm
+      if (!regionName || !feature.geometry) return
 
       const geometryType = feature.geometry.type
       const coordinates = feature.geometry.coordinates
@@ -137,7 +138,7 @@ async function updatePolygons() {
       kakao.maps.event.addListener(polygon, 'mouseover', function (mouseEvent) {
         polygon.setOptions({ fillColor: '#ffcc3c', fillOpacity: 0.5 })
         infowindow.setContent(
-          `<div style="padding:5px;text-align:center;font-size:12px;color:black;">${name}</div>`,
+          `<div style="padding:5px;text-align:center;font-size:12px;color:black;">${regionName}</div>`,
         )
         infowindow.setPosition(mouseEvent.latLng)
         infowindow.open(map)
@@ -150,7 +151,7 @@ async function updatePolygons() {
 
       kakao.maps.event.addListener(polygon, 'click', async function (mouseEvent) {
         infowindow.close()
-        const nameParts = name.split(' ')
+        const nameParts = regionName.split(' ')
         if (nameParts.length >= 2) {
           const sido = nameParts[0]
           const gugun = nameParts[1]
@@ -165,9 +166,9 @@ async function updatePolygons() {
             console.error('Failed to fetch hot posts by region:', error)
           }
         } else {
-          console.warn('Cannot process. Region name format is not as expected:', name)
+          console.warn('Cannot process. Region name format is not as expected:', regionName)
           const fallbackInfoWindow = new kakao.maps.InfoWindow({ removable: true })
-          const content = `<div style="padding:5px;text-align:center;">${name}<br>(상세 지역 정보 부족)</div>`
+          const content = `<div style="padding:5px;text-align:center;">${regionName}<br>(상세 지역 정보 부족)</div>`
           fallbackInfoWindow.setContent(content)
           fallbackInfoWindow.setPosition(mouseEvent.latLng)
           fallbackInfoWindow.open(map)

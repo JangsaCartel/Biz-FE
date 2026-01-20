@@ -8,9 +8,9 @@
     <div class="sheet-body">
       <ul v-if="posts && posts.length">
         <li v-for="post in posts" :key="post.postId" class="post-item">
-          <router-link :to="{ name: 'postDetail', params: { postId: post.postId } }" class="post-title-link">
+          <div @click="$emit('select-post', post.postId)" class="post-title-link">
             <span class="post-title">{{ post.title }}</span>
-          </router-link>
+          </div>
           <span class="post-meta">
             <img :src="likeIcon" alt="Likes" class="icon" /> {{ post.likeCount }}
             <img :src="commentIcon" alt="Comments" class="icon" /> {{ post.commentCount }}
@@ -42,7 +42,7 @@ defineProps({
   },
 })
 
-defineEmits(['close', 'navigate'])
+defineEmits(['close', 'navigate', 'select-post'])
 </script>
 
 <style scoped lang="scss">

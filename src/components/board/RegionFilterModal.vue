@@ -18,7 +18,12 @@ const emit = defineEmits(['close', 'confirm', 'update:region'])
 const localRegion = ref(null)
 
 const isConfirmDisabled = computed(() => {
-  return !localRegion.value || !localRegion.value.sido || !localRegion.value.gugun || !localRegion.value.dong
+  return (
+    !localRegion.value ||
+    !localRegion.value.sido ||
+    !localRegion.value.dong ||
+    (!localRegion.value.gugun && localRegion.value.sido !== '세종특별자치시')
+  )
 })
 
 watch(

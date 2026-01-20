@@ -110,6 +110,7 @@ watch(
     const pageAsNumber = parseInt(query.page) || 1
     currentPage.value = pageAsNumber
 
+    boardStore.setLocalFilter(query)
     fetchPosts(pageAsNumber, selectedRegion.value)
   },
   { immediate: true },

@@ -6,6 +6,7 @@
     :posts="sheetPosts"
     @close="handleSheetClose"
     @navigate="handleSheetNavigate"
+    @select-post="handlePostSelect"
   />
 </template>
 
@@ -16,8 +17,10 @@ import { useRouter } from 'vue-router'
 import { getKakaoMapApiKey, getBoundaries, fetchUserRegionForMap } from '@/api/mapApi'
 import MapPostSheet from '@/components/map/MapPostSheet.vue'
 import { fetchHotPostsByRegion } from '@/api/boardApi'
+import { useBoardStore } from '@/stores/board/board.js'
 
 const router = useRouter()
+const boardStore = useBoardStore()
 
 let map = null
 const polygons = ref([])
@@ -189,6 +192,11 @@ const handleSheetNavigate = (regionName) => {
 
 const handleSheetClose = () => {
   isSheetOpen.value = false
+}
+
+const handlePostSelect = (postId) => {
+  boardStore.setLocalFilter({ region: currentRegionQuery, page: 1 })
+  router.push({ name: 'postDetail', params: { postId: postId } })
 }
 </script>
 

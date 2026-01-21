@@ -415,9 +415,9 @@ onMounted(async () => {
   <div class="ChatPage">
     <header class="Header">
       <button type="button" class="HeaderBtn" @click="goBack">←</button>
-      <h1 class="HeaderTitle">AI 챗봇</h1>
+      <h1 class="HeaderTitle">AI Chat</h1>
       <button type="button" class="HeaderBtn" :disabled="isStreaming" @click="resetToRoot">
-        기본메뉴
+        Menu
       </button>
     </header>
 
@@ -530,7 +530,7 @@ onMounted(async () => {
   line-height: rem(56px);
   text-align: center;
   font-weight: var(--font-weight-extra-bold);
-  font-size: rem(16px);
+  font-size: rem(26px);
   align-self: center;
 }
 
@@ -540,7 +540,7 @@ onMounted(async () => {
   border: 0;
   background: transparent;
   font-weight: var(--font-weight-extra-bold);
-  font-size: rem(16px);
+  font-size: rem(18px);
   line-height: 1;
   display: grid;
   place-items: center;

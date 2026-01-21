@@ -60,9 +60,6 @@ const isModalVisible = ref(false)
 const modalMessage = ref('')
 const modalCallback = ref(null)
 
-const modalMessage = ref('')
-const isModalVisible = ref(false)
-
 const MAX_TITLE_CHARS = 30
 const MAX_CHARS = 1000
 
@@ -123,27 +120,14 @@ onMounted(async () => {
   }
 })
 
-const showModal = (message) => {
-  modalMessage.value = message
-  isModalVisible.value = true
-}
-
-const closeModal = () => {
-  isModalVisible.value = false
-  modalMessage.value = ''
-}
-
 const savePost = async () => {
   if (!title.value.trim() || !content.value.trim()) {
     showModal('제목과 내용을 모두 입력해주세요.')
-<<<<<<< HEAD
-=======
     return
   }
 
   if (!categoryId.value) {
     showModal('카테고리를 확인할 수 없습니다.')
->>>>>>> origin/dev
     return
   }
 

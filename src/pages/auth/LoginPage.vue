@@ -68,9 +68,7 @@ onMounted(() => {
       <p class="hero-title">장사 뭐하니?</p>
 
       <div class="button-stack">
-        <button class="login-button" @click="handleLoginRedirect('google')">Google 로그인</button>
         <button class="login-button kakao" @click="handleLoginRedirect('kakao')">Kakao 로그인</button>
-        <button class="login-button" @click="handleLoginRedirect('naver')">Naver 로그인</button>
       </div>
 
       <ModalDialog

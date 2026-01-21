@@ -23,7 +23,6 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
 import likeIcon from '@/assets/icons/board/like.png'
 import commentIcon from '@/assets/icons/board/comment.png'
 

@@ -51,3 +51,11 @@ export const likeComment = (commentId) => {
 export const likePost = (postId) => {
   return apiClient.post(`/board/${postId}/like`)
 }
+
+export const fetchHotPostsByRegion = (region, limit = 3) => {
+  let url = `/board/hot-by-region?limit=${limit}`
+  if (region) {
+    url += `&region=${region}`
+  }
+  return apiClient.get(url)
+}

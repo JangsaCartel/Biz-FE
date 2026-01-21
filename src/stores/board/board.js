@@ -25,6 +25,7 @@ export const useBoardStore = defineStore('board', {
     freePostsTotal: 0,
     infoPostsTotal: 0,
     localPostsTotal: 0,
+    localFilter: {},
   }),
   getters: {
     getCategorizedPosts: (state) => state.postsByCategory,
@@ -36,6 +37,7 @@ export const useBoardStore = defineStore('board', {
     getFreeBoardTotal: (state) => state.freePostsTotal,
     getInfoBoardTotal: (state) => state.infoPostsTotal,
     getLocalBoardTotal: (state) => state.localPostsTotal,
+    getLocalFilter: (state) => state.localFilter,
   },
   actions: {
     async fetchPosts() {
@@ -150,6 +152,12 @@ export const useBoardStore = defineStore('board', {
     },
     async likePost(postId) {
       await likePost(postId)
+    },
+    setLocalFilter(filter) {
+      this.localFilter = filter
+    },
+    clearLocalFilter() {
+      this.localFilter = {}
     },
   },
 })

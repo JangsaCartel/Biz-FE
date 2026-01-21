@@ -113,6 +113,15 @@ const goToBoardList = () => {
   if (post.value && post.value.categoryId) {
     const category = categoryMap[post.value.categoryId]
     if (category && category.routeName) {
+      if (category.routeName === 'local') {
+        const localFilter = boardStore.getLocalFilter
+        if (localFilter && Object.keys(localFilter).length > 0) {
+          router.push({ name: 'local', query: localFilter })
+          boardStore.clearLocalFilter()
+          return
+        }
+      }
+
       const previousRoute = router.options.history.state.back
       if (previousRoute && previousRoute.startsWith('/' + category.routeName)) {
         router.back()

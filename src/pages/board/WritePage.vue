@@ -47,6 +47,8 @@ const route = useRoute()
 const router = useRouter()
 const boardStore = useBoardStore()
 
+const localFilter = computed(() => boardStore.getLocalFilter)
+
 const title = ref('')
 const content = ref('')
 const isEditMode = ref(false)
@@ -137,15 +139,15 @@ const savePost = async () => {
 
   try {
     if (isEditMode.value && postId.value) {
-      // 수정 모드
+      // 수정 모드: 업데이트 후 마이페이지로 이동
       await boardStore.updatePost(postId.value, postData)
       showModal('게시글이 수정되었습니다.', () => {
         router.push({ name: 'mypage' })
       })
     } else {
-      // 작성 모드
+      // 작성 모드: 생성 후 목록으로 이동 (지역 필터 유지)
       await boardStore.createPost(postData)
-      router.push({ name: categoryName })
+      router.push({ name: categoryName, query: localFilter.value })
     }
   } catch (error) {
     console.error('Error saving post:', error)
@@ -168,9 +170,11 @@ const savePost = async () => {
 
 const closePage = () => {
   if (isEditMode.value) {
+    // 수정 취소 시 마이페이지로
     router.push({ name: 'mypage' })
   } else {
-    router.push({ name: categoryName })
+    // 작성 취소 시 목록으로 (지역 필터 유지)
+    router.push({ name: categoryName, query: localFilter.value })
   }
 }
 </script>

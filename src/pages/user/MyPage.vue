@@ -3,7 +3,11 @@
     <div class="profile-section">
       <div class="profile-info">
         <div class="name-line">
-          <div class="scroll-text-wrapper nickname-wrapper" ref="nicknameWrapper">
+          <div
+            class="scroll-text-wrapper nickname-wrapper"
+            :class="{ 'has-shadow': isNicknameLong }"
+            ref="nicknameWrapper"
+          >
             <div
               class="scrolling-track"
               :class="{ 'animate-scroll': isNicknameLong }"
@@ -17,7 +21,11 @@
         </div>
 
         <div class="store-line">
-          <div class="scroll-text-wrapper store-wrapper" ref="storeWrapper">
+          <div
+            class="scroll-text-wrapper store-wrapper"
+            :class="{ 'has-shadow': isStoreLong }"
+            ref="storeWrapper"
+          >
             <div
               class="scrolling-track"
               :class="{ 'animate-scroll': isStoreLong }"
@@ -778,7 +786,8 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: rem(8px);
+  margin-top: rem(4px);
+  gap: rem(12px);
   flex-shrink: 0;
   min-width: fit-content;
 }
@@ -796,6 +805,28 @@ onMounted(async () => {
   white-space: nowrap;
   position: relative;
   display: block;
+
+  &.has-shadow {
+    &::before, &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: rem(15px);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    &::before {
+      left: 0;
+      background: linear-gradient(to right, var(--bg-default), transparent);
+    }
+
+    &::after {
+      right: 0;
+      background: linear-gradient(to left, var(--bg-default), transparent);
+    }
+  }
 }
 
 .scrolling-track {
@@ -898,11 +929,11 @@ onMounted(async () => {
 }
 
 .my-posts-section {
-  margin-top: rem(20px);
+  margin-top: rem(12px);
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* 내부 리스트만 스크롤 허용 */
+  overflow: hidden;
   min-height: 0;
 }
 
@@ -978,11 +1009,9 @@ onMounted(async () => {
   font-size: rem(12px);
 }
 
-/* [수정] 리스트 컨테이너: flex: 1 및 자체 스크롤 적용 */
 .list-container {
   flex: 1;
   overflow-y: auto;
-  /* 고정된 페이지네이션 높이(약 60~80px)만큼 패딩 확보 */
   padding-bottom: rem(80px);
 
   -ms-overflow-style: none;
@@ -1138,7 +1167,6 @@ onMounted(async () => {
   font-size: rem(16px);
 }
 
-/* [수정] 페이지네이션 하단 고정 스타일 */
 .pagination-wrapper {
   position: fixed;
   bottom: 0;
@@ -1150,7 +1178,6 @@ onMounted(async () => {
   background-color: var(--bg-default);
   border-top: rem(1px) solid var(--grey-light);
   z-index: 100;
-  /* 고정 위치에 따른 그림자 추가 (선택사항) */
   box-shadow: 0 rem(-2px) rem(8px) rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: center;

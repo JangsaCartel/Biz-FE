@@ -40,6 +40,8 @@ const route = useRoute()
 const router = useRouter()
 const boardStore = useBoardStore()
 
+const localFilter = computed(() => boardStore.getLocalFilter)
+
 const title = ref('')
 const content = ref('')
 
@@ -73,7 +75,7 @@ const savePost = async () => {
 
   try {
     await boardStore.createPost(postData)
-    router.push({ name: categoryName })
+    router.push({ name: categoryName, query: localFilter.value })
   } catch (error) {
     console.error('Error creating post:', error)
     alert('게시글 작성에 실패했습니다. 다시 시도해주세요.')
@@ -81,7 +83,7 @@ const savePost = async () => {
 }
 
 const closePage = () => {
-  router.push({ name: categoryName })
+  router.push({ name: categoryName, query: localFilter.value })
 }
 </script>
 

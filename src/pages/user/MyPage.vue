@@ -2,9 +2,36 @@
   <div class="my-page-container">
     <div class="profile-section">
       <div class="profile-info">
-        <h2 class="user-name">{{ profile.nickname }} ({{ profile.userStoreName }})</h2>
+        <div class="name-line">
+          <div class="scroll-text-wrapper nickname-wrapper" ref="nicknameWrapper">
+            <div
+              class="scrolling-track"
+              :class="{ 'animate-scroll': isNicknameLong }"
+              :style="{ '--scroll-amount': nicknameScrollAmount, '--scroll-duration': nicknameDuration }"
+            >
+              <span ref="nicknameText" class="highlight">{{ profile.nickname }}</span>
+              <span v-if="isNicknameLong" class="highlight clone-text">{{ profile.nickname }}</span>
+            </div>
+          </div>
+          <span class="greeting-suffix">님, {{ randomGreeting }}</span>
+        </div>
+
+        <div class="store-line">
+          <div class="scroll-text-wrapper store-wrapper" ref="storeWrapper">
+            <div
+              class="scrolling-track"
+              :class="{ 'animate-scroll': isStoreLong }"
+              :style="{ '--scroll-amount': storeScrollAmount, '--scroll-duration': storeDuration }"
+            >
+              <span ref="storeText" class="store-name">{{ profile.userStoreName }}</span>
+              <span v-if="isStoreLong" class="store-name clone-text">{{ profile.userStoreName }}</span>
+            </div>
+          </div>
+        </div>
+
         <p class="business-type">{{ profile.region }}</p>
       </div>
+
       <div class="profile-actions">
         <button class="profile-change-btn" @click="showProfileModal = true">회원 정보 변경</button>
         <button class="logout-btn" @click="handleLogout">로그아웃</button>
@@ -29,59 +56,61 @@
         </div>
       </div>
 
-      <div v-if="activeTab === 'posts'" class="posts-list">
-        <div
-          v-for="post in paginatedPosts"
-          :key="post.postId"
-          class="post-item-wrapper"
-          @click="goToPostDetail(post.postId)"
-        >
-          <div class="checkbox-wrapper">
-            <input
-              type="checkbox"
-              :value="post.postId"
-              v-model="selectedPostsForDelete"
-              @click.stop
-            />
-          </div>
-          <HotBoardItem :post="transformPostForHotBoardItem(post)" />
-        </div>
-        <div v-if="posts.length === 0" class="no-posts">작성한 게시글이 없습니다.</div>
-      </div>
-
-      <div v-if="activeTab === 'comments'" class="comments-list">
-        <div
-          v-for="comment in paginatedComments"
-          :key="comment.commentId"
-          class="comment-item-wrapper"
-          :class="{ 'editing-mode': editingCommentId === comment.commentId }"
-        >
-          <div v-if="editingCommentId !== comment.commentId" class="comment-display-area" @click="goToPostDetail(comment.postId)">
+      <div class="list-container">
+        <div v-if="activeTab === 'posts'" class="posts-list">
+          <div
+            v-for="post in paginatedPosts"
+            :key="post.postId"
+            class="post-item-wrapper"
+            @click="goToPostDetail(post.postId)"
+          >
             <div class="checkbox-wrapper">
               <input
                 type="checkbox"
-                :value="comment.commentId"
-                v-model="selectedCommentsForDelete"
+                :value="post.postId"
+                v-model="selectedPostsForDelete"
                 @click.stop
               />
             </div>
-            <HotBoardItem :post="transformCommentForHotBoardItem(comment)" />
+            <HotBoardItem :post="transformPostForHotBoardItem(post)" />
           </div>
+          <div v-if="posts.length === 0" class="no-posts">작성한 게시글이 없습니다.</div>
+        </div>
 
-          <div v-else class="comment-edit-wrapper">
-            <textarea
-              v-model="editingCommentContent"
-              class="comment-edit-input"
-              placeholder="댓글 내용을 입력하세요"
-              :style="{ height: getTextareaHeight(editingCommentContent) }"
-            ></textarea>
-            <div class="edit-actions">
-              <button class="cancel-edit-btn" @click="cancelEditComment">취소</button>
-              <button class="save-edit-btn" @click="saveCommentEdit(comment.commentId)">수정하기</button>
+        <div v-if="activeTab === 'comments'" class="comments-list">
+          <div
+            v-for="comment in paginatedComments"
+            :key="comment.commentId"
+            class="comment-item-wrapper"
+            :class="{ 'editing-mode': editingCommentId === comment.commentId }"
+          >
+            <div v-if="editingCommentId !== comment.commentId" class="comment-display-area" @click="goToPostDetail(comment.postId)">
+              <div class="checkbox-wrapper">
+                <input
+                  type="checkbox"
+                  :value="comment.commentId"
+                  v-model="selectedCommentsForDelete"
+                  @click.stop
+                />
+              </div>
+              <HotBoardItem :post="transformCommentForHotBoardItem(comment)" />
+            </div>
+
+            <div v-else class="comment-edit-wrapper">
+              <textarea
+                v-model="editingCommentContent"
+                class="comment-edit-input"
+                placeholder="댓글 내용을 입력하세요"
+                :style="{ height: getTextareaHeight(editingCommentContent) }"
+              ></textarea>
+              <div class="edit-actions">
+                <button class="cancel-edit-btn" @click="cancelEditComment">취소</button>
+                <button class="save-edit-btn" @click="saveCommentEdit(comment.commentId)">수정하기</button>
+              </div>
             </div>
           </div>
+          <div v-if="comments.length === 0" class="no-posts">작성한 댓글이 없습니다.</div>
         </div>
-        <div v-if="comments.length === 0" class="no-posts">작성한 댓글이 없습니다.</div>
       </div>
 
       <div class="pagination-wrapper" v-if="(activeTab === 'posts' && posts.length > 0) || (activeTab === 'comments' && comments.length > 0)">
@@ -99,14 +128,42 @@
         <h3 class="modal-title">회원 정보 변경</h3>
 
         <div class="form-group">
-          <label>닉네임</label>
-          <input v-model="editProfile.nickname" type="text" class="modal-input" placeholder="닉네임을 입력해주세요" />
+          <div class="label-wrapper">
+            <label>닉네임</label>
+            <span
+              class="char-count"
+              :class="{ 'max-limit': (editProfile.nickname?.length || 0) >= 32 }"
+            >
+              {{ editProfile.nickname?.length || 0 }}/32
+            </span>
+          </div>
+          <input
+            v-model="editProfile.nickname"
+            type="text"
+            class="modal-input"
+            placeholder="닉네임을 입력해주세요"
+            maxlength="32"
+          />
           <p v-if="nicknameError" class="error-message">{{ nicknameError }}</p>
         </div>
 
         <div class="form-group">
-          <label>상호명</label>
-          <input v-model="editProfile.userStoreName" type="text" class="modal-input" placeholder="상호명을 입력해주세요" />
+          <div class="label-wrapper">
+            <label>상호명</label>
+            <span
+              class="char-count"
+              :class="{ 'max-limit': (editProfile.userStoreName?.length || 0) >= 32 }"
+            >
+              {{ editProfile.userStoreName?.length || 0 }}/32
+            </span>
+          </div>
+          <input
+            v-model="editProfile.userStoreName"
+            type="text"
+            class="modal-input"
+            placeholder="상호명을 입력해주세요"
+            maxlength="32"
+          />
           <p v-if="storeNameError" class="error-message">{{ storeNameError }}</p>
         </div>
 
@@ -131,7 +188,7 @@
     </div>
 
     <ModalDialog
-      :message="'회원 탈퇴하시겠습니까?'"
+      :message="'<span style=\'font-size: 1.1rem; font-weight: bold;\'>회원 탈퇴하시겠습니까?</span><br><br><span style=\'color: #ff4444; font-size: 0.85rem; font-weight: bold; text-decoration: underline;\'>회원 탈퇴 시 작성한 게시글과 댓글은<br>즉시 모두 삭제됩니다.</span>'"
       :is-visible="showWithdrawConfirm"
       button-type="double"
       primary-button-text="확인"
@@ -167,7 +224,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   getMyPageProfile,
@@ -210,11 +267,40 @@ const isModalVisible = ref(false)
 const currentPage = ref(1)
 const pageSize = ref(3)
 
+const nicknameWrapper = ref(null)
+const nicknameText = ref(null)
+const storeWrapper = ref(null)
+const storeText = ref(null)
+const isNicknameLong = ref(false)
+const isStoreLong = ref(false)
+const nicknameScrollAmount = ref('0px')
+const storeScrollAmount = ref('0px')
+const nicknameDuration = ref('0s')
+const storeDuration = ref('0s')
+
+const randomGreeting = ref('')
+const greetings = [
+  '환영합니다!',
+  '오늘도 대박 나세요!',
+  '성공적인 하루 되세요!',
+  '힘내라 대한민국 소상공인!',
+  '꿈을 향해 달려가는 당신!',
+  '오늘도 화이팅하세요!',
+  '손님으로 가득 찬 하루 되세요!',
+  '웃음 가득한 장사 되세요!',
+  '내일은 더 빛날 거예요!',
+  '항상 응원합니다!',
+  '긍정의 힘을 믿으세요!',
+  '건강 챙기며 일하세요!'
+]
+
 const nicknameError = ref('')
 const storeNameError = ref('')
 const regionError = ref('')
 
-// [헬퍼] 텍스트 글자수 제한 (truncate)
+const MAX_LENGTH = 32
+const SCROLL_GAP = 20
+
 const truncateText = (text, maxLength) => {
   if (!text) return ''
   if (text.length <= maxLength) return text
@@ -298,8 +384,8 @@ const getCategoryId = (item) => {
 const transformPostForHotBoardItem = (post) => {
   return {
     postId: post.postId,
-    title: truncateText(post.title, 25), // 제목 25자 제한
-    content: truncateText(post.content || '', 50), // 내용 50자 제한
+    title: truncateText(post.title, 25),
+    content: truncateText(post.content || '', 50),
     createdAt: post.createdAt,
     categoryId: getCategoryId(post),
     categoryName: post.categoryName,
@@ -311,8 +397,8 @@ const transformPostForHotBoardItem = (post) => {
 const transformCommentForHotBoardItem = (comment) => {
   return {
     postId: comment.postId,
-    title: truncateText(comment.postTitle || '게시글 제목 없음', 25), // 제목 25자 제한
-    content: truncateText(comment.content || '', 50), // 내용 50자 제한
+    title: truncateText(comment.postTitle || '게시글 제목 없음', 25),
+    content: truncateText(comment.content || '', 50),
     createdAt: comment.createdAt,
     categoryId: getCategoryId(comment),
     categoryName: comment.categoryName,
@@ -428,13 +514,22 @@ const handleProfileUpdate = async () => {
 
   let isValid = true
 
-  if (!editProfile.value.nickname || !editProfile.value.nickname.trim()) {
+  const nickname = editProfile.value.nickname ? editProfile.value.nickname.trim() : ''
+  const storeName = editProfile.value.userStoreName ? editProfile.value.userStoreName.trim() : ''
+
+  if (!nickname) {
     nicknameError.value = '닉네임을 입력해주세요.'
+    isValid = false
+  } else if (nickname.length > MAX_LENGTH) {
+    nicknameError.value = `닉네임은 ${MAX_LENGTH}자 이내여야 합니다.`
     isValid = false
   }
 
-  if (!editProfile.value.userStoreName || !editProfile.value.userStoreName.trim()) {
+  if (!storeName) {
     storeNameError.value = '상호명을 입력해주세요.'
+    isValid = false
+  } else if (storeName.length > MAX_LENGTH) {
+    storeNameError.value = `상호명은 ${MAX_LENGTH}자 이내여야 합니다.`
     isValid = false
   }
 
@@ -451,12 +546,12 @@ const handleProfileUpdate = async () => {
   try {
     let hasUpdates = false
 
-    if (editProfile.value.nickname !== profile.value.nickname) {
-      await updateNickname(editProfile.value.nickname.trim())
+    if (nickname !== profile.value.nickname) {
+      await updateNickname(nickname)
       hasUpdates = true
     }
-    if (editProfile.value.userStoreName !== profile.value.userStoreName) {
-      await updateStoreName(editProfile.value.userStoreName.trim())
+    if (storeName !== profile.value.userStoreName) {
+      await updateStoreName(storeName)
       hasUpdates = true
     }
 
@@ -560,6 +655,38 @@ const getTextareaHeight = (content) => {
   return `${calculatedHeight}px`
 }
 
+const checkOverflow = () => {
+  if (nicknameWrapper.value && nicknameText.value) {
+    const wrapperWidth = nicknameWrapper.value.clientWidth
+    const textWidth = nicknameText.value.scrollWidth
+
+    if (textWidth > wrapperWidth) {
+      isNicknameLong.value = true
+      const scrollDistance = textWidth + SCROLL_GAP
+      nicknameScrollAmount.value = `-${scrollDistance}px`
+      nicknameDuration.value = `${scrollDistance * 0.03}s`
+    } else {
+      isNicknameLong.value = false
+      nicknameScrollAmount.value = '0px'
+    }
+  }
+
+  if (storeWrapper.value && storeText.value) {
+    const wrapperWidth = storeWrapper.value.clientWidth
+    const textWidth = storeText.value.scrollWidth
+
+    if (textWidth > wrapperWidth) {
+      isStoreLong.value = true
+      const scrollDistance = textWidth + SCROLL_GAP
+      storeScrollAmount.value = `-${scrollDistance}px`
+      storeDuration.value = `${scrollDistance * 0.03}s`
+    } else {
+      isStoreLong.value = false
+      storeScrollAmount.value = '0px'
+    }
+  }
+}
+
 const fetchProfile = async () => {
   try {
     const response = await getMyPageProfile()
@@ -567,6 +694,9 @@ const fetchProfile = async () => {
     editProfile.value = { nickname: response.data.nickname, userStoreName: response.data.userStoreName }
     const regionParts = response.data.region ? response.data.region.split(' ') : []
     editRegion.value = { sido: regionParts[0] || '', gugun: regionParts[1] || '', dong: regionParts[2] || '' }
+
+    await nextTick()
+    checkOverflow()
   } catch (error) {
     console.error('프로필 조회 실패:', error)
     showModal('프로필 정보를 불러오는데 실패했습니다.')
@@ -602,6 +732,7 @@ const fetchMyComments = async () => {
 }
 
 onMounted(async () => {
+  randomGreeting.value = greetings[Math.floor(Math.random() * greetings.length)]
   await fetchProfile()
   await fetchMyPosts()
 })
@@ -614,25 +745,33 @@ onMounted(async () => {
   width: 100%;
   max-width: rem(430px);
   margin: 0 auto;
+  height: 100vh;
+  overflow: hidden;
   padding: rem(20px) rem(16px);
   background-color: var(--bg-default);
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .profile-section {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: rem(20px);
-  padding-top: rem(24px);
-  padding-bottom: rem(24px);
+  padding-top: rem(16px);
+  padding-bottom: rem(16px);
   border-bottom: rem(1px) solid var(--grey-light);
+  flex-shrink: 0;
+  gap: rem(10px);
 }
 
 .profile-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .profile-actions {
@@ -640,18 +779,86 @@ onMounted(async () => {
   flex-direction: column;
   align-items: flex-end;
   gap: rem(8px);
-  margin-left: rem(16px);
+  flex-shrink: 0;
+  min-width: fit-content;
 }
 
-.user-name {
-  font-size: rem(24px);
+.name-line {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: rem(4px);
+  width: 100%;
+  overflow: hidden;
+}
+
+.scroll-text-wrapper {
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  display: block;
+}
+
+.scrolling-track {
+  display: inline-flex;
+  white-space: nowrap;
+
+  &.animate-scroll {
+    animation: scroll-infinite var(--scroll-duration) linear infinite;
+  }
+}
+
+.clone-text {
+  padding-left: rem(20px);
+}
+
+@keyframes scroll-infinite {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(var(--scroll-amount));
+  }
+}
+
+.nickname-wrapper {
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: rem(150px);
+}
+
+.highlight {
+  font-size: rem(22px);
   font-weight: var(--font-weight-extra-bold);
   color: var(--color-text-strong);
-  margin: 0 0 rem(8px) 0;
+}
+
+.greeting-suffix {
+  font-size: rem(14px);
+  font-weight: 400;
+  color: #000;
+  white-space: nowrap;
+  margin-left: rem(2px);
+  flex-shrink: 0;
+}
+
+.store-line {
+  display: flex;
+  margin-bottom: rem(4px);
+}
+
+.store-wrapper {
+  max-width: 100%;
+}
+
+.store-name {
+  font-size: rem(15px);
+  font-weight: 700;
+  color: var(--color-text-strong);
+  margin: 0;
 }
 
 .business-type {
-  font-size: rem(16px);
+  font-size: rem(14px);
   color: var(--color-text-light);
   margin: 0;
 }
@@ -695,15 +902,18 @@ onMounted(async () => {
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* 내부 리스트만 스크롤 허용 */
+  min-height: 0;
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end; /* [수정] 하단 라인에 맞춤 (center -> flex-end) */
+  align-items: flex-end;
   margin-bottom: rem(16px);
   padding-bottom: rem(12px);
   border-bottom: rem(1px) solid var(--grey-light);
+  flex-shrink: 0;
 }
 
 .section-title {
@@ -768,13 +978,25 @@ onMounted(async () => {
   font-size: rem(12px);
 }
 
+/* [수정] 리스트 컨테이너: flex: 1 및 자체 스크롤 적용 */
+.list-container {
+  flex: 1;
+  overflow-y: auto;
+  /* 고정된 페이지네이션 높이(약 60~80px)만큼 패딩 확보 */
+  padding-bottom: rem(80px);
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 .posts-list,
 .comments-list {
   display: flex;
   flex-direction: column;
   gap: rem(16px);
-  flex: 1;
-  padding-bottom: rem(80px);
 }
 
 .post-item-wrapper,
@@ -916,6 +1138,7 @@ onMounted(async () => {
   font-size: rem(16px);
 }
 
+/* [수정] 페이지네이션 하단 고정 스타일 */
 .pagination-wrapper {
   position: fixed;
   bottom: 0;
@@ -927,7 +1150,10 @@ onMounted(async () => {
   background-color: var(--bg-default);
   border-top: rem(1px) solid var(--grey-light);
   z-index: 100;
+  /* 고정 위치에 따른 그림자 추가 (선택사항) */
   box-shadow: 0 rem(-2px) rem(8px) rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: center;
 }
 
 .modal-overlay {
@@ -961,13 +1187,29 @@ onMounted(async () => {
 
 .form-group {
   margin-bottom: rem(20px);
+}
+
+.label-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: rem(8px);
 
   label {
-    display: block;
-    margin-bottom: rem(8px);
+    margin-bottom: 0;
     font-size: rem(14px);
     font-weight: var(--font-weight-medium);
     color: var(--color-text-strong);
+  }
+}
+
+.char-count {
+  font-size: rem(12px);
+  color: var(--grey);
+
+  &.max-limit {
+    color: #ff4444;
+    font-weight: var(--font-weight-bold);
   }
 }
 
@@ -1034,7 +1276,7 @@ onMounted(async () => {
 .confirm-btn:disabled {
   background-color: var(--grey);
   color: var(--color-text-light);
-  cursor: not-allowed;
+  cursor: default;
   opacity: 0.7;
 }
 

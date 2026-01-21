@@ -6,6 +6,7 @@ import {
   fetchInfoBoardPosts,
   fetchLocalBoardPosts,
   createPost,
+  updatePost,
   fetchPostById,
   fetchCommentsByPostId,
   createComment,
@@ -102,6 +103,17 @@ export const useBoardStore = defineStore('board', {
         await createPost(postData)
       } catch (error) {
         console.error('Error creating post:', error)
+        throw error
+      }
+    },
+    async updatePost(postId, postData) {
+      try {
+        const response = await updatePost(postId, postData)
+        console.log('Post updated successfully:', response.data)
+        return response.data
+      } catch (error) {
+        console.error(`Error updating post with ID ${postId}:`, error)
+        throw error
       }
     },
     async fetchPostById(postId) {

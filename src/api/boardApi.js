@@ -16,12 +16,20 @@ export const fetchInfoBoardPosts = (page = 1, pageSize = 4) => {
   return apiClient.get(`/info?page=${page}&pageSize=${pageSize}`)
 }
 
-export const fetchLocalBoardPosts = (page = 1, pageSize = 4) => {
-  return apiClient.get(`/local?page=${page}&pageSize=${pageSize}`)
+export const fetchLocalBoardPosts = (page = 1, pageSize = 4, region = null) => {
+  let url = `/local?page=${page}&pageSize=${pageSize}`
+  if (region) {
+    url += `&region=${region}`
+  }
+  return apiClient.get(url)
 }
 
 export const createPost = (postData) => {
   return apiClient.post('/posts', postData)
+}
+
+export const updatePost = (postId, postData) => {
+  return apiClient.patch(`/board/${postId}`, postData)
 }
 
 export const fetchPostById = (postId) => {
@@ -42,4 +50,12 @@ export const likeComment = (commentId) => {
 
 export const likePost = (postId) => {
   return apiClient.post(`/board/${postId}/like`)
+}
+
+export const fetchHotPostsByRegion = (region, limit = 3) => {
+  let url = `/board/hot-by-region?limit=${limit}`
+  if (region) {
+    url += `&region=${region}`
+  }
+  return apiClient.get(url)
 }

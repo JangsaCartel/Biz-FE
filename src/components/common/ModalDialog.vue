@@ -1,10 +1,10 @@
 <template>
   <div v-if="isVisible" class="modal-overlay" @click="handleOverlayClick">
     <div class="modal-content" @click.stop>
-      <p>{{ message }}</p>
+      <p v-html="message"></p>
       <div v-if="buttonType === 'double'" class="button-group">
-        <button class="modal-button secondary" @click="handleSecondary">이전</button>
-        <button class="modal-button primary" @click="handlePrimary">다음</button>
+        <button class="modal-button secondary" @click="handleSecondary">{{ secondaryButtonText }}</button>
+        <button class="modal-button primary" @click="handlePrimary">{{ primaryButtonText }}</button>
       </div>
       <button v-else class="modal-button single" @click="closeModal">확인</button>
     </div>
@@ -24,6 +24,14 @@ const props = defineProps({
   buttonType: {
     type: String,
     default: 'single', // 'single' or 'double'
+  },
+  primaryButtonText: {
+    type: String,
+    default: '다음',
+  },
+  secondaryButtonText: {
+    type: String,
+    default: '이전',
   },
 })
 
@@ -51,6 +59,8 @@ const handleOverlayClick = () => {
 </script>
 
 <style scoped lang="scss">
+@use '@/assets/styles/utils/_pxToRem.scss' as *;
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -76,6 +86,8 @@ const handleOverlayClick = () => {
     margin: 0 0 rem(20px);
     font-size: rem(16px);
     line-height: 1.5;
+    white-space: pre-line;
+    word-break: keep-all;
   }
 }
 

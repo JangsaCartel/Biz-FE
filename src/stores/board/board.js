@@ -6,6 +6,7 @@ import {
   fetchInfoBoardPosts,
   fetchLocalBoardPosts,
   createPost,
+  updatePost,
   fetchPostById,
   fetchCommentsByPostId,
   createComment,
@@ -24,6 +25,7 @@ export const useBoardStore = defineStore('board', {
     freePostsTotal: 0,
     infoPostsTotal: 0,
     localPostsTotal: 0,
+    localFilter: {},
   }),
   getters: {
     getCategorizedPosts: (state) => state.postsByCategory,
@@ -35,6 +37,7 @@ export const useBoardStore = defineStore('board', {
     getFreeBoardTotal: (state) => state.freePostsTotal,
     getInfoBoardTotal: (state) => state.infoPostsTotal,
     getLocalBoardTotal: (state) => state.localPostsTotal,
+    getLocalFilter: (state) => state.localFilter,
   },
   actions: {
     async fetchPosts() {
@@ -84,9 +87,9 @@ export const useBoardStore = defineStore('board', {
         this.infoPostsTotal = 0
       }
     },
-    async fetchLocalBoardPosts(page = 1, pageSize = 4) {
+    async fetchLocalBoardPosts(page = 1, pageSize = 4, region = null) {
       try {
-        const response = await fetchLocalBoardPosts(page, pageSize)
+        const response = await fetchLocalBoardPosts(page, pageSize, region)
         this.localPosts = response.data.posts
         this.localPostsTotal = response.data.totalCount
       } catch (error) {
@@ -100,6 +103,17 @@ export const useBoardStore = defineStore('board', {
         await createPost(postData)
       } catch (error) {
         console.error('Error creating post:', error)
+        throw error
+      }
+    },
+    async updatePost(postId, postData) {
+      try {
+        const response = await updatePost(postId, postData)
+        console.log('Post updated successfully:', response.data)
+        return response.data
+      } catch (error) {
+        console.error(`Error updating post with ID ${postId}:`, error)
+        throw error
       }
     },
     async fetchPostById(postId) {
@@ -138,6 +152,12 @@ export const useBoardStore = defineStore('board', {
     },
     async likePost(postId) {
       await likePost(postId)
+    },
+    setLocalFilter(filter) {
+      this.localFilter = filter
+    },
+    clearLocalFilter() {
+      this.localFilter = {}
     },
   },
 })

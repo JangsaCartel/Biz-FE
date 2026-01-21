@@ -1,7 +1,7 @@
 <template>
   <div class="region-dropdowns">
     <!-- 시/도 드롭다운 -->
-    <div class="FilterField">
+    <div class="FilterField filter-field-sido">
       <button
         type="button"
         class="FilterField-trigger"
@@ -30,12 +30,12 @@
     </div>
 
     <!-- 시/군/구 드롭다운 -->
-    <div class="FilterField">
+    <div class="FilterField filter-field-sigungu">
       <button
         type="button"
         class="FilterField-trigger"
         :class="{ 'is-open': openMenu === 'sigungu' }"
-        :disabled="!selectedSido"
+        :disabled="!selectedSido || selectedSido === '세종특별자치시'"
         @click="toggleMenu('sigungu')"
       >
         <span class="FilterField-trigger-text">
@@ -60,12 +60,12 @@
     </div>
 
     <!-- 읍/면/동 드롭다운 -->
-    <div class="FilterField">
+    <div class="FilterField filter-field-eupmyeondong">
       <button
         type="button"
         class="FilterField-trigger"
         :class="{ 'is-open': openMenu === 'eupmyeondong' }"
-        :disabled="!selectedSigungu"
+        :disabled="!selectedSigungu && selectedSido !== '세종특별자치시'"
         @click="toggleMenu('eupmyeondong')"
       >
         <span class="FilterField-trigger-text">
@@ -92,17 +92,40 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import allDistricts from '@/assets/data/district.json'
+
+const props = defineProps({
+  region: {
+    type: Object,
+    default: null,
+  },
+})
 
 const emit = defineEmits(['update:region'])
 
 const districts = ref(allDistricts)
-const openMenu = ref(null) // 현재 열려있는 드롭다운 메뉴
+const openMenu = ref(null)
 
 const selectedSido = ref('')
 const selectedSigungu = ref('')
 const selectedEupmyeondong = ref('')
+
+watch(
+  () => props.region,
+  (newRegion) => {
+    if (newRegion) {
+      selectedSido.value = newRegion.sido || ''
+      selectedSigungu.value = newRegion.gugun || ''
+      selectedEupmyeondong.value = newRegion.dong || ''
+    } else {
+      selectedSido.value = ''
+      selectedSigungu.value = ''
+      selectedEupmyeondong.value = ''
+    }
+  },
+  { immediate: true },
+)
 
 const sidos = computed(() => {
   return [...new Set(districts.value.map((d) => d.sido))]
@@ -116,16 +139,18 @@ const sigungus = computed(() => {
 })
 
 const eupmyeondongs = computed(() => {
-  if (!selectedSido.value || !selectedSigungu.value) return []
+  if (!selectedSido.value) return []
+  // "세종특별자치시" 시/군/구 부분의 값이 비어있으므로 특별 처리
+  if (!selectedSigungu.value && selectedSido.value !== '세종특별자치시') return []
   return districts.value
     .filter((d) => d.sido === selectedSido.value && d.sigungu === selectedSigungu.value)
     .map((d) => d.eupmyeondong)
 })
 
 const toggleMenu = (menu) => {
-  // disabled 상태의 버튼은 토글하지 않음
   if (menu === 'sigungu' && !selectedSido.value) return
-  if (menu === 'eupmyeondong' && !selectedSigungu.value) return
+  if (menu === 'eupmyeondong' && !selectedSigungu.value && selectedSido.value !== '세종특별자치시')
+    return
   openMenu.value = openMenu.value === menu ? null : menu
 }
 
@@ -134,36 +159,53 @@ const selectSido = (sido) => {
   selectedSigungu.value = ''
   selectedEupmyeondong.value = ''
   openMenu.value = null
+  emit('update:region', { sido: sido, gugun: '', dong: '' })
 }
 
 const selectSigungu = (sigungu) => {
   selectedSigungu.value = sigungu
   selectedEupmyeondong.value = ''
   openMenu.value = null
+  emit('update:region', {
+    sido: selectedSido.value,
+    gugun: sigungu,
+    dong: '',
+  })
 }
 
 const selectEupmyeondong = (eupmyeondong) => {
   selectedEupmyeondong.value = eupmyeondong
   openMenu.value = null
-  emit('update:region', {
+  const selectedRegion = {
     sido: selectedSido.value,
     gugun: selectedSigungu.value,
     dong: selectedEupmyeondong.value,
-  })
+  }
+  // console.log('RegionDropdowns emitting:', selectedRegion)
+  emit('update:region', selectedRegion)
 }
 </script>
 
 <style scoped lang="scss">
 .region-dropdowns {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: rem(8px);
+  justify-content: center;
 }
 
 .FilterField {
-  flex: 1;
-  min-width: rem(100px);
   position: relative;
+}
+// 드롭바 시/군/동 각각 크기
+.filter-field-sido {
+  width: rem(125px);
+}
+.filter-field-sigungu {
+  width: rem(130px);
+}
+.filter-field-eupmyeondong {
+  width: rem(110px);
 }
 
 .FilterField-trigger {

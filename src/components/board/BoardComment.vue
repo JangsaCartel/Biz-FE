@@ -8,23 +8,23 @@
           alt="Reply"
         />
       </div>
-      <div class="comment-box">
+
+      <div class="comment-box" :class="{ 'deleted-comment': isDeleted }">
         <div class="comment-header">
-          <span class="comment-user">{{ comment.nickname }}</span>
-          <div class="comment-actions">
+          <span class="comment-user">{{ isDeleted ? '(삭제됨)' : comment.nickname }}</span>
+
+          <div class="comment-actions" v-if="!isDeleted">
             <button class="comment-like" @click="handleLikeClick">
-              <img
-                src="@/assets/icons/board/like.png"
-                alt="Like"
-                width="14"
-                height="14"
-              />
+              <img src="@/assets/icons/board/like.png" alt="Like" width="14" height="14" />
               <span>{{ likeCount }}</span>
             </button>
             <button class="reply-btn" @click="onReplyClick">답글</button>
           </div>
         </div>
-        <div class="comment-content" v-html="comment.content"></div>
+
+        <div class="comment-content" v-if="!isDeleted" v-html="comment.content"></div>
+        <div class="comment-content message" v-else>삭제된 댓글입니다.</div>
+
         <div class="comment-date">{{ formattedDate }}</div>
       </div>
     </div>
@@ -35,6 +35,7 @@
     @close="closeModal"
   />
 </template>
+
 <script setup>
 import { computed, ref } from 'vue'
 import { useBoardStore } from '@/stores/board/board.js'
@@ -63,6 +64,10 @@ const modalMessage = ref('')
 const currentUserId = getCurrentUserIdFromToken()
 const isMyComment = computed(() => {
   return props.comment.userId === currentUserId
+})
+
+const isDeleted = computed(() => {
+  return !!props.comment.deletedAt
 })
 
 const formattedDate = computed(() => {
@@ -110,6 +115,8 @@ const handleLikeClick = async () => {
 </script>
 
 <style scoped lang="scss">
+@use '@/assets/styles/utils/_pxToRem.scss' as *;
+
 .comment-item {
   display: flex;
   gap: rem(10px);
@@ -189,6 +196,13 @@ const handleLikeClick = async () => {
   text-align: right;
 }
 
-.replies-container {
+.deleted-comment {
+  background-color: #f9f9f9;
+  color: #999;
+}
+
+.comment-content.message {
+  color: #999;
+  font-style: italic;
 }
 </style>

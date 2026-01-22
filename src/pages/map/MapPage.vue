@@ -34,9 +34,6 @@ let currentRegionQuery = ''
 
 const regionLookupMap = new Map()
 
-const regionLookupMap = new Map()
-
-// 기존 필터와 별개로 geojson과 district 둘의 데이터 매칭시켜 필터하는 코드
 onMounted(async () => {
   // GeoJSON의 지역이름을 district.json 기준으로 변환하기 위한 조회 지도 생성
   districtData.forEach((entry) => {
@@ -241,7 +238,6 @@ async function updatePolygons() {
             isSheetOpen.value = true
           }
         } else {
-          console.warn('Could not find matching region in district.json for:', regionName)
           const fallbackInfoWindow = new kakao.maps.InfoWindow({ removable: true })
           const content = `<div style="padding:5px;text-align:center;">${regionName}<br>(상세 지역 정보 부족)</div>`
           fallbackInfoWindow.setContent(content)

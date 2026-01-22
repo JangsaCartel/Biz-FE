@@ -26,6 +26,11 @@ export default [
     component: WritePage,
   },
   {
+    path: '/board/edit/:postId',
+    name: 'editPost',
+    component: WritePage,
+  },
+  {
     path: '/board/:postId',
     name: 'postDetail',
     component: PostDetailPage,

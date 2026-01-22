@@ -13,6 +13,7 @@ import policyRoutes from './policy'
 import boardRoutes from './board'
 import testRoutes from './test'
 import authRoutes from './auth'
+import userRoutes from './user'
 import notificationRoutes from './notifications'
 
 const router = createRouter({
@@ -31,6 +32,7 @@ const router = createRouter({
         ...boardRoutes,
         ...notificationRoutes,
         ...testRoutes,
+        ...userRoutes,
       ],
     },
     {

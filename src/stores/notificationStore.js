@@ -12,26 +12,41 @@ export const useNotificationStore = defineStore('notificationStore', {
     items: [],
     unreadCount: 0,
     _streamHandle: null,
+
+    isSyncing: false,
+    lastSyncedAt: null,
   }),
 
   actions: {
     async syncList({ page = 1, size = 50 } = {}) {
-      const data = await fetchMyNotifications({ page, size })
+      if (this.isSyncing) return
+      this.isSyncing = true
 
-      const list = Array.isArray(data) ? data : (data?.items ?? [])
+      try {
+        const data = await fetchMyNotifications({ page, size })
 
-      this.items = list.map((n) => ({
-        eventId: `n-${n.notificationId}`,
-        notificationId: n.notificationId,
-        title: n.title,
-        message: n.message,
-        postId: n.postId,
-        commentId: n.commentId,
-        createdAt: n.createdAt,
-        isRead: !!n.isRead,
-      }))
+        const list = Array.isArray(data) ? data : (data?.items ?? [])
 
-      this.unreadCount = this.items.filter((x) => !x.isRead).length
+        this.items = list.map((n) => ({
+          eventId: `n-${n.notificationId}`,
+          notificationId: n.notificationId,
+          title: n.title,
+          message: n.message,
+          postId: n.postId,
+          commentId: n.commentId,
+          createdAt: n.createdAt,
+          isRead: !!n.isRead,
+        }))
+
+        this.unreadCount = this.items.filter((x) => !x.isRead).length
+        this.lastSyncedAt = Date.now()
+      } finally {
+        this.isSyncing = false
+      }
+    },
+
+    async refreshList() {
+      await this.syncList({ page: 1, size: 50 })
     },
 
     connect() {
@@ -39,24 +54,57 @@ export const useNotificationStore = defineStore('notificationStore', {
 
       this._streamHandle = streamNotifications({
         onEvent: ({ event, data }) => {
-          if (event !== 'notification') return
+          if (event !== 'notification' && event !== 'message') return
 
-          const nid = data.notificationId
-          if (nid != null) {
-            const idx = this.items.findIndex((x) => x.notificationId === nid)
-            if (idx !== -1) {
-              this.items[idx] = { ...this.items[idx], ...data }
-              this.items[idx].isRead = !!this.items[idx].isRead
-              return
-            }
+          // 디버그
+          console.debug('[notification SSE] recv:', event, data)
+
+          const nid = data?.notificationId ?? data?.id ?? null
+
+          // nid가 없으면 payload 이상 → 목록 재동기화
+          if (nid == null) {
+            this.refreshList().catch(() => {})
+            return
           }
 
-          this.items.unshift({ ...data, isRead: !!data.isRead })
+          // 기존 항목 업데이트
+          const idx = this.items.findIndex((x) => x.notificationId === nid)
+          if (idx !== -1) {
+            this.items[idx] = {
+              ...this.items[idx],
+              ...data,
+              eventId: this.items[idx].eventId ?? `n-${nid}`,
+              notificationId: nid,
+              isRead: !!(data.isRead ?? this.items[idx].isRead),
+            }
+            this.unreadCount = this.items.filter((x) => !x.isRead).length
+            return
+          }
+
+          // 새 항목 추가
+          const item = {
+            eventId: data.eventId ?? `n-${nid}`,
+            notificationId: nid,
+            title: data.title,
+            message: data.message,
+            postId: data.postId,
+            commentId: data.commentId,
+            createdAt: data.createdAt,
+            isRead: !!data.isRead,
+          }
+
+          this.items.unshift(item)
           this.unreadCount = this.items.filter((x) => !x.isRead).length
         },
+
         onError: (e) => {
           console.error('[notification SSE] error:', e)
           this.disconnect()
+
+          // 1초 뒤 재연결
+          setTimeout(() => {
+            if (!this._streamHandle) this.connect()
+          }, 1000)
         },
       })
     },
@@ -96,6 +144,8 @@ export const useNotificationStore = defineStore('notificationStore', {
     clearLocal() {
       this.items = []
       this.unreadCount = 0
+      this.lastSyncedAt = null
+      this.isSyncing = false
     },
   },
 })

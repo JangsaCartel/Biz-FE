@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNotificationStore } from '@/stores/notificationStore'
 
@@ -8,8 +8,35 @@ const notificationStore = useNotificationStore()
 
 const items = computed(() => notificationStore.items)
 const hasItems = computed(() => items.value.length > 0)
+const isSyncing = computed(() => notificationStore.isSyncing)
+
+const listRef = ref(null)
+
+const formatCreatedAt = (v) => {
+  if (!v) return ''
+  // [YYYY, M, D, H, m, s] 형태
+  if (Array.isArray(v) && v.length >= 3) {
+    const [Y, M, D, h = 0, m = 0, s = 0] = v
+    const pad = (n) => String(n).padStart(2, '0')
+    return `${Y}-${pad(M)}-${pad(D)} ${pad(h)}:${pad(m)}:${pad(s)}`
+  }
+  const str = String(v)
+  if (str.includes('T')) {
+    return str.replace('T', ' ').slice(0, 19) // "YYYY-MM-DD HH:mm:ss"
+  }
+  return str
+}
 
 const goBack = () => router.back()
+
+const refreshNow = async () => {
+  await notificationStore.refreshList()
+  try {
+    listRef.value?.scrollTo?.({ top: 0, behavior: 'smooth' })
+  } catch (e) {
+    console.debug('[Notification] scrollTo ignored:', e)
+  }
+}
 
 const deleteRead = async () => {
   await notificationStore.deleteRead()
@@ -49,6 +76,11 @@ const openNotification = async (n) => {
 
 onMounted(async () => {
   await notificationStore.syncList({ page: 1, size: 50 })
+  notificationStore.connect()
+})
+
+onBeforeUnmount(() => {
+  notificationStore.disconnect()
 })
 </script>
 
@@ -57,12 +89,26 @@ onMounted(async () => {
     <header class="NotificationHeader">
       <button type="button" class="HeaderBtn" @click="goBack" aria-label="뒤로가기">←</button>
       <h1 class="HeaderTitle">알림</h1>
-      <button type="button" class="HeaderAction" :disabled="!hasItems" @click="deleteRead">
-        읽음 삭제
-      </button>
+
+      <div class="HeaderRight">
+        <button
+          type="button"
+          class="HeaderIconBtn"
+          :disabled="isSyncing"
+          @click="refreshNow"
+          aria-label="새로고침"
+          title="새로고침"
+        >
+          ↻
+        </button>
+
+        <button type="button" class="HeaderAction" :disabled="!hasItems" @click="deleteRead">
+          읽음 삭제
+        </button>
+      </div>
     </header>
 
-    <main class="NotificationList">
+    <main class="NotificationList" ref="listRef">
       <div v-if="!hasItems" class="EmptyState">알림이 없어요.</div>
 
       <ul v-else class="List">
@@ -77,7 +123,7 @@ onMounted(async () => {
           <div class="Body">
             <div class="TitleRow">
               <span class="Title">{{ n.title ?? '알림' }}</span>
-              <span class="Time">{{ n.createdAt ?? '' }}</span>
+              <span class="Time">{{ formatCreatedAt(n.createdAt) }}</span>
             </div>
             <div class="Message">
               {{ n.message ?? '' }}
@@ -90,8 +136,6 @@ onMounted(async () => {
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/styles/utils/_pxToRem.scss' as *;
-
 .NotificationWrapper {
   background-color: var(--bg-default);
   width: 100%;
@@ -112,7 +156,7 @@ onMounted(async () => {
   height: rem(56px);
 
   display: grid;
-  grid-template-columns: rem(56px) 1fr auto;
+  grid-template-columns: rem(120px) 1fr rem(120px);
   align-items: center;
 
   padding: 0 rem(12px);
@@ -137,6 +181,29 @@ onMounted(async () => {
   font-size: rem(16px);
   font-weight: var(--font-weight-semibold);
   color: var(--text-title);
+}
+
+.HeaderRight {
+  display: flex;
+  align-items: center;
+  gap: rem(8px);
+}
+
+.HeaderIconBtn {
+  border: none;
+  color: var(--text-title);
+  height: rem(32px);
+  padding: 0 rem(10px);
+  border-radius: rem(999px);
+  cursor: pointer;
+  font-size: rem(15px);
+  font-weight: var(--font-weight-semibold);
+  background: transparent;
+}
+
+.HeaderIconBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .HeaderAction {
@@ -196,7 +263,7 @@ onMounted(async () => {
   gap: rem(10px);
 
   background: var(--white);
-  border-radius: rem(14px);
+  border-bottom: rem(1px) solid var(--grey-light);
   padding: rem(12px);
   box-sizing: border-box;
 
@@ -245,23 +312,5 @@ onMounted(async () => {
   font-size: rem(12px);
   color: var(--color-text-default);
   word-break: break-word;
-}
-
-.TrashFab {
-  position: absolute;
-  right: rem(16px);
-  bottom: rem(16px);
-
-  width: rem(56px);
-  height: rem(56px);
-  border-radius: rem(16px);
-
-  border: none;
-  background: var(--color-text-strong);
-  color: var(--white);
-  font-size: rem(18px);
-
-  box-shadow: 0 rem(8px) rem(16px) rgba(0, 0, 0, 0.2);
-  cursor: pointer;
 }
 </style>

@@ -70,7 +70,9 @@ export function streamNotifications(handlers = {}) {
 
       while (true) {
         const { value, done } = await reader.read()
-        if (done) break
+        if (done) {
+          throw new Error('SSE connection closed')
+        }
 
         buffer += decoder.decode(value, { stream: true })
 

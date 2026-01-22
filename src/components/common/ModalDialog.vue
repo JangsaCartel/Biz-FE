@@ -86,7 +86,7 @@ const handleOverlayClick = () => {
     margin: 0 0 rem(20px);
     font-size: rem(16px);
     line-height: 1.5;
-    white-space: pre-line;
+    white-space: pre-line; 
     word-break: keep-all;
   }
 }

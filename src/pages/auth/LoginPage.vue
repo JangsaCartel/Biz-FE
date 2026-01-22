@@ -1,8 +1,9 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import BizIcon from '@/assets/icons/logo/logo-app-icon.png'
 import { getAccessToken, savePostLoginRedirect } from '@/stores/tokenStorage'
+import ModalDialog from '@/components/common/ModalDialog.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -30,9 +31,22 @@ const redirectTarget = computed(() => {
   return '/'
 })
 
+const modalMessage = ref('')
+const isModalVisible = ref(false)
+
+const showModal = (message) => {
+  modalMessage.value = message
+  isModalVisible.value = true
+}
+
+const closeModal = () => {
+  isModalVisible.value = false
+  modalMessage.value = ''
+}
+
 const handleLoginRedirect = (provider) => {
   if (provider !== 'kakao') {
-    alert(`${provider} 로그인은 준비 중입니다.`)
+    showModal(`${provider} 로그인은 준비 중입니다.`)
     return
   }
 
@@ -54,10 +68,14 @@ onMounted(() => {
       <p class="hero-title">장사 뭐하니?</p>
 
       <div class="button-stack">
-        <button class="login-button" @click="handleLoginRedirect('google')">Google 로그인</button>
         <button class="login-button kakao" @click="handleLoginRedirect('kakao')">Kakao 로그인</button>
-        <button class="login-button" @click="handleLoginRedirect('naver')">Naver 로그인</button>
       </div>
+
+      <ModalDialog
+        :message="modalMessage"
+        :is-visible="isModalVisible"
+        @close="closeModal"
+      />
     </div>
   </section>
 </template>

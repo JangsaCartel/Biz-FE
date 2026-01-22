@@ -140,9 +140,9 @@
             <label>닉네임</label>
             <span
               class="char-count"
-              :class="{ 'max-limit': (editProfile.nickname?.length || 0) >= 32 }"
+              :class="{ 'max-limit': (editProfile.nickname?.length || 0) >= 15 }"
             >
-              {{ editProfile.nickname?.length || 0 }}/32
+              {{ editProfile.nickname?.length || 0 }}/15
             </span>
           </div>
           <input
@@ -150,7 +150,7 @@
             type="text"
             class="modal-input"
             placeholder="닉네임을 입력해주세요"
-            maxlength="32"
+            maxlength="15"
           />
           <p v-if="nicknameError" class="error-message">{{ nicknameError }}</p>
         </div>
@@ -319,21 +319,23 @@ const isProfileUnchanged = computed(() => {
   if (editProfile.value.nickname !== profile.value.nickname) return false
   if (editProfile.value.userStoreName !== profile.value.userStoreName) return false
 
-  const currentRegionString = profile.value.region || ''
-  const parts = currentRegionString.split(' ')
-  const orgSido = parts[0] || ''
-  const orgGugun = parts[1] || ''
-  const orgDong = parts[2] || ''
+  const { sido, gugun, dong } = editRegion.value
+  let newRegionString = ''
 
-  const newSido = editRegion.value.sido || ''
-  const newGugun = editRegion.value.gugun || ''
-  const newDong = editRegion.value.dong || ''
+  if (sido) {
+    if (sido === '세종특별자치시') {
+      // 세종시는 구군이 있으면 넣고, 없으면 시+동
+      newRegionString = gugun ? `${sido} ${gugun} ${dong}` : `${sido} ${dong}`
+    } else {
+      newRegionString = `${sido} ${gugun} ${dong}`
+    }
+  }
 
-  if (newSido !== orgSido) return false
-  if (newGugun !== orgGugun) return false
-  if (newDong !== orgDong) return false
+  // 공백 제거 후 비교 (undefined 방지)
+  const currentRegion = (profile.value.region || '').trim()
+  const nextRegion = newRegionString.trim()
 
-  return true
+  return currentRegion === nextRegion
 })
 
 const paginatedPosts = computed(() => {
@@ -541,11 +543,24 @@ const handleProfileUpdate = async () => {
     isValid = false
   }
 
+  // --- 지역 유효성 검사 로직 변경 ---
   const { sido, gugun, dong } = editRegion.value
-  const selectedCount = (sido ? 1 : 0) + (gugun ? 1 : 0) + (dong ? 1 : 0)
+  const hasAnySelection = sido || gugun || dong // 하나라도 선택했는지 확인
 
-  if (selectedCount > 0 && selectedCount < 3) {
-    regionError.value = '활동 지역을 모두 선택해주세요.'
+  let isRegionValid = false
+  if (sido === '세종특별자치시') {
+    // 세종: 시/도, 동 필수 (구/군 선택)
+    isRegionValid = !!(sido && dong)
+  } else {
+    // 그 외: 시/도, 구/군, 동 모두 필수
+    isRegionValid = !!(sido && gugun && dong)
+  }
+
+  // 사용자가 지역을 건드리지 않았거나(모두 빈값 - 기존 데이터 유지 의도라면 로직에 따라 다름,
+  // 보통 수정 모달은 기존 값이 채워져 있으므로 hasAnySelection은 true임)
+  // 값을 변경하려는데 불완전하게 입력한 경우 에러 처리
+  if (hasAnySelection && !isRegionValid) {
+    regionError.value = '활동 지역을 모두 선택해주세요.' // 세종시는 '읍/면/동'까지
     isValid = false
   }
 
@@ -563,8 +578,15 @@ const handleProfileUpdate = async () => {
       hasUpdates = true
     }
 
-    if (selectedCount === 3) {
-      const regionString = `${sido} ${gugun} ${dong}`
+    if (isRegionValid) {
+      // 세종시 로직에 맞춰 문자열 생성
+      let regionString = ''
+      if (sido === '세종특별자치시' && !gugun) {
+        regionString = `${sido} ${dong}`
+      } else {
+        regionString = `${sido} ${gugun} ${dong}`
+      }
+
       if (regionString !== profile.value.region) {
         await updateRegion(regionString)
         hasUpdates = true
@@ -616,8 +638,24 @@ const closeProfileModal = () => {
   regionError.value = ''
 
   editProfile.value = { nickname: profile.value.nickname, userStoreName: profile.value.userStoreName }
-  const regionParts = profile.value.region ? profile.value.region.split(' ') : []
-  editRegion.value = { sido: regionParts[0] || '', gugun: regionParts[1] || '', dong: regionParts[2] || '' }
+
+  // --- 지역 파싱 로직 수정 (초기화) ---
+  const regionString = profile.value.region || ''
+  const regionParts = regionString.split(' ')
+
+  if (regionParts[0] === '세종특별자치시' && regionParts.length === 2) {
+      editRegion.value = {
+          sido: regionParts[0],
+          gugun: '',
+          dong: regionParts[1]
+      }
+  } else {
+      editRegion.value = {
+          sido: regionParts[0] || '',
+          gugun: regionParts[1] || '',
+          dong: regionParts[2] || ''
+      }
+  }
 }
 
 const showModal = (message, callback = null) => {
@@ -700,8 +738,27 @@ const fetchProfile = async () => {
     const response = await getMyPageProfile()
     profile.value = response.data
     editProfile.value = { nickname: response.data.nickname, userStoreName: response.data.userStoreName }
-    const regionParts = response.data.region ? response.data.region.split(' ') : []
-    editRegion.value = { sido: regionParts[0] || '', gugun: regionParts[1] || '', dong: regionParts[2] || '' }
+
+    // --- 지역 파싱 로직 수정 ---
+    const regionString = response.data.region || ''
+    const regionParts = regionString.split(' ')
+
+    if (regionParts[0] === '세종특별자치시' && regionParts.length === 2) {
+        // "세종특별자치시 아름동" -> sido: 세종, gugun: '', dong: 아름동
+        editRegion.value = {
+            sido: regionParts[0],
+            gugun: '',
+            dong: regionParts[1]
+        }
+    } else {
+        // 일반적인 경우 (3어절) 혹은 데이터가 없는 경우
+        editRegion.value = {
+            sido: regionParts[0] || '',
+            gugun: regionParts[1] || '',
+            dong: regionParts[2] || ''
+        }
+    }
+    // -------------------------
 
     await nextTick()
     checkOverflow()

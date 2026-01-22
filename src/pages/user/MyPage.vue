@@ -19,9 +19,8 @@
           </div>
           <span class="greeting-suffix">님, {{ randomGreeting }}</span>
         </div>
-
         <div class="store-line">
-          <div
+            <div
             class="scroll-text-wrapper store-wrapper"
             :class="{ 'has-shadow': isStoreLong }"
             ref="storeWrapper"
@@ -49,8 +48,9 @@
     <div class="my-posts-section">
       <div class="section-header">
         <div class="section-title" @click="switchTab(activeTab === 'posts' ? 'comments' : 'posts')">
-          <span class="section-icon">👤</span>
+          <img :src="iconPerson" alt="User Icon" class="title-icon-left" />
           <span class="tab-item">{{ activeTab === 'posts' ? '내가 작성한 글' : '내가 작성한 댓글' }}</span>
+           <img :src="iconLeftRight" alt="Switch Icon" class="title-icon-right" />
         </div>
         <div class="action-buttons">
           <button class="action-btn" @click="handleEditClick" :disabled="isActionDisabled">
@@ -104,7 +104,7 @@
               <HotBoardItem :post="transformCommentForHotBoardItem(comment)" />
             </div>
 
-            <div v-else class="comment-edit-wrapper">
+             <div v-else class="comment-edit-wrapper">
               <textarea
                 v-model="editingCommentContent"
                 class="comment-edit-input"
@@ -132,64 +132,38 @@
     </div>
 
     <div v-if="showProfileModal" class="modal-overlay" @click="closeProfileModal">
-      <div class="profile-modal-content" @click.stop>
+        <div class="profile-modal-content" @click.stop>
         <h3 class="modal-title">회원 정보 변경</h3>
-
         <div class="form-group">
           <div class="label-wrapper">
             <label>닉네임</label>
-            <span
-              class="char-count"
-              :class="{ 'max-limit': (editProfile.nickname?.length || 0) >= 15 }"
-            >
+            <span class="char-count" :class="{ 'max-limit': (editProfile.nickname?.length || 0) >= 15 }">
               {{ editProfile.nickname?.length || 0 }}/15
             </span>
           </div>
-          <input
-            v-model="editProfile.nickname"
-            type="text"
-            class="modal-input"
-            placeholder="닉네임을 입력해주세요"
-            maxlength="15"
-          />
+          <input v-model="editProfile.nickname" type="text" class="modal-input" placeholder="닉네임을 입력해주세요" maxlength="15" />
           <p v-if="nicknameError" class="error-message">{{ nicknameError }}</p>
         </div>
-
         <div class="form-group">
           <div class="label-wrapper">
             <label>상호명</label>
-            <span
-              class="char-count"
-              :class="{ 'max-limit': (editProfile.userStoreName?.length || 0) >= 32 }"
-            >
+            <span class="char-count" :class="{ 'max-limit': (editProfile.userStoreName?.length || 0) >= 32 }">
               {{ editProfile.userStoreName?.length || 0 }}/32
             </span>
           </div>
-          <input
-            v-model="editProfile.userStoreName"
-            type="text"
-            class="modal-input"
-            placeholder="상호명을 입력해주세요"
-            maxlength="32"
-          />
+          <input v-model="editProfile.userStoreName" type="text" class="modal-input" placeholder="상호명을 입력해주세요" maxlength="32" />
           <p v-if="storeNameError" class="error-message">{{ storeNameError }}</p>
         </div>
-
         <div class="form-group region-group">
           <label>활동 지역</label>
           <RegionDropdowns v-model:region="editRegion" />
           <p v-if="regionError" class="error-message">{{ regionError }}</p>
         </div>
-
         <div class="modal-buttons">
           <button class="modal-btn withdraw-btn" @click="showWithdrawConfirm = true">회원 탈퇴</button>
           <div class="right-buttons">
             <button class="modal-btn cancel-btn" @click="closeProfileModal">취소</button>
-            <button
-              class="modal-btn confirm-btn"
-              @click="handleProfileUpdate"
-              :disabled="isProfileUnchanged"
-            >확인</button>
+            <button class="modal-btn confirm-btn" @click="handleProfileUpdate" :disabled="isProfileUnchanged">확인</button>
           </div>
         </div>
       </div>
@@ -205,13 +179,7 @@
       @primary="handleWithdraw"
       @secondary="showWithdrawConfirm = false"
     />
-
-    <ModalDialog
-      :message="'회원 탈퇴가 정상적으로 진행되었습니다.'"
-      :is-visible="showWithdrawSuccess"
-      @close="handleWithdrawSuccessClose"
-    />
-
+    <ModalDialog :message="'회원 탈퇴가 정상적으로 진행되었습니다.'" :is-visible="showWithdrawSuccess" @close="handleWithdrawSuccessClose" />
     <ModalDialog
       :message="`선택한 ${deleteCount}개의 ${deleteType === 'posts' ? '게시글' : '댓글'}을 삭제하시겠습니까?`"
       :is-visible="showDeleteConfirm"
@@ -222,12 +190,7 @@
       @primary="confirmDelete"
       @secondary="showDeleteConfirm = false"
     />
-
-    <ModalDialog
-      :message="modalMessage"
-      :is-visible="isModalVisible"
-      @close="closeModal"
-    />
+    <ModalDialog :message="modalMessage" :is-visible="isModalVisible" @close="closeModal" />
   </div>
 </template>
 
@@ -250,6 +213,8 @@ import AppPagination from '@/components/common/AppPagination.vue'
 import HotBoardItem from '@/components/board/HotBoardItem.vue'
 import ModalDialog from '@/components/common/ModalDialog.vue'
 import RegionDropdowns from '@/components/common/RegionDropdowns.vue'
+import iconPerson from '@/assets/icons/user/person.png'
+import iconLeftRight from '@/assets/icons/user/left-right.png'
 
 const router = useRouter()
 const profile = ref({ userId: null, nickname: '', userStoreName: '', region: '' })
@@ -970,10 +935,10 @@ onMounted(async () => {
 
 .logout-btn {
   padding: rem(4px) rem(10px);
-  border: rem(1px) solid var(--grey);
+  border: rem(1px) solid #ff4444;
   border-radius: rem(20px);
   background-color: transparent;
-  color: var(--color-text-subtle);
+  color: #ff4444;
   font-size: rem(12px);
   cursor: pointer;
   white-space: nowrap;
@@ -981,8 +946,8 @@ onMounted(async () => {
 }
 
 .logout-btn:hover {
-  background-color: var(--grey-light);
-  color: var(--color-text-default);
+  background-color: rgba(255, 68, 68, 0.1);
+  color: #cc0000;
 }
 
 .my-posts-section {
@@ -1007,7 +972,7 @@ onMounted(async () => {
 .section-title {
   display: flex;
   align-items: center;
-  gap: rem(8px);
+  gap: rem(4px);
   font-size: rem(18px);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-strong);
@@ -1020,6 +985,24 @@ onMounted(async () => {
   &:hover {
     background-color: rgba(0, 0, 0, 0.1);
   }
+}
+
+.title-icon-left {
+  width: rem(28px);
+  height: rem(28px);
+  object-fit: contain;
+}
+
+.title-icon-right {
+  width: rem(40px);
+  height: rem(24px);
+  object-fit: contain;
+  margin-left: rem(4px);
+}
+
+.tab-item {
+  margin-left: rem(8px);
+  margin-right: rem(4px);
 }
 
 .section-icon {
@@ -1119,6 +1102,12 @@ onMounted(async () => {
   margin-top: rem(8px);
 }
 
+.comments-list :deep(.hot-board-item .post-stats) {
+    gap: 0;
+    /* 만약 post-stats 내부 요소의 마진이 문제라면 아래와 같이 추가 조정 가능 */
+    margin-right: 0;
+}
+
 .comments-list :deep([class*="comment-count"]),
 .comments-list :deep([class*="comment-icon"]) {
   display: none !important;
@@ -1201,7 +1190,6 @@ onMounted(async () => {
   z-index: 10;
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: rem(4px);
-  padding: rem(4px);
   width: rem(20px);
   height: rem(20px);
   display: flex;

@@ -23,7 +23,10 @@
 
   const nickname = ref('')
   const region = ref('')
+
+  // 지역 데이터 초기값 (유지되도록 설정)
   const regionData = ref({ sido: '', gugun: '', dong: '' })
+
   const userStoreName = ref('')
   const businessType = ref('')
   const businessRegNo = ref('')
@@ -61,6 +64,16 @@
     const lastDay = new Date(Number(selectedYear.value), Number(selectedMonth.value), 0).getDate()
     return Array.from({ length: lastDay }, (_, idx) => idx + 1)
   })
+
+  // v-model로 바인딩된 regionData가 변경될 때마다 region 문자열 업데이트
+  watch(regionData, (newVal) => {
+    const { sido, gugun, dong } = newVal
+    if (sido === '세종특별자치시') {
+      region.value = (sido && dong) ? `${sido} ${dong}` : ''
+    } else {
+      region.value = (sido && gugun && dong) ? `${sido} ${gugun} ${dong}` : ''
+    }
+  }, { deep: true })
 
   watch([selectedYear, selectedMonth], () => {
     const lastDay = new Date(
@@ -133,11 +146,8 @@
   const validateStepTwo = () => {
     stepTwoErrors.value.nickname = nickname.value ? '' : '닉네임을 입력해주세요.'
 
-    // 지역 유효성 검사 로직 변경
     const { sido, gugun, dong } = regionData.value
     const isSejong = sido === '세종특별자치시'
-
-    // 세종시는 sido와 dong만 체크, 그 외는 gugun까지 체크
     const isRegionValid = isSejong
       ? (sido && dong)
       : (sido && gugun && dong)
@@ -180,27 +190,6 @@
 
   const handleFutureDateModalSecondary = () => {
     futureDateModalVisible.value = false
-  }
-
-  const handleRegionUpdate = (regionInfo) => {
-    regionData.value = regionInfo
-    const { sido, gugun, dong } = regionInfo
-
-    // 세종특별자치시인 경우 gugun이 없어도 dong만 있으면 텍스트 완성
-    if (sido === '세종특별자치시') {
-      if (sido && dong) {
-        region.value = `${sido} ${dong}`
-      } else {
-        region.value = ''
-      }
-    } else {
-      // 그 외 지역은 gugun까지 모두 있어야 함
-      if (sido && gugun && dong) {
-        region.value = `${sido} ${gugun} ${dong}`
-      } else {
-        region.value = ''
-      }
-    }
   }
 
   const handlePrevStep = () => {
@@ -377,7 +366,7 @@
 
           <div class="form-group">
             <label class="form-label">활동 지역 *</label>
-            <RegionDropdowns @update:region="handleRegionUpdate" />
+            <RegionDropdowns v-model:region="regionData" />
             <p v-if="stepTwoErrors.region" class="error-text">{{ stepTwoErrors.region }}</p>
           </div>
 

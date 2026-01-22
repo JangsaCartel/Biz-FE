@@ -85,14 +85,19 @@ onMounted(() => {
 
 .login-hero {
   width: 100%;
-  max-width: rem(430px);
-  background: linear-gradient(180deg, #ffe789 0%, #fcd266 100%);
-  border-radius: rem(32px);
-  padding: rem(48px) rem(24px) rem(64px);
+  min-height: 100vh;
+  background-color: var(--bg-default);
+
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+
+  padding: rem(120px) rem(24px) rem(48px);
+  box-sizing: border-box;
+
+  box-shadow: none;
+  border-radius: 0;
 }
 
 .login-card {
@@ -101,6 +106,16 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   gap: rem(24px);
+}
+
+.logo-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: rem(24px);
+  flex: 1;
+  justify-content: center;
+  margin-bottom: rem(60px);
 }
 
 .hero-logo {

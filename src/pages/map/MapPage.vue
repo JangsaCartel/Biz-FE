@@ -12,7 +12,7 @@
 
 <script setup>
 /* eslint-disable no-unused-vars */
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { getKakaoMapApiKey, getBoundaries, fetchUserRegionForMap } from '@/api/mapApi'
 import MapPostSheet from '@/components/map/MapPostSheet.vue'
@@ -34,39 +34,53 @@ let currentRegionQuery = ''
 
 const regionLookupMap = new Map()
 
+const regionLookupMap = new Map()
+
 // 기존 필터와 별개로 geojson과 district 둘의 데이터 매칭시켜 필터하는 코드
 onMounted(async () => {
+  // GeoJSON의 지역이름을 district.json 기준으로 변환하기 위한 조회 지도 생성
   districtData.forEach((entry) => {
     const { sido, sigungu, eupmyeondong } = entry
-    if (!sido || !sigungu) return
+    if (!sido) return
 
-    const value = { sido, sigungu }
+    const value = { sido, sigungu: sigungu || '' }
 
-    const sigunguNoSpace = sigungu.replace(/ /g, '')
+    const sigunguNoSpace = sigungu ? sigungu.replace(/ /g, '') : ''
+    const eupmyeondongNoSpace = eupmyeondong ? eupmyeondong.replace(/ /g, '') : ''
 
-    // 1. 시군동 조합
-    if (eupmyeondong) {
-      const key1 = (sido + sigunguNoSpace + eupmyeondong).replace(/ /g, '')
+    if (eupmyeondongNoSpace && sigunguNoSpace) {
+      const key1 = (sido + sigunguNoSpace + eupmyeondongNoSpace).replace(/ /g, '')
       if (!regionLookupMap.has(key1)) {
         regionLookupMap.set(key1, value)
       }
-      // 2. 군동조합 (시 제외)
-      const key2 = (sigunguNoSpace + eupmyeondong).replace(/ /g, '')
+    }
+
+    if (sigunguNoSpace && eupmyeondongNoSpace) {
+      const key2 = (sigunguNoSpace + eupmyeondongNoSpace).replace(/ /g, '')
       if (!regionLookupMap.has(key2)) {
         regionLookupMap.set(key2, value)
       }
     }
 
-    // 3. 시군 조합 (동 제외)
-    const key3 = (sido + sigunguNoSpace).replace(/ /g, '')
-    if (!regionLookupMap.has(key3)) {
-      regionLookupMap.set(key3, value)
+    if (sigunguNoSpace) {
+      const key3 = (sido + sigunguNoSpace).replace(/ /g, '')
+      if (!regionLookupMap.has(key3)) {
+        regionLookupMap.set(key3, value)
+      }
     }
 
-    // 4. 시 만 조회 (군/동 제외)
-    const key4 = sigunguNoSpace
-    if (!regionLookupMap.has(key4)) {
-      regionLookupMap.set(key4, value)
+    if (sigunguNoSpace) {
+      const key4 = sigunguNoSpace
+      if (!regionLookupMap.has(key4)) {
+        regionLookupMap.set(key4, value)
+      }
+    }
+
+    if (sido === '세종특별자치시' && eupmyeondongNoSpace && !sigunguNoSpace) {
+      const sejongKey = ('세종특별자치시' + '세종시' + eupmyeondongNoSpace).replace(/ /g, '')
+      if (!regionLookupMap.has(sejongKey)) {
+        regionLookupMap.set(sejongKey, value)
+      }
     }
   })
 
@@ -104,6 +118,12 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to load Kakao Map API key or user region:', error)
     initMap(37.566826, 126.9786567)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (map) {
+    map = null
   }
 })
 
@@ -190,6 +210,7 @@ async function updatePolygons() {
       kakao.maps.event.addListener(polygon, 'click', async function (mouseEvent) {
         infowindow.close()
 
+        // 전체 이름으로 조회 후, 실패 시 '동'을 제외한 상위 지역으로 재조회
         let searchKey = regionName.replace(/ /g, '')
         let foundData = regionLookupMap.get(searchKey)
 
@@ -203,7 +224,7 @@ async function updatePolygons() {
         }
 
         if (foundData) {
-          const finalFilterString = `${foundData.sido} ${foundData.sigungu}`
+          const finalFilterString = [foundData.sido, foundData.sigungu].filter(Boolean).join(' ')
           currentRegionQuery = finalFilterString
           selectedRegionName.value = finalFilterString
 
@@ -212,7 +233,10 @@ async function updatePolygons() {
             sheetPosts.value = response.data
             isSheetOpen.value = true
           } catch (error) {
-            console.error(`Failed to fetch hot posts for region: ${finalFilterString}`, error)
+            console.error(
+              `Failed to fetch hot posts for region: "${finalFilterString}". Error:`,
+              error,
+            )
             sheetPosts.value = []
             isSheetOpen.value = true
           }

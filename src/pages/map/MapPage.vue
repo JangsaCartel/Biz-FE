@@ -18,6 +18,7 @@ import { getKakaoMapApiKey, getBoundaries, fetchUserRegionForMap } from '@/api/m
 import MapPostSheet from '@/components/map/MapPostSheet.vue'
 import { fetchHotPostsByRegion } from '@/api/boardApi'
 import { useBoardStore } from '@/stores/board/board.js'
+import districtData from '@/assets/data/district.json'
 
 const router = useRouter()
 const boardStore = useBoardStore()
@@ -31,7 +32,44 @@ const sheetPosts = ref([])
 const selectedRegionName = ref('')
 let currentRegionQuery = ''
 
+const regionLookupMap = new Map()
+
+// 기존 필터와 별개로 geojson과 district 둘의 데이터 매칭시켜 필터하는 코드
 onMounted(async () => {
+  districtData.forEach((entry) => {
+    const { sido, sigungu, eupmyeondong } = entry
+    if (!sido || !sigungu) return
+
+    const value = { sido, sigungu }
+
+    const sigunguNoSpace = sigungu.replace(/ /g, '')
+
+    // 1. 시군동 조합
+    if (eupmyeondong) {
+      const key1 = (sido + sigunguNoSpace + eupmyeondong).replace(/ /g, '')
+      if (!regionLookupMap.has(key1)) {
+        regionLookupMap.set(key1, value)
+      }
+      // 2. 군동조합 (시 제외)
+      const key2 = (sigunguNoSpace + eupmyeondong).replace(/ /g, '')
+      if (!regionLookupMap.has(key2)) {
+        regionLookupMap.set(key2, value)
+      }
+    }
+
+    // 3. 시군 조합 (동 제외)
+    const key3 = (sido + sigunguNoSpace).replace(/ /g, '')
+    if (!regionLookupMap.has(key3)) {
+      regionLookupMap.set(key3, value)
+    }
+
+    // 4. 시 만 조회 (군/동 제외)
+    const key4 = sigunguNoSpace
+    if (!regionLookupMap.has(key4)) {
+      regionLookupMap.set(key4, value)
+    }
+  })
+
   try {
     const response = await getKakaoMapApiKey()
     const apiKey = response.kakaoMapApiKey
@@ -65,7 +103,6 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error('Failed to load Kakao Map API key or user region:', error)
-    // API 키 로딩 실패 시에도 기본 위치로 지도 초기화
     initMap(37.566826, 126.9786567)
   }
 })
@@ -123,9 +160,7 @@ async function updatePolygons() {
 
       const geometryType = feature.geometry.type
       const coordinates = feature.geometry.coordinates
-
       const polygonCoords = geometryType === 'Polygon' ? coordinates[0] : coordinates[0][0]
-
       const path = polygonCoords.map((coord) => new kakao.maps.LatLng(coord[1], coord[0]))
 
       const polygon = new kakao.maps.Polygon({
@@ -154,22 +189,35 @@ async function updatePolygons() {
 
       kakao.maps.event.addListener(polygon, 'click', async function (mouseEvent) {
         infowindow.close()
-        const nameParts = regionName.split(' ')
-        if (nameParts.length >= 2) {
-          const sido = nameParts[0]
-          const gugun = nameParts[1]
-          currentRegionQuery = `${sido}-${gugun}`
-          selectedRegionName.value = `${sido} ${gugun}`
+
+        let searchKey = regionName.replace(/ /g, '')
+        let foundData = regionLookupMap.get(searchKey)
+
+        if (!foundData) {
+          const parts = regionName.split(' ')
+          if (parts.length > 1) {
+            const truncatedRegionName = parts.slice(0, -1).join(' ')
+            searchKey = truncatedRegionName.replace(/ /g, '')
+            foundData = regionLookupMap.get(searchKey)
+          }
+        }
+
+        if (foundData) {
+          const finalFilterString = `${foundData.sido} ${foundData.sigungu}`
+          currentRegionQuery = finalFilterString
+          selectedRegionName.value = finalFilterString
 
           try {
-            const response = await fetchHotPostsByRegion(selectedRegionName.value, 3)
+            const response = await fetchHotPostsByRegion(finalFilterString, 3)
             sheetPosts.value = response.data
             isSheetOpen.value = true
           } catch (error) {
-            console.error('Failed to fetch hot posts by region:', error)
+            console.error(`Failed to fetch hot posts for region: ${finalFilterString}`, error)
+            sheetPosts.value = []
+            isSheetOpen.value = true
           }
         } else {
-          console.warn('Cannot process. Region name format is not as expected:', regionName)
+          console.warn('Could not find matching region in district.json for:', regionName)
           const fallbackInfoWindow = new kakao.maps.InfoWindow({ removable: true })
           const content = `<div style="padding:5px;text-align:center;">${regionName}<br>(상세 지역 정보 부족)</div>`
           fallbackInfoWindow.setContent(content)

@@ -9,8 +9,8 @@
       <li v-for="post in posts" :key="post.post_id" class="post-item" @click="goToDetailPage(post)">
         <span class="post-title">{{ post.title }}</span>
         <div class="post-stats">
-          <span class="stat-item like-icon">{{ post.like_count }}</span>
-          <span class="stat-item comment-icon">{{ post.comment_count }}</span>
+          <span class="stat-item like-icon">{{ post.likeCount }}</span>
+          <span class="stat-item comment-icon">{{ post.commentCount }}</span>
         </div>
       </li>
       <li v-if="posts.length === 0" class="post-item no-data">게시글이 없습니다.</li>

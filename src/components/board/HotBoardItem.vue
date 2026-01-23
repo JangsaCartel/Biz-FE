@@ -12,12 +12,12 @@
     <p class="post-content">{{ truncatedContent }}</p>
 
     <div class="post-footer">
-      <div class="post-stats">
+      <div class="post-stats" :class="{ 'gap-0': !showCommentStat }">
         <div class="stat-item">
           <i class="like-icon"></i>
           <span>{{ post.likeCount }}</span>
         </div>
-        <div class="stat-item">
+        <div class="stat-item" v-if="showCommentStat">
           <i class="comment-icon"></i>
           <span>{{ post.commentCount }}</span>
         </div>
@@ -82,6 +82,10 @@ const formattedDate = computed(() => {
   })
 })
 
+const showCommentStat = computed(() => {
+  return props.post.commentCount !== null && props.post.commentCount !== undefined
+})
+
 const goToDetailPage = () => {
   if (props.post && props.post.postId) {
     router.push(`/board/${props.post.postId}`)
@@ -90,6 +94,8 @@ const goToDetailPage = () => {
 </script>
 
 <style scoped lang="scss">
+@use '@/assets/styles/utils/_pxToRem.scss' as *;
+
 .hot-post-item {
   display: flex;
   flex-direction: column;
@@ -158,6 +164,9 @@ const goToDetailPage = () => {
   gap: rem(12px);
   font-size: rem(14px);
   color: var(--color-text-light);
+  &.gap-0 {
+    gap: 0;
+  }
 }
 
 .stat-item {

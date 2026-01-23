@@ -11,7 +11,10 @@
             <div
               class="scrolling-track"
               :class="{ 'animate-scroll': isNicknameLong }"
-              :style="{ '--scroll-amount': nicknameScrollAmount, '--scroll-duration': nicknameDuration }"
+              :style="{
+                '--scroll-amount': nicknameScrollAmount,
+                '--scroll-duration': nicknameDuration,
+              }"
             >
               <span ref="nicknameText" class="highlight">{{ profile.nickname }}</span>
               <span v-if="isNicknameLong" class="highlight clone-text">{{ profile.nickname }}</span>
@@ -20,7 +23,7 @@
           <span class="greeting-suffix">님, {{ randomGreeting }}</span>
         </div>
         <div class="store-line">
-            <div
+          <div
             class="scroll-text-wrapper store-wrapper"
             :class="{ 'has-shadow': isStoreLong }"
             ref="storeWrapper"
@@ -31,7 +34,9 @@
               :style="{ '--scroll-amount': storeScrollAmount, '--scroll-duration': storeDuration }"
             >
               <span ref="storeText" class="store-name">{{ profile.userStoreName }}</span>
-              <span v-if="isStoreLong" class="store-name clone-text">{{ profile.userStoreName }}</span>
+              <span v-if="isStoreLong" class="store-name clone-text">{{
+                profile.userStoreName
+              }}</span>
             </div>
           </div>
         </div>
@@ -49,8 +54,10 @@
       <div class="section-header">
         <div class="section-title" @click="switchTab(activeTab === 'posts' ? 'comments' : 'posts')">
           <img :src="iconPerson" alt="User Icon" class="title-icon-left" />
-          <span class="tab-item">{{ activeTab === 'posts' ? '내가 작성한 글' : '내가 작성한 댓글' }}</span>
-           <img :src="iconLeftRight" alt="Switch Icon" class="title-icon-right" />
+          <span class="tab-item">{{
+            activeTab === 'posts' ? '내가 작성한 글' : '내가 작성한 댓글'
+          }}</span>
+          <img :src="iconLeftRight" alt="Switch Icon" class="title-icon-right" />
         </div>
         <div class="action-buttons">
           <button class="action-btn" @click="handleEditClick" :disabled="isActionDisabled">
@@ -92,7 +99,11 @@
             class="comment-item-wrapper"
             :class="{ 'editing-mode': editingCommentId === comment.commentId }"
           >
-            <div v-if="editingCommentId !== comment.commentId" class="comment-display-area" @click="goToPostDetail(comment.postId)">
+            <div
+              v-if="editingCommentId !== comment.commentId"
+              class="comment-display-area"
+              @click="goToPostDetail(comment.postId)"
+            >
               <div class="checkbox-wrapper">
                 <input
                   type="checkbox"
@@ -104,7 +115,7 @@
               <HotBoardItem :post="transformCommentForHotBoardItem(comment)" />
             </div>
 
-             <div v-else class="comment-edit-wrapper">
+            <div v-else class="comment-edit-wrapper">
               <textarea
                 v-model="editingCommentContent"
                 class="comment-edit-input"
@@ -113,7 +124,9 @@
               ></textarea>
               <div class="edit-actions">
                 <button class="cancel-edit-btn" @click="cancelEditComment">취소</button>
-                <button class="save-edit-btn" @click="saveCommentEdit(comment.commentId)">수정하기</button>
+                <button class="save-edit-btn" @click="saveCommentEdit(comment.commentId)">
+                  수정하기
+                </button>
               </div>
             </div>
           </div>
@@ -121,7 +134,13 @@
         </div>
       </div>
 
-      <div class="pagination-wrapper" v-if="(activeTab === 'posts' && posts.length > 0) || (activeTab === 'comments' && comments.length > 0)">
+      <div
+        class="pagination-wrapper"
+        v-if="
+          (activeTab === 'posts' && posts.length > 0) ||
+          (activeTab === 'comments' && comments.length > 0)
+        "
+      >
         <AppPagination
           :current-page="currentPage"
           :total-items="activeTab === 'posts' ? posts.length : comments.length"
@@ -132,38 +151,66 @@
     </div>
 
     <div v-if="showProfileModal" class="modal-overlay" @click="closeProfileModal">
-        <div class="profile-modal-content" @click.stop>
+      <div class="profile-modal-content" @click.stop>
         <h3 class="modal-title">회원 정보 변경</h3>
         <div class="form-group">
           <div class="label-wrapper">
             <label>닉네임</label>
-            <span class="char-count" :class="{ 'max-limit': (editProfile.nickname?.length || 0) >= 15 }">
+            <span
+              class="char-count"
+              :class="{ 'max-limit': (editProfile.nickname?.length || 0) >= 15 }"
+            >
               {{ editProfile.nickname?.length || 0 }}/15
             </span>
           </div>
-          <input v-model="editProfile.nickname" type="text" class="modal-input" placeholder="닉네임을 입력해주세요" maxlength="15" />
+          <input
+            v-model="editProfile.nickname"
+            type="text"
+            class="modal-input"
+            placeholder="닉네임을 입력해주세요"
+            maxlength="15"
+          />
           <p v-if="nicknameError" class="error-message">{{ nicknameError }}</p>
         </div>
         <div class="form-group">
           <div class="label-wrapper">
             <label>상호명</label>
-            <span class="char-count" :class="{ 'max-limit': (editProfile.userStoreName?.length || 0) >= 32 }">
+            <span
+              class="char-count"
+              :class="{ 'max-limit': (editProfile.userStoreName?.length || 0) >= 32 }"
+            >
               {{ editProfile.userStoreName?.length || 0 }}/32
             </span>
           </div>
-          <input v-model="editProfile.userStoreName" type="text" class="modal-input" placeholder="상호명을 입력해주세요" maxlength="32" />
+          <input
+            v-model="editProfile.userStoreName"
+            type="text"
+            class="modal-input"
+            placeholder="상호명을 입력해주세요"
+            maxlength="32"
+          />
           <p v-if="storeNameError" class="error-message">{{ storeNameError }}</p>
         </div>
         <div class="form-group region-group">
-          <label>활동 지역</label>
+          <div class="label-wrapper">
+            <label>활동 지역</label>
+          </div>
           <RegionDropdowns v-model:region="editRegion" />
           <p v-if="regionError" class="error-message">{{ regionError }}</p>
         </div>
         <div class="modal-buttons">
-          <button class="modal-btn withdraw-btn" @click="showWithdrawConfirm = true">회원 탈퇴</button>
+          <button class="modal-btn withdraw-btn" @click="showWithdrawConfirm = true">
+            회원 탈퇴
+          </button>
           <div class="right-buttons">
             <button class="modal-btn cancel-btn" @click="closeProfileModal">취소</button>
-            <button class="modal-btn confirm-btn" @click="handleProfileUpdate" :disabled="isProfileUnchanged">확인</button>
+            <button
+              class="modal-btn confirm-btn"
+              @click="handleProfileUpdate"
+              :disabled="isProfileUnchanged"
+            >
+              확인
+            </button>
           </div>
         </div>
       </div>
@@ -179,7 +226,11 @@
       @primary="handleWithdraw"
       @secondary="showWithdrawConfirm = false"
     />
-    <ModalDialog :message="'회원 탈퇴가 정상적으로 진행되었습니다.'" :is-visible="showWithdrawSuccess" @close="handleWithdrawSuccessClose" />
+    <ModalDialog
+      :message="'회원 탈퇴가 정상적으로 진행되었습니다.'"
+      :is-visible="showWithdrawSuccess"
+      @close="handleWithdrawSuccessClose"
+    />
     <ModalDialog
       :message="`선택한 ${deleteCount}개의 ${deleteType === 'posts' ? '게시글' : '댓글'}을 삭제하시겠습니까?`"
       :is-visible="showDeleteConfirm"
@@ -264,7 +315,7 @@ const greetings = [
   '내일은 더 빛날 거예요!',
   '항상 응원합니다!',
   '긍정의 힘을 믿으세요!',
-  '건강 챙기며 일하세요!'
+  '건강 챙기며 일하세요!',
 ]
 
 const nicknameError = ref('')
@@ -289,14 +340,12 @@ const isProfileUnchanged = computed(() => {
 
   if (sido) {
     if (sido === '세종특별자치시') {
-      // 세종시는 구군이 있으면 넣고, 없으면 시+동
       newRegionString = gugun ? `${sido} ${gugun} ${dong}` : `${sido} ${dong}`
     } else {
       newRegionString = `${sido} ${gugun} ${dong}`
     }
   }
 
-  // 공백 제거 후 비교 (undefined 방지)
   const currentRegion = (profile.value.region || '').trim()
   const nextRegion = newRegionString.trim()
 
@@ -477,7 +526,9 @@ const confirmDelete = async () => {
     showDeleteConfirm.value = false
   } catch (error) {
     console.error('삭제 실패:', error)
-    showModal(deleteType.value === 'posts' ? '게시글 삭제에 실패했습니다.' : '댓글 삭제에 실패했습니다.')
+    showModal(
+      deleteType.value === 'posts' ? '게시글 삭제에 실패했습니다.' : '댓글 삭제에 실패했습니다.',
+    )
     showDeleteConfirm.value = false
   }
 }
@@ -508,24 +559,18 @@ const handleProfileUpdate = async () => {
     isValid = false
   }
 
-  // --- 지역 유효성 검사 로직 변경 ---
   const { sido, gugun, dong } = editRegion.value
-  const hasAnySelection = sido || gugun || dong // 하나라도 선택했는지 확인
+  const hasAnySelection = sido || gugun || dong
 
   let isRegionValid = false
   if (sido === '세종특별자치시') {
-    // 세종: 시/도, 동 필수 (구/군 선택)
     isRegionValid = !!(sido && dong)
   } else {
-    // 그 외: 시/도, 구/군, 동 모두 필수
     isRegionValid = !!(sido && gugun && dong)
   }
 
-  // 사용자가 지역을 건드리지 않았거나(모두 빈값 - 기존 데이터 유지 의도라면 로직에 따라 다름,
-  // 보통 수정 모달은 기존 값이 채워져 있으므로 hasAnySelection은 true임)
-  // 값을 변경하려는데 불완전하게 입력한 경우 에러 처리
   if (hasAnySelection && !isRegionValid) {
-    regionError.value = '활동 지역을 모두 선택해주세요.' // 세종시는 '읍/면/동'까지
+    regionError.value = '활동 지역을 모두 선택해주세요.'
     isValid = false
   }
 
@@ -544,7 +589,6 @@ const handleProfileUpdate = async () => {
     }
 
     if (isRegionValid) {
-      // 세종시 로직에 맞춰 문자열 생성
       let regionString = ''
       if (sido === '세종특별자치시' && !gugun) {
         regionString = `${sido} ${dong}`
@@ -602,24 +646,26 @@ const closeProfileModal = () => {
   storeNameError.value = ''
   regionError.value = ''
 
-  editProfile.value = { nickname: profile.value.nickname, userStoreName: profile.value.userStoreName }
+  editProfile.value = {
+    nickname: profile.value.nickname,
+    userStoreName: profile.value.userStoreName,
+  }
 
-  // --- 지역 파싱 로직 수정 (초기화) ---
   const regionString = profile.value.region || ''
   const regionParts = regionString.split(' ')
 
   if (regionParts[0] === '세종특별자치시' && regionParts.length === 2) {
-      editRegion.value = {
-          sido: regionParts[0],
-          gugun: '',
-          dong: regionParts[1]
-      }
+    editRegion.value = {
+      sido: regionParts[0],
+      gugun: '',
+      dong: regionParts[1],
+    }
   } else {
-      editRegion.value = {
-          sido: regionParts[0] || '',
-          gugun: regionParts[1] || '',
-          dong: regionParts[2] || ''
-      }
+    editRegion.value = {
+      sido: regionParts[0] || '',
+      gugun: regionParts[1] || '',
+      dong: regionParts[2] || '',
+    }
   }
 }
 
@@ -702,28 +748,27 @@ const fetchProfile = async () => {
   try {
     const response = await getMyPageProfile()
     profile.value = response.data
-    editProfile.value = { nickname: response.data.nickname, userStoreName: response.data.userStoreName }
+    editProfile.value = {
+      nickname: response.data.nickname,
+      userStoreName: response.data.userStoreName,
+    }
 
-    // --- 지역 파싱 로직 수정 ---
     const regionString = response.data.region || ''
     const regionParts = regionString.split(' ')
 
     if (regionParts[0] === '세종특별자치시' && regionParts.length === 2) {
-        // "세종특별자치시 아름동" -> sido: 세종, gugun: '', dong: 아름동
-        editRegion.value = {
-            sido: regionParts[0],
-            gugun: '',
-            dong: regionParts[1]
-        }
+      editRegion.value = {
+        sido: regionParts[0],
+        gugun: '',
+        dong: regionParts[1],
+      }
     } else {
-        // 일반적인 경우 (3어절) 혹은 데이터가 없는 경우
-        editRegion.value = {
-            sido: regionParts[0] || '',
-            gugun: regionParts[1] || '',
-            dong: regionParts[2] || ''
-        }
+      editRegion.value = {
+        sido: regionParts[0] || '',
+        gugun: regionParts[1] || '',
+        dong: regionParts[2] || '',
+      }
     }
-    // -------------------------
 
     await nextTick()
     checkOverflow()
@@ -829,7 +874,8 @@ onMounted(async () => {
   display: block;
 
   &.has-shadow {
-    &::before, &::after {
+    &::before,
+    &::after {
       content: '';
       position: absolute;
       top: 0;
@@ -1003,14 +1049,12 @@ onMounted(async () => {
 .tab-item {
   margin-left: rem(8px);
   margin-right: rem(4px);
+  width: rem(140px);
+  text-align: center;
 }
 
 .section-icon {
   font-size: rem(20px);
-}
-
-.tab-item {
-  margin-left: rem(16px);
 }
 
 .action-buttons {
@@ -1103,18 +1147,17 @@ onMounted(async () => {
 }
 
 .comments-list :deep(.hot-board-item .post-stats) {
-    gap: 0;
-    /* 만약 post-stats 내부 요소의 마진이 문제라면 아래와 같이 추가 조정 가능 */
-    margin-right: 0;
+  gap: 0;
+  margin-right: 0;
 }
 
-.comments-list :deep([class*="comment-count"]),
-.comments-list :deep([class*="comment-icon"]) {
+.comments-list :deep([class*='comment-count']),
+.comments-list :deep([class*='comment-icon']) {
   display: none !important;
 }
 .comments-list :deep(.hot-board-item .info-area > *:last-child),
 .comments-list :deep(.hot-board-item .board-footer .right > *:last-child) {
-    display: none;
+  display: none;
 }
 
 .comment-edit-wrapper {
@@ -1270,7 +1313,7 @@ onMounted(async () => {
   label {
     margin-bottom: 0;
     font-size: rem(14px);
-    font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-bold);
     color: var(--color-text-strong);
   }
 }

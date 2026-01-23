@@ -824,7 +824,9 @@ onMounted(async () => {
   width: 100%;
   max-width: rem(430px);
   margin: 0 auto;
-  height: 100vh;
+
+  height: calc(100vh - 56px);
+
   overflow: hidden;
   padding: rem(20px) rem(16px);
   background-color: var(--bg-default);

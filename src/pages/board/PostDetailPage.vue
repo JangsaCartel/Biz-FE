@@ -150,6 +150,24 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
+}
+
+.loading-state,
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-default);
+  z-index: 10;
+  font-size: rem(16px);
+  color: var(--color-text-subtle);
+  text-align: center;
 }
 
 .scrollable-main-content {

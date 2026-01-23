@@ -133,7 +133,7 @@ const isActive = computed(() => (menu) => {
 .icon-image {
   width: rem(28px);
   height: rem(28px);
-  margin-top: rem(8px);
+  margin-top: rem(4px);
   transition: transform 0.2s ease-in-out;
 }
 

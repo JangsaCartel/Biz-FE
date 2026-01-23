@@ -88,6 +88,7 @@ const goToDetailPage = (post) => {
   max-width: rem(400px);
   margin: rem(10px) auto;
   font-family: var(--font-family);
+  min-height: rem(165px);
 }
 
 /* 헤더 영역 */
@@ -130,7 +131,6 @@ const goToDetailPage = (post) => {
   margin: 0;
   list-style: none;
   box-shadow: 0 rem(2px) rem(8px) rgba(0, 0, 0, 0.03);
-  min-height: rem(131px);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;

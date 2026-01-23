@@ -226,13 +226,18 @@ const selectEupmyeondong = (eupmyeondong) => {
   }
 
   &:disabled {
+
     background-color: #f2f2f2;
-    cursor: not-allowed;
+
+    cursor: default;
+
     .FilterField-trigger-text {
+
       color: #999;
+
     }
-  }
-}
+
+  }}
 
 .FilterField-trigger-text {
   font-size: rem(13px);

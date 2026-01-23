@@ -1,7 +1,7 @@
 <template>
   <div class="post-detail-page">
     <header v-if="post" class="board-header">
-      <button @click="goToBoardList" class="back-button">
+      <button @click="handleBackClick" class="back-button">
         <img src="@/assets/icons/common/next.png" alt="뒤로가기" class="icon-img" />
       </button>
       <h1 class="board-title" :style="{ color: boardColor }">{{ boardName }}</h1>
@@ -109,7 +109,11 @@ const boardColor = computed(() => {
   return 'var(--color-text-strong)'
 })
 
-const goToBoardList = () => {
+const handleBackClick = () => {
+  if (route.query.from === 'notifications') {
+    router.push({ name: 'notifications' })
+    return
+  }
   if (post.value && post.value.categoryId) {
     const category = categoryMap[post.value.categoryId]
     if (category && category.routeName) {
@@ -150,6 +154,24 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
+}
+
+.loading-state,
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-default);
+  z-index: 10;
+  font-size: rem(16px);
+  color: var(--color-text-subtle);
+  text-align: center;
 }
 
 .scrollable-main-content {

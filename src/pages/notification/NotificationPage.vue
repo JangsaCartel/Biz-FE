@@ -49,7 +49,7 @@ const openNotification = async (n) => {
 
   if (!n.postId) return
 
-  const query = {}
+  const query = { from: 'notifications' }
   if (n.commentId) query.commentId = String(n.commentId)
 
   try {

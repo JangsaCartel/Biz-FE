@@ -61,11 +61,11 @@
         </div>
         <div class="action-buttons">
           <button class="action-btn" @click="handleEditClick" :disabled="isActionDisabled">
-            <span class="action-icon">✏️</span>
+            <img :src="iconPen" alt="Edit" class="action-icon" />
             <span>수정</span>
           </button>
           <button class="action-btn" @click="handleDeleteSelected" :disabled="isActionDisabled">
-            <span class="action-icon">🗑️</span>
+            <img :src="iconDelete" alt="Delete" class="action-icon" />
             <span>삭제</span>
           </button>
         </div>
@@ -87,7 +87,7 @@
                 @click.stop
               />
             </div>
-            <HotBoardItem :post="transformPostForHotBoardItem(post)" />
+            <MyPageBoardItem :post="transformPostForHotBoardItem(post)" />
           </div>
           <div v-if="posts.length === 0" class="no-posts">작성한 게시글이 없습니다.</div>
         </div>
@@ -112,7 +112,7 @@
                   @click.stop
                 />
               </div>
-              <HotBoardItem :post="transformCommentForHotBoardItem(comment)" />
+              <MyPageBoardItem :post="transformCommentForHotBoardItem(comment)" />
             </div>
 
             <div v-else class="comment-edit-wrapper">
@@ -261,11 +261,13 @@ import {
   withdrawUser,
 } from '@/api/userApi'
 import AppPagination from '@/components/common/AppPagination.vue'
-import HotBoardItem from '@/components/board/HotBoardItem.vue'
+import MyPageBoardItem from '@/components/board/MyPageBoardItem.vue'
 import ModalDialog from '@/components/common/ModalDialog.vue'
 import RegionDropdowns from '@/components/common/RegionDropdowns.vue'
 import iconPerson from '@/assets/icons/user/person.png'
 import iconLeftRight from '@/assets/icons/user/left-right.png'
+import iconPen from '@/assets/icons/user/pen.png'
+import iconDelete from '@/assets/icons/user/delete.png'
 
 const router = useRouter()
 const profile = ref({ userId: null, nickname: '', userStoreName: '', region: '' })
@@ -411,6 +413,7 @@ const transformPostForHotBoardItem = (post) => {
     title: truncateText(post.title, 25),
     content: truncateText(post.content || '', 50),
     createdAt: post.createdAt,
+    modifiedAt: post.modifiedAt,
     categoryId: getCategoryId(post),
     categoryName: post.categoryName,
     likeCount: post.likeCount || 0,
@@ -424,6 +427,7 @@ const transformCommentForHotBoardItem = (comment) => {
     title: truncateText(comment.postTitle || '게시글 제목 없음', 25),
     content: truncateText(comment.content || '', 50),
     createdAt: comment.createdAt,
+    modifiedAt: comment.modifiedAt,
     categoryId: getCategoryId(comment),
     categoryName: comment.categoryName,
     likeCount: comment.likeCount || 0,
@@ -1090,7 +1094,10 @@ onMounted(async () => {
 }
 
 .action-icon {
-  font-size: rem(12px);
+  width: rem(12px);
+  height: rem(12px);
+  object-fit: contain;
+  display: block;
 }
 
 .list-container {
@@ -1146,18 +1153,9 @@ onMounted(async () => {
   margin-top: rem(8px);
 }
 
-.comments-list :deep(.hot-board-item .post-stats) {
-  gap: 0;
-  margin-right: 0;
-}
-
 .comments-list :deep([class*='comment-count']),
 .comments-list :deep([class*='comment-icon']) {
   display: none !important;
-}
-.comments-list :deep(.hot-board-item .info-area > *:last-child),
-.comments-list :deep(.hot-board-item .board-footer .right > *:last-child) {
-  display: none;
 }
 
 .comment-edit-wrapper {
@@ -1296,7 +1294,7 @@ onMounted(async () => {
 .modal-title {
   font-size: rem(20px);
   font-weight: var(--font-weight-bold);
-  margin: 0 0 rem(20px) 0;
+  margin: 0 0 rem(24px) 0;
   color: var(--color-text-strong);
 }
 

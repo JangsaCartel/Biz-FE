@@ -415,9 +415,9 @@ onMounted(async () => {
   <div class="ChatPage">
     <header class="Header">
       <button type="button" class="HeaderBtn" @click="goBack">←</button>
-      <h1 class="HeaderTitle">AI 챗봇</h1>
+      <h1 class="HeaderTitle">AI Chat</h1>
       <button type="button" class="HeaderBtn" :disabled="isStreaming" @click="resetToRoot">
-        기본메뉴
+        Menu
       </button>
     </header>
 
@@ -520,7 +520,7 @@ onMounted(async () => {
   align-items: center;
   height: rem(56px);
   padding: 0 rem(10px);
-  background: #ffcc3c80;
+  background: #ffcc3c50;
   box-sizing: border-box;
 }
 
@@ -530,7 +530,7 @@ onMounted(async () => {
   line-height: rem(56px);
   text-align: center;
   font-weight: var(--font-weight-extra-bold);
-  font-size: rem(16px);
+  font-size: rem(26px);
   align-self: center;
 }
 
@@ -540,7 +540,7 @@ onMounted(async () => {
   border: 0;
   background: transparent;
   font-weight: var(--font-weight-extra-bold);
-  font-size: rem(16px);
+  font-size: rem(18px);
   line-height: 1;
   display: grid;
   place-items: center;
@@ -558,7 +558,7 @@ onMounted(async () => {
   flex: 1;
   overflow-y: auto;
   padding: rem(14px) rem(12px) rem(18px);
-  background: #ffcc3c80;
+  background: #ffcc3c50;
 }
 
 .Row {
@@ -665,7 +665,7 @@ onMounted(async () => {
   grid-template-columns: 1fr auto auto;
   gap: rem(8px);
   padding: rem(10px) rem(12px);
-  background: #ffcc3c80;
+  background: #ffcc3c50;
 }
 
 .Input {

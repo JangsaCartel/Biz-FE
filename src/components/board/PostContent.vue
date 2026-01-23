@@ -5,7 +5,14 @@
       <span class="date">{{ formattedDate }}</span>
     </div>
 
-    <h2 class="post-title">{{ post.title }}</h2>
+    <h2 class="post-title">
+      {{ post.title
+      }}<span
+        v-if="post.modifiedAt"
+        style="color: grey; font-size: 0.8em; font-weight: normal; margin-left: 5px"
+        >(수정됨)</span
+      >
+    </h2>
 
     <div class="post-body" v-html="post.content"></div>
 

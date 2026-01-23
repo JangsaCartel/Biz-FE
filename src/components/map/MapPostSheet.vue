@@ -129,6 +129,7 @@ defineEmits(['close', 'navigate', 'select-post'])
   flex-grow: 1;
   margin-right: 10px;
   overflow: hidden;
+  cursor: pointer;
 
   &:hover {
     text-decoration: underline;

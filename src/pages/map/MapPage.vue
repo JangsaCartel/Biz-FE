@@ -12,12 +12,13 @@
 
 <script setup>
 /* eslint-disable no-unused-vars */
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { getKakaoMapApiKey, getBoundaries, fetchUserRegionForMap } from '@/api/mapApi'
 import MapPostSheet from '@/components/map/MapPostSheet.vue'
 import { fetchHotPostsByRegion } from '@/api/boardApi'
 import { useBoardStore } from '@/stores/board/board.js'
+import districtData from '@/assets/data/district.json'
 
 const router = useRouter()
 const boardStore = useBoardStore()
@@ -31,7 +32,55 @@ const sheetPosts = ref([])
 const selectedRegionName = ref('')
 let currentRegionQuery = ''
 
+const regionLookupMap = new Map()
+
 onMounted(async () => {
+  // GeoJSON의 지역이름을 district.json 기준으로 변환하기 위한 조회 지도 생성
+  districtData.forEach((entry) => {
+    const { sido, sigungu, eupmyeondong } = entry
+    if (!sido) return
+
+    const value = { sido, sigungu: sigungu || '' }
+
+    const sigunguNoSpace = sigungu ? sigungu.replace(/ /g, '') : ''
+    const eupmyeondongNoSpace = eupmyeondong ? eupmyeondong.replace(/ /g, '') : ''
+
+    if (eupmyeondongNoSpace && sigunguNoSpace) {
+      const key1 = (sido + sigunguNoSpace + eupmyeondongNoSpace).replace(/ /g, '')
+      if (!regionLookupMap.has(key1)) {
+        regionLookupMap.set(key1, value)
+      }
+    }
+
+    if (sigunguNoSpace && eupmyeondongNoSpace) {
+      const key2 = (sigunguNoSpace + eupmyeondongNoSpace).replace(/ /g, '')
+      if (!regionLookupMap.has(key2)) {
+        regionLookupMap.set(key2, value)
+      }
+    }
+
+    if (sigunguNoSpace) {
+      const key3 = (sido + sigunguNoSpace).replace(/ /g, '')
+      if (!regionLookupMap.has(key3)) {
+        regionLookupMap.set(key3, value)
+      }
+    }
+
+    if (sigunguNoSpace) {
+      const key4 = sigunguNoSpace
+      if (!regionLookupMap.has(key4)) {
+        regionLookupMap.set(key4, value)
+      }
+    }
+
+    if (sido === '세종특별자치시' && eupmyeondongNoSpace && !sigunguNoSpace) {
+      const sejongKey = ('세종특별자치시' + '세종시' + eupmyeondongNoSpace).replace(/ /g, '')
+      if (!regionLookupMap.has(sejongKey)) {
+        regionLookupMap.set(sejongKey, value)
+      }
+    }
+  })
+
   try {
     const response = await getKakaoMapApiKey()
     const apiKey = response.kakaoMapApiKey
@@ -65,8 +114,13 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error('Failed to load Kakao Map API key or user region:', error)
-    // API 키 로딩 실패 시에도 기본 위치로 지도 초기화
     initMap(37.566826, 126.9786567)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (map) {
+    map = null
   }
 })
 
@@ -123,9 +177,7 @@ async function updatePolygons() {
 
       const geometryType = feature.geometry.type
       const coordinates = feature.geometry.coordinates
-
       const polygonCoords = geometryType === 'Polygon' ? coordinates[0] : coordinates[0][0]
-
       const path = polygonCoords.map((coord) => new kakao.maps.LatLng(coord[1], coord[0]))
 
       const polygon = new kakao.maps.Polygon({
@@ -154,22 +206,38 @@ async function updatePolygons() {
 
       kakao.maps.event.addListener(polygon, 'click', async function (mouseEvent) {
         infowindow.close()
-        const nameParts = regionName.split(' ')
-        if (nameParts.length >= 2) {
-          const sido = nameParts[0]
-          const gugun = nameParts[1]
-          currentRegionQuery = `${sido}-${gugun}`
-          selectedRegionName.value = `${sido} ${gugun}`
+
+        // 전체 이름으로 조회 후, 실패 시 '동'을 제외한 상위 지역으로 재조회
+        let searchKey = regionName.replace(/ /g, '')
+        let foundData = regionLookupMap.get(searchKey)
+
+        if (!foundData) {
+          const parts = regionName.split(' ')
+          if (parts.length > 1) {
+            const truncatedRegionName = parts.slice(0, -1).join(' ')
+            searchKey = truncatedRegionName.replace(/ /g, '')
+            foundData = regionLookupMap.get(searchKey)
+          }
+        }
+
+        if (foundData) {
+          const finalFilterString = [foundData.sido, foundData.sigungu].filter(Boolean).join(' ')
+          currentRegionQuery = finalFilterString
+          selectedRegionName.value = finalFilterString
 
           try {
-            const response = await fetchHotPostsByRegion(selectedRegionName.value, 3)
+            const response = await fetchHotPostsByRegion(finalFilterString, 3)
             sheetPosts.value = response.data
             isSheetOpen.value = true
           } catch (error) {
-            console.error('Failed to fetch hot posts by region:', error)
+            console.error(
+              `Failed to fetch hot posts for region: "${finalFilterString}". Error:`,
+              error,
+            )
+            sheetPosts.value = []
+            isSheetOpen.value = true
           }
         } else {
-          console.warn('Cannot process. Region name format is not as expected:', regionName)
           const fallbackInfoWindow = new kakao.maps.InfoWindow({ removable: true })
           const content = `<div style="padding:5px;text-align:center;">${regionName}<br>(상세 지역 정보 부족)</div>`
           fallbackInfoWindow.setContent(content)

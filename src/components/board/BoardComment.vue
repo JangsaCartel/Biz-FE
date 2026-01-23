@@ -29,11 +29,7 @@
       </div>
     </div>
   </div>
-  <ModalDialog
-    :is-visible="showModal"
-    :message="modalMessage"
-    @close="closeModal"
-  />
+  <ModalDialog :is-visible="showModal" :message="modalMessage" @close="closeModal" />
 </template>
 
 <script setup>
@@ -90,7 +86,7 @@ const closeModal = () => {
 
 const handleLikeClick = async () => {
   if (isMyComment.value) {
-    modalMessage.value = '자신의 댓글에는 좋아요를 누를 수 없습니다.'
+    modalMessage.value = '자신의 댓글에는 \n 좋아요를 누를 수 없습니다.'
     showModal.value = true
     return
   }

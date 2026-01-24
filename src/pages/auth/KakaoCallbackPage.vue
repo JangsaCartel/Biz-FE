@@ -103,7 +103,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: rem(300px);
+  min-height: 100vh;
 }
 
 .callback-text {

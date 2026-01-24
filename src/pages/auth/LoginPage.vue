@@ -103,7 +103,7 @@ onMounted(() => {
 
 .login-card.fixed-top {
   position: fixed;
-  top: rem(120px);
+  top: rem(200px);
   left: 0;
   width: 100%;
   display: flex;
@@ -130,7 +130,7 @@ onMounted(() => {
 
 .button-stack.fixed-bottom {
   position: fixed;
-  bottom: rem(48px);
+  bottom: rem(238px);
   left: 0;
   width: 100%;
 

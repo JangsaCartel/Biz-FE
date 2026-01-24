@@ -179,12 +179,11 @@ function searchPlaces() {
     if (status === kakao.maps.services.Status.OK) {
       places.value = data
 
-      // 첫 번째 검색 결과로 지도를 이동하고 줌인합니다.
       const firstPlace = data[0]
       if (firstPlace) {
         const moveLatLon = new kakao.maps.LatLng(firstPlace.y, firstPlace.x)
         map.panTo(moveLatLon)
-        map.setLevel(3) // 적절한 줌 레벨 (숫자가 작을수록 확대)
+        map.setLevel(3)
       }
     } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
       alert('검색 결과가 존재하지 않습니다.')
@@ -198,7 +197,7 @@ function searchPlaces() {
 function panTo(lat, lng) {
   const moveLatLon = new kakao.maps.LatLng(lat, lng)
   map.panTo(moveLatLon)
-  map.setLevel(3); // 검색 결과 클릭 시 줌인
+  map.setLevel(3)
   places.value = []
 
   setTimeout(() => {

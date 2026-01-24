@@ -179,11 +179,13 @@ function searchPlaces() {
     if (status === kakao.maps.services.Status.OK) {
       places.value = data
 
-      const bounds = new kakao.maps.LatLngBounds()
-      for (let i = 0; i < data.length; i++) {
-        bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x))
+      // 첫 번째 검색 결과로 지도를 이동하고 줌인합니다.
+      const firstPlace = data[0]
+      if (firstPlace) {
+        const moveLatLon = new kakao.maps.LatLng(firstPlace.y, firstPlace.x)
+        map.panTo(moveLatLon)
+        map.setLevel(3) // 적절한 줌 레벨 (숫자가 작을수록 확대)
       }
-      map.setBounds(bounds)
     } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
       alert('검색 결과가 존재하지 않습니다.')
       places.value = []

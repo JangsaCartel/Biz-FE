@@ -134,7 +134,7 @@ const validateStepOne = () => {
 const validateStepTwo = () => {
   stepTwoErrors.value.nickname = nickname.value ? '' : '닉네임을 입력해주세요.'
 
-  // 지역 유효성 검사 로직 변경
+  // 지역 유효성 검사 로직
   const { sido, gugun, dong } = regionData.value
   const isSejong = sido === '세종특별자치시'
 
@@ -456,9 +456,11 @@ const onSubmit = async () => {
 
 .signup-page {
   width: 100%;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: rem(20px);
 }
 
 .step-card {
@@ -775,28 +777,5 @@ const onSubmit = async () => {
 
 .term-item {
   margin-bottom: rem(20px);
-}
-
-.terms-body :deep(h3) {
-  font-size: rem(15px);
-  font-weight: bold;
-  margin-top: rem(16px);
-  margin-bottom: rem(8px);
-  color: #222;
-}
-
-.terms-body :deep(ol),
-.terms-body :deep(ul) {
-  padding-left: rem(20px);
-  margin-bottom: rem(12px);
-}
-
-.terms-body :deep(li) {
-  margin-bottom: rem(4px);
-}
-
-.terms-body :deep(strong) {
-  font-weight: 700;
-  color: #111;
 }
 </style>

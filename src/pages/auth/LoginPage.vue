@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import BizIcon from '@/assets/icons/logo/logo-app-icon.png'
+import MainBg from '@/assets/images/backgrounds/main-bg.jpg'
 import { getAccessToken, savePostLoginRedirect } from '@/stores/tokenStorage'
 import ModalDialog from '@/components/common/ModalDialog.vue'
 
@@ -10,8 +11,7 @@ const route = useRoute()
 
 const kakaoClientId = import.meta.env.VITE_KAKAO_REST_API_KEY
 const kakaoRedirectUri =
-  import.meta.env.VITE_KAKAO_REDIRECT_URI ||
-  `${window.location.origin}/auth/kakao/callback`
+  import.meta.env.VITE_KAKAO_REDIRECT_URI || `${window.location.origin}/auth/kakao/callback`
 
 const kakaoAuthUrl = computed(() => {
   const base = 'https://kauth.kakao.com/oauth/authorize'
@@ -63,20 +63,18 @@ onMounted(() => {
 
 <template>
   <section class="login-hero">
-    <div class="login-card">
+    <div class="login-bg" :style="{ backgroundImage: `url(${MainBg})` }"></div>
+
+    <div class="login-card fixed-top">
       <img :src="BizIcon" alt="Biz 로고" class="hero-logo" />
       <p class="hero-title">장사 뭐하니?</p>
-
-      <div class="button-stack">
-        <button class="login-button kakao" @click="handleLoginRedirect('kakao')">Kakao 로그인</button>
-      </div>
-
-      <ModalDialog
-        :message="modalMessage"
-        :is-visible="isModalVisible"
-        @close="closeModal"
-      />
     </div>
+
+    <div class="button-stack fixed-bottom">
+      <button class="login-button kakao" @click="handleLoginRedirect('kakao')">Kakao 로그인</button>
+    </div>
+
+    <ModalDialog :message="modalMessage" :is-visible="isModalVisible" @close="closeModal" />
   </section>
 </template>
 
@@ -84,23 +82,38 @@ onMounted(() => {
 @use '@/assets/styles/utils/_pxToRem.scss' as *;
 
 .login-hero {
-  width: 100%;
-  max-width: rem(430px);
-  background: linear-gradient(180deg, #ffe789 0%, #fcd266 100%);
-  border-radius: rem(32px);
-  padding: rem(48px) rem(24px) rem(64px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  margin: rem(-24px);
+  width: calc(100% + #{rem(48px)});
+  min-height: calc(100vh + #{rem(48px)});
+  background-color: transparent;
+  position: relative;
 }
 
-.login-card {
+.login-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+  filter: blur(5px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.login-card.fixed-top {
+  position: fixed;
+  top: rem(120px);
+  left: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: rem(24px);
+  z-index: 10;
+  pointer-events: none;
 }
 
 .hero-logo {
@@ -108,6 +121,7 @@ onMounted(() => {
   height: rem(138px);
   border-radius: rem(30px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
 }
 
 .hero-title {
@@ -116,16 +130,26 @@ onMounted(() => {
   color: #000;
 }
 
-.button-stack {
-  margin-top: rem(12px);
+.button-stack.fixed-bottom {
+  position: fixed;
+  bottom: rem(48px);
+  left: 0;
   width: 100%;
+
   display: flex;
   flex-direction: column;
+  align-items: center;
+
+  padding: 0 rem(24px);
+  box-sizing: border-box;
   gap: rem(12px);
+  z-index: 10;
 }
 
 .login-button {
   width: 100%;
+  max-width: rem(360px);
+
   padding: rem(14px);
   border: none;
   border-radius: rem(30px);
@@ -137,8 +161,7 @@ onMounted(() => {
 }
 
 .login-button.kakao {
-  background-color: #ffe812;
+  background-color: #fee500;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 </style>
-
-

@@ -1,5 +1,5 @@
 <template>
-  <div class="hot-post-item" @click="goToDetailPage">
+  <div class="mypage-post-item" @click="goToDetailPage">
     <div class="post-header">
       <span class="board-name" :style="{ color: boardColor }">
         {{ boardName }}
@@ -12,6 +12,8 @@
     <p class="post-content">{{ truncatedContent }}</p>
 
     <div class="post-footer">
+      <span v-if="post.modifiedAt" class="modified-text">(수정됨)</span>
+
       <div class="post-stats" :class="{ 'gap-0': !showCommentStat }">
         <div class="stat-item">
           <i class="like-icon"></i>
@@ -64,17 +66,28 @@ const boardColor = computed(() => {
 
 const truncatedContent = computed(() => {
   if (!props.post.content) return ''
-  const strippedContent = props.post.content.replace(/<[^>]*>?/gm, '') // HTML 태그 제거
-  const maxLength = 15 // 최대 글자 수
+  const strippedContent = props.post.content.replace(/<[^>]*>?/gm, '')
+  const maxLength = 15
   if (strippedContent.length > maxLength) {
     return strippedContent.slice(0, maxLength) + '...'
   }
   return strippedContent
 })
 
+// 날짜 파싱 (배열/문자열 모두 처리)
 const formattedDate = computed(() => {
-  if (!props.post.createdAt) return ''
-  const date = new Date(props.post.createdAt)
+  const dateVal = props.post.createdAt
+  if (!dateVal) return ''
+
+  let date
+  if (Array.isArray(dateVal)) {
+    date = new Date(dateVal[0], dateVal[1] - 1, dateVal[2], dateVal[3] || 0, dateVal[4] || 0)
+  } else {
+    date = new Date(dateVal)
+  }
+
+  if (isNaN(date.getTime())) return ''
+
   return date.toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: '2-digit',
@@ -96,7 +109,7 @@ const goToDetailPage = () => {
 <style scoped lang="scss">
 @use '@/assets/styles/utils/_pxToRem.scss' as *;
 
-.hot-post-item {
+.mypage-post-item {
   display: flex;
   flex-direction: column;
   padding: rem(16px) rem(20px);
@@ -139,7 +152,6 @@ const goToDetailPage = () => {
   color: var(--color-text-strong);
   margin: 0;
   line-height: 1.3;
-
   flex: 1;
   padding-right: rem(15px);
 }
@@ -155,8 +167,15 @@ const goToDetailPage = () => {
 
 .post-footer {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
+  justify-content: space-between;
+  min-height: rem(20px);
+}
+
+.modified-text {
+  color: #999;
+  font-size: rem(12px);
+  font-weight: 400;
 }
 
 .post-stats {
@@ -164,6 +183,8 @@ const goToDetailPage = () => {
   gap: rem(12px);
   font-size: rem(14px);
   color: var(--color-text-light);
+  margin-left: auto;
+
   &.gap-0 {
     gap: 0;
   }

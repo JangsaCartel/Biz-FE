@@ -1,5 +1,23 @@
 <template>
-  <div id="map"></div>
+  <div class="map-container">
+    <div id="map"></div>
+    <div id="search-bar" class="search-bar">
+      <input
+        type="text"
+        v-model="keyword"
+        placeholder="장소, 주소 검색"
+        @keydown.enter="searchPlaces"
+      />
+      <button @click="searchPlaces">검색</button>
+    </div>
+    <ul id="search-results" class="search-results" v-if="places.length > 0">
+      <li v-for="place in places" :key="place.id" @click="panTo(place.y, place.x)">
+        <strong>{{ place.place_name }}</strong>
+        <p v-if="place.road_address_name">{{ place.road_address_name }}</p>
+        <p v-else>{{ place.address_name }}</p>
+      </li>
+    </ul>
+  </div>
   <MapPostSheet
     :is-open="isSheetOpen"
     :region-name="selectedRegionName"
@@ -33,6 +51,10 @@ const selectedRegionName = ref('')
 let currentRegionQuery = ''
 
 const regionLookupMap = new Map()
+
+const keyword = ref('')
+const places = ref([])
+let placesService = null
 
 onMounted(async () => {
   // GeoJSON의 지역이름을 district.json 기준으로 변환하기 위한 조회 지도 생성
@@ -131,6 +153,7 @@ function initMap(lat, lng) {
     level: 6,
   }
   map = new kakao.maps.Map(mapContainer, mapOption)
+  placesService = new kakao.maps.services.Places()
 
   infowindow = new kakao.maps.InfoWindow({
     removable: false,
@@ -142,6 +165,43 @@ function initMap(lat, lng) {
   kakao.maps.event.addListener(map, 'dragend', updatePolygons)
   kakao.maps.event.addListener(map, 'zoom_changed', updatePolygons)
 }
+// 검색바 (kakao)
+function searchPlaces() {
+  if (!keyword.value.trim()) {
+    alert('키워드를 입력해주세요!')
+    return
+  }
+
+  polygons.value.forEach((p) => p.setMap(null))
+  isSheetOpen.value = false
+
+  placesService.keywordSearch(keyword.value, (data, status) => {
+    if (status === kakao.maps.services.Status.OK) {
+      places.value = data
+
+      const bounds = new kakao.maps.LatLngBounds()
+      for (let i = 0; i < data.length; i++) {
+        bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x))
+      }
+      map.setBounds(bounds)
+    } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+      alert('검색 결과가 존재하지 않습니다.')
+      places.value = []
+    } else {
+      alert('검색 중 오류가 발생했습니다.')
+    }
+  })
+}
+
+function panTo(lat, lng) {
+  const moveLatLon = new kakao.maps.LatLng(lat, lng)
+  map.panTo(moveLatLon)
+  places.value = []
+
+  setTimeout(() => {
+    updatePolygons()
+  }, 100)
+}
 
 async function updatePolygons() {
   if (infowindow) {
@@ -150,6 +210,10 @@ async function updatePolygons() {
 
   if (!map) {
     console.error('Map object is null!')
+    return
+  }
+
+  if (places.value.length > 0) {
     return
   }
 
@@ -206,6 +270,7 @@ async function updatePolygons() {
 
       kakao.maps.event.addListener(polygon, 'click', async function (mouseEvent) {
         infowindow.close()
+        places.value = []
 
         // 전체 이름으로 조회 후, 실패 시 '동'을 제외한 상위 지역으로 재조회
         let searchKey = regionName.replace(/ /g, '')
@@ -268,9 +333,83 @@ const handlePostSelect = (postId) => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@use '@/assets/styles/utils/_pxToRem.scss' as *;
+
+.map-container {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - rem(120px));
+}
 #map {
   width: 100%;
-  height: calc(100vh - 120px);
+  height: 100%;
+}
+.search-bar {
+  position: absolute;
+  top: rem(15px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: white;
+  padding: rem(8px);
+  border-radius: rem(8px);
+  box-shadow: 0 rem(2px) rem(6px) rgba(0, 0, 0, 0.3);
+  display: flex;
+  width: 90%;
+  max-width: rem(500px);
+}
+.search-bar input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  font-size: rem(16px);
+}
+.search-bar button {
+  border: none;
+  background-color: #ffc107;
+  color: white;
+  padding: rem(8px) rem(12px);
+  border-radius: rem(5px);
+  cursor: pointer;
+  font-weight: bold;
+}
+.search-results {
+  position: absolute;
+  top: rem(70px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: white;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-radius: rem(8px);
+  box-shadow: 0 rem(2px) rem(6px) rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: rem(500px);
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.search-results li {
+  padding: rem(12px);
+  cursor: pointer;
+  border-bottom: rem(1px) solid #eee;
+}
+.search-results li:last-child {
+  border-bottom: none;
+}
+.search-results li:hover {
+  background-color: #f5f5f5;
+}
+.search-results li strong {
+  font-size: rem(15px);
+  display: block;
+  margin-bottom: rem(4px);
+}
+.search-results li p {
+  font-size: rem(12px);
+  color: #666;
+  margin: 0;
 }
 </style>

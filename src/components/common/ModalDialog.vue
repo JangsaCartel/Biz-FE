@@ -3,7 +3,9 @@
     <div class="modal-content" @click.stop>
       <p v-html="message"></p>
       <div v-if="buttonType === 'double'" class="button-group">
-        <button class="modal-button secondary" @click="handleSecondary">{{ secondaryButtonText }}</button>
+        <button class="modal-button secondary" @click="handleSecondary">
+          {{ secondaryButtonText }}
+        </button>
         <button class="modal-button primary" @click="handlePrimary">{{ primaryButtonText }}</button>
       </div>
       <button v-else class="modal-button single" @click="closeModal">확인</button>
@@ -59,8 +61,6 @@ const handleOverlayClick = () => {
 </script>
 
 <style scoped lang="scss">
-@use '@/assets/styles/utils/_pxToRem.scss' as *;
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -86,7 +86,7 @@ const handleOverlayClick = () => {
     margin: 0 0 rem(20px);
     font-size: rem(16px);
     line-height: 1.5;
-    white-space: pre-line; 
+    white-space: pre-line;
     word-break: keep-all;
   }
 }

@@ -18,7 +18,9 @@
           :maxlength="MAX_TITLE_CHARS"
         />
       </div>
-      <div class="char-count title-char-count">{{ currentTitleChars }}자 / {{ MAX_TITLE_CHARS }}자</div>
+      <div class="char-count title-char-count">
+        {{ currentTitleChars }}자 / {{ MAX_TITLE_CHARS }}자
+      </div>
 
       <textarea
         v-model="content"
@@ -29,11 +31,7 @@
       <div class="char-count">{{ currentChars }}자 / {{ MAX_CHARS }}자</div>
     </main>
 
-    <ModalDialog
-      :message="modalMessage"
-      :is-visible="isModalVisible"
-      @close="handleModalClose"
-    />
+    <ModalDialog :message="modalMessage" :is-visible="isModalVisible" @close="handleModalClose" />
   </div>
 </template>
 
@@ -180,8 +178,6 @@ const closePage = () => {
 </script>
 
 <style scoped lang="scss">
-@use '@/assets/styles/utils/_pxToRem.scss' as *;
-
 .write-container {
   display: flex;
   flex-direction: column;

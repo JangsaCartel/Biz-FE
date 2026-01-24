@@ -79,8 +79,6 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/styles/utils/_pxToRem.scss' as *;
-
 .login-hero {
   margin: rem(-24px);
   width: calc(100% + #{rem(48px)});

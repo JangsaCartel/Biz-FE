@@ -9,8 +9,6 @@
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/styles/utils/_pxToRem.scss' as *;
-
 .auth-layout-wrapper {
   /* DefaultLayout과 동일한 모바일 프레임 설정 */
   position: fixed;

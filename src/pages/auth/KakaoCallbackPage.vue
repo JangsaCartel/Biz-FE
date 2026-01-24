@@ -99,8 +99,6 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/styles/utils/_pxToRem.scss' as *;
-
 .callback-wrap {
   display: flex;
   align-items: center;

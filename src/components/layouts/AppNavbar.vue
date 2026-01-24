@@ -73,8 +73,6 @@ const isActive = computed(() => (menu) => {
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/styles/utils/_pxToRem.scss' as *;
-
 .nav-wrap {
   // position: fixed;
   // bottom: 0;

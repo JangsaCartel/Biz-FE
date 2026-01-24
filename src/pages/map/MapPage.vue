@@ -196,6 +196,7 @@ function searchPlaces() {
 function panTo(lat, lng) {
   const moveLatLon = new kakao.maps.LatLng(lat, lng)
   map.panTo(moveLatLon)
+  map.setLevel(3); // 검색 결과 클릭 시 줌인
   places.value = []
 
   setTimeout(() => {

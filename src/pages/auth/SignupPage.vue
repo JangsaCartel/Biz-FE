@@ -452,8 +452,6 @@ const onSubmit = async () => {
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/styles/utils/_pxToRem.scss' as *;
-
 .signup-page {
   width: 100%;
   min-height: 100vh;

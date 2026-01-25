@@ -818,8 +818,6 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
-@use '@/assets/styles/utils/_pxToRem.scss' as *;
-
 .my-page-container {
   width: 100%;
   max-width: rem(430px);

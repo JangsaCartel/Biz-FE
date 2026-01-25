@@ -111,8 +111,6 @@ const handleLikeClick = async () => {
 </script>
 
 <style scoped lang="scss">
-@use '@/assets/styles/utils/_pxToRem.scss' as *;
-
 .comment-item {
   display: flex;
   gap: rem(10px);

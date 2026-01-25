@@ -47,8 +47,6 @@ const showNav = computed(() => visableNav.includes(route.name))
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/styles/utils/_pxToRem.scss' as *;
-
 .layout-wrapper {
   /* ✅ 뷰포트에 고정된 ‘앱 프레임’ */
   position: fixed;

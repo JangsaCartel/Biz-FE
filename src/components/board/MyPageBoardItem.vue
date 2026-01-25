@@ -107,8 +107,6 @@ const goToDetailPage = () => {
 </script>
 
 <style scoped lang="scss">
-@use '@/assets/styles/utils/_pxToRem.scss' as *;
-
 .mypage-post-item {
   display: flex;
   flex-direction: column;

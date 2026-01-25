@@ -109,7 +109,7 @@ export const useBoardStore = defineStore('board', {
     async updatePost(postId, postData) {
       try {
         const response = await updatePost(postId, postData)
-        console.log('Post updated successfully:', response.data)
+    
         return response.data
       } catch (error) {
         console.error(`Error updating post with ID ${postId}:`, error)

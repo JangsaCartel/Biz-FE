@@ -18,7 +18,7 @@ export async function fetchPolicyList({ page, size, domain, hashtags }) {
   const res = await apiClient.get('/policies', { params })
 
   // 백엔드에서 받은 정보 확인 log
-  console.log('[policyApi] /policies raw response:', res.data)
+  // console.log('[policyApi] /policies raw response:', res.data)
 
   return res.data
 }

@@ -26,6 +26,11 @@
     @navigate="handleSheetNavigate"
     @select-post="handlePostSelect"
   />
+  <ModalDialog
+    :is-visible="isModalVisible"
+    :message="modalMessage"
+    @close="isModalVisible = false"
+  />
 </template>
 
 <script setup>
@@ -34,6 +39,7 @@ import { onMounted, ref, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { getKakaoMapApiKey, getBoundaries, fetchUserRegionForMap } from '@/api/mapApi'
 import MapPostSheet from '@/components/map/MapPostSheet.vue'
+import ModalDialog from '@/components/common/ModalDialog.vue'
 import { fetchHotPostsByRegion } from '@/api/boardApi'
 import { useBoardStore } from '@/stores/board/board.js'
 import districtData from '@/assets/data/district.json'
@@ -49,6 +55,9 @@ const isSheetOpen = ref(false)
 const sheetPosts = ref([])
 const selectedRegionName = ref('')
 let currentRegionQuery = ''
+
+const isModalVisible = ref(false)
+const modalMessage = ref('')
 
 const regionLookupMap = new Map()
 
@@ -168,7 +177,8 @@ function initMap(lat, lng) {
 // 검색바 (kakao)
 function searchPlaces() {
   if (!keyword.value.trim()) {
-    alert('키워드를 입력해주세요!')
+    modalMessage.value = '키워드를 입력해주세요!'
+    isModalVisible.value = true
     return
   }
 
@@ -186,10 +196,12 @@ function searchPlaces() {
         map.setLevel(3)
       }
     } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-      alert('검색 결과가 존재하지 않습니다.')
+      modalMessage.value = '검색 결과가 존재하지 않습니다.'
+      isModalVisible.value = true
       places.value = []
     } else {
-      alert('검색 중 오류가 발생했습니다.')
+      modalMessage.value = '검색 중 오류가 발생했습니다.'
+      isModalVisible.value = true
     }
   })
 }

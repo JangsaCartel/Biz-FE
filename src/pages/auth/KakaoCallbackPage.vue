@@ -30,7 +30,7 @@ const handleLogin = async () => {
 
   // 이미 처리 중이면 절대 실행하지 않음 (이중 방어)
   if (isGlobalProcessing) {
-    console.log('중복 요청 방지: 이미 로그인 처리 중입니다.')
+    // console.log('중복 요청 방지: 이미 로그인 처리 중입니다.')
     return
   }
 
@@ -38,7 +38,7 @@ const handleLogin = async () => {
   isGlobalProcessing = true
 
   try {
-    console.log('카카오 로그인 요청 시작... code:', code.substring(0, 10) + '...')
+    // console.log('카카오 로그인 요청 시작... code:', code.substring(0, 10) + '...')
     const res = await loginWithKakaoCode(code)
 
     // [CASE 1] 신규 회원 -> 회원가입 페이지

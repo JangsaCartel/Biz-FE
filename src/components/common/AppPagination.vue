@@ -145,6 +145,7 @@ const changePage = (page) => {
 .page-btn:disabled {
   color: #e0e0e0;
   cursor: not-allowed;
+  cursor: default;
 }
 
 .dots {

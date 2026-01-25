@@ -181,7 +181,7 @@ const selectEupmyeondong = (eupmyeondong) => {
     gugun: selectedSigungu.value,
     dong: selectedEupmyeondong.value,
   }
-  // console.log('RegionDropdowns emitting:', selectedRegion)
+  
   emit('update:region', selectedRegion)
 }
 </script>

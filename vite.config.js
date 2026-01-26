@@ -14,18 +14,16 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': {
+      '/biz-be': {
         target: 'http://localhost:8080',
+        changeOrigin: true,
       },
     },
   },
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `
-          @use "sass:math";
-          @use "@/assets/styles/utils/pxToRem" as *;
-        `,
+        additionalData: `@use "@/assets/styles/utils/pxToRem" as *;`,
       },
     },
   },

@@ -19,7 +19,7 @@
 
 :root {
   /* =================================
-   * 새 프로젝트 색상 팔레트
+   * 색상 팔레트
    * ================================= */
 
   /* 시그니처 색상 */
@@ -28,6 +28,10 @@
 
   /* 기본 배경/파티션 색상 */
   --bg-default: #f9f9f9;
+  --bg-subtle: #f8f9fa;
+  --bg-header: #fcf8f0;
+  --bg-header-info: rgba(42, 66, 140, 0.1);
+  --bg-header-local: rgba(46, 105, 85, 0.1);
   --bg-partition: #ffffff; /* 흰색과 동일 */
 
   /* 게시판별 색상 */
@@ -38,7 +42,7 @@
 
   /* Nav 색상 (투명도 포함) */
   /* 10% -> 16진수 '1A' / 25% -> 16진수 '40' */
-  --nav-bg: rgba(255, 188, 0, 0.1); /* #FFBC001A */
+  --nav-bg: #faf6ed; /* #FAF6ED */
   --nav-button: rgba(255, 231, 151, 0.25); /* #FFE79740 */
   --nav-button-active: #ffe797; /* 100% */
 
@@ -47,9 +51,17 @@
    * ================================= */
   --white: #ffffff;
   --black: #000000;
+
+  --color-text-strong: #222;
   --text-title: #444444; /* 기본 텍스트 */
+  --color-text-default: #444;
+  --color-text-subtle: #aaa;
+  --color-text-light: #666;
   --text-subtitle: #b3b3b3; /* 연한 텍스트 */
+
   --grey-light: #e1e1e1; /* 구분선 등 */
+  --color-border-subtle: #f1f1f1;
+  --color-border-bold: #f4f4f4;
   --grey: #c6c6c8;
 
   /* =================================

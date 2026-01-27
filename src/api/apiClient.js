@@ -6,11 +6,12 @@ import { useNotificationStore } from '@/stores/notificationStore'
 // 개발 환경에서는 Vite 프록시(`/biz-be` → `http://localhost:8080`)를 통해 CORS 없이 호출
 // 배포 환경에서는 VITE_API_BASE_URL에 실제 백엔드 주소를 넣어서 사용
 // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/biz-be'
-const isDev = import.meta.env.DEV
 
 // dev: 프록시 사용
 // prod: 반드시 VITE_API_BASE_URL 필요
-const API_BASE_URL = isDev ? '/biz-be' : import.meta.env.VITE_API_BASE_URL
+// 로컬: vite proxy가 /biz-be -> http://localhost:8080
+// 배포: vercel rewrite가 /biz-be -> http://13.158.142.74:8080
+const API_BASE_URL = '/biz-be'
 
 if (!API_BASE_URL) {
   throw new Error('VITE_API_BASE_URL is required in production')

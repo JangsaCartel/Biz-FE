@@ -13,10 +13,6 @@ import { useNotificationStore } from '@/stores/notificationStore'
 // 배포: vercel rewrite가 /biz-be -> http://13.158.142.74:8080
 const API_BASE_URL = '/biz-be'
 
-if (!API_BASE_URL) {
-  throw new Error('VITE_API_BASE_URL is required in production')
-}
-
 const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api`,
   withCredentials: true,

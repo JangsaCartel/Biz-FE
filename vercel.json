@@ -1,3 +1,12 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "http://13.158.142.74:8080/:path*" }]
+  "rewrites": [
+    {
+      "source": "/biz-be/:path*",
+      "destination": "http://13.158.142.74:8080/:path*"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
+    }
+  ]
 }

@@ -61,7 +61,7 @@ const totalPages = computed(() => {
 const displayedPages = computed(() => {
   const current = props.currentPage
   const total = totalPages.value
-  const sidePages = 2
+  const sidePages = 1
   const pages = []
 
   if (total <= 1) {

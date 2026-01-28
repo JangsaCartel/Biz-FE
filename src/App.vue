@@ -6,8 +6,7 @@ import { useNotificationStore } from '@/stores/notificationStore'
 const notificationStore = useNotificationStore()
 
 onMounted(() => {
-  const token = sessionStorage.getItem('accessToken')
-  if (token) notificationStore.connect()
+  notificationStore.bootstrap()
 })
 </script>
 <template>

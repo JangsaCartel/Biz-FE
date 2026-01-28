@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import {
   streamNotifications,
   fetchMyNotifications,
+  fetchUnreadCount,
   markNotificationRead,
   deleteReadNotifications,
 } from '@/api/notificationApi'
@@ -135,6 +136,16 @@ export const useNotificationStore = defineStore('notificationStore', {
       }
     },
 
+    async syncUnreadCount() {
+      try {
+        const data = await fetchUnreadCount()
+        const n = Number(data?.unreadCount ?? 0)
+        this.unreadCount = Number.isFinite(n) ? n : 0
+      } catch (e) {
+        console.error('[notification] syncUnreadCount failed:', e)
+      }
+    },
+
     async deleteRead() {
       await deleteReadNotifications()
       this.items = this.items.filter((x) => !x.isRead)
@@ -146,6 +157,19 @@ export const useNotificationStore = defineStore('notificationStore', {
       this.unreadCount = 0
       this.lastSyncedAt = null
       this.isSyncing = false
+    },
+
+    async bootstrap() {
+      const token = sessionStorage.getItem('accessToken')
+      if (!token) {
+        this.disconnect()
+        this.clearLocal()
+        return
+      }
+
+      await this.syncUnreadCount()
+
+      this.connect()
     },
   },
 })

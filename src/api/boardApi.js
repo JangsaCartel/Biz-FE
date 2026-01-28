@@ -1,7 +1,7 @@
 import apiClient from '@/api/apiClient'
 
 export const fetchPosts = () => {
-  return apiClient.get('/')
+  return apiClient.get('')
 }
 
 export const fetchHotBoardPosts = (page = 1, pageSize = 4) => {
